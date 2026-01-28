@@ -43,14 +43,57 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
             padding-bottom: 1rem;
             border-bottom: 1px solid var(--border);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
         }
 
         h1 {
             font-size: 1.5rem;
             font-weight: 600;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-tab {
+            padding: 0.75rem 1.5rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .nav-tab:hover {
+            background: var(--surface-2);
+            color: var(--text);
+        }
+
+        .nav-tab.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
         }
 
         .api-status {
@@ -532,7 +575,9 @@
 <body>
     <div class="container">
         <header>
-            <h1>GTM Lead Finder</h1>
+            <div class="header-left">
+                <h1>🎯 GTM LeadFlow</h1>
+            </div>
             <div class="api-status" id="apiStatus">
                 <span><span class="status-dot inactive" id="googleStatus"></span>Google Places</span>
                 <span><span class="status-dot inactive" id="apolloStatus"></span>Apollo</span>
@@ -540,6 +585,15 @@
             </div>
         </header>
 
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab('finder')">Lead Finder</button>
+            <button class="nav-tab" onclick="switchTab('brief')">GTM Brief</button>
+            <button class="nav-tab" onclick="switchTab('discovery')">Prospect Discovery</button>
+            <button class="nav-tab" onclick="switchTab('enrichment')">Enrichment</button>
+        </div>
+
+        <!-- TAB: Lead Finder (Original) -->
+        <div id="tab-finder" class="tab-content active">
         <div class="main-grid">
             <!-- Form Panel -->
             <div class="form-panel">
@@ -682,11 +736,458 @@
                 </div>
             </div>
         </div>
+        </div><!-- End tab-finder -->
+
+        <!-- TAB: GTM Brief -->
+        <div id="tab-brief" class="tab-content">
+            <div class="main-grid">
+                <div class="form-panel">
+                    <div class="form-section">
+                        <h3>Generate GTM Brief</h3>
+                        <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">
+                            Analyze any company website to generate a complete Go-To-Market strategy with ICP, personas, and outreach angles.
+                        </p>
+                        <label>Company Website URL</label>
+                        <input type="url" id="briefUrl" placeholder="https://example.com">
+                        <button class="btn btn-primary" onclick="generateBrief()" id="briefBtn" style="width: 100%; margin-top: 1rem;">
+                            Generate GTM Brief
+                        </button>
+                    </div>
+                    <div id="briefProgress" style="display: none;">
+                        <div class="progress-indicator">
+                            <div class="spinner"></div>
+                            <span id="briefStep">Analyzing website...</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="results-panel">
+                    <div class="results-header">
+                        <h2>GTM Brief</h2>
+                    </div>
+                    <div id="briefResults" class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <h3>No brief generated</h3>
+                        <p>Enter a company URL to generate a GTM brief.</p>
+                    </div>
+                </div>
+            </div>
+        </div><!-- End tab-brief -->
+
+        <!-- TAB: Prospect Discovery -->
+        <div id="tab-discovery" class="tab-content">
+            <div class="main-grid">
+                <div class="form-panel">
+                    <div class="form-section">
+                        <h3>Discover Prospects</h3>
+                        <label>Discovery Mode</label>
+                        <select id="discoveryMode">
+                            <option value="smart">Smart Search (Recommended)</option>
+                            <option value="web">Web Search (Firecrawl)</option>
+                            <option value="maps">Google Maps URL</option>
+                        </select>
+
+                        <div id="searchQuerySection">
+                            <label>Search Query</label>
+                            <input type="text" id="discoveryQuery" placeholder="e.g., SaaS companies in Austin">
+                            <label>Location</label>
+                            <input type="text" id="discoveryLocation" placeholder="e.g., Austin, TX">
+                        </div>
+
+                        <div id="mapsUrlSection" style="display: none;">
+                            <label>Google Maps URL</label>
+                            <input type="url" id="mapsUrl" placeholder="Paste Google Maps search URL">
+                            <p style="color: var(--text-muted); font-size: 0.75rem; margin-top: 0.5rem;">
+                                Search on Google Maps, copy the URL, and paste it here.
+                            </p>
+                        </div>
+
+                        <button class="btn btn-primary" onclick="discoverProspects()" id="discoverBtn" style="width: 100%; margin-top: 1rem;">
+                            Discover Prospects
+                        </button>
+                    </div>
+                    <div id="discoveryProgress" style="display: none;">
+                        <div class="progress-indicator">
+                            <div class="spinner"></div>
+                            <span id="discoveryStep">Searching...</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="results-panel">
+                    <div class="results-header">
+                        <h2>Discovered Prospects</h2>
+                        <span id="discoveryCount" class="results-count">0 prospects</span>
+                    </div>
+                    <div id="discoveryResults" class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                        <h3>No prospects yet</h3>
+                        <p>Configure your search to discover prospects.</p>
+                    </div>
+                </div>
+            </div>
+        </div><!-- End tab-discovery -->
+
+        <!-- TAB: Enrichment -->
+        <div id="tab-enrichment" class="tab-content">
+            <div class="main-grid">
+                <div class="form-panel">
+                    <div class="form-section">
+                        <h3>Enrich Companies</h3>
+                        <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">
+                            Get detailed company info: emails, social links, tech stack, and decision makers.
+                        </p>
+                        <label>Domains (one per line)</label>
+                        <textarea id="enrichDomains" rows="6" placeholder="example.com&#10;another-company.com&#10;startup.io"></textarea>
+                        <button class="btn btn-primary" onclick="enrichCompanies()" id="enrichBtn" style="width: 100%; margin-top: 1rem;">
+                            Enrich Companies
+                        </button>
+                    </div>
+                    <div id="enrichProgress" style="display: none;">
+                        <div class="progress-indicator">
+                            <div class="spinner"></div>
+                            <span id="enrichStep">Enriching...</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="results-panel">
+                    <div class="results-header">
+                        <h2>Enriched Companies</h2>
+                        <button class="btn btn-secondary" onclick="exportEnriched()" id="exportEnrichedBtn" style="display: none;">Export CSV</button>
+                    </div>
+                    <div id="enrichResults" class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                        </svg>
+                        <h3>No companies enriched</h3>
+                        <p>Enter domains above to enrich company data.</p>
+                    </div>
+                </div>
+            </div>
+        </div><!-- End tab-enrichment -->
+
     </div>
 
     <script>
         let currentJobId = null;
         let pollInterval = null;
+        let discoveredProspects = [];
+        let enrichedCompanies = [];
+
+        // Tab switching
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
+
+            // Show selected tab
+            document.getElementById('tab-' + tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Discovery mode toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const modeSelect = document.getElementById('discoveryMode');
+            if (modeSelect) {
+                modeSelect.addEventListener('change', function() {
+                    const searchSection = document.getElementById('searchQuerySection');
+                    const mapsSection = document.getElementById('mapsUrlSection');
+                    if (this.value === 'maps') {
+                        searchSection.style.display = 'none';
+                        mapsSection.style.display = 'block';
+                    } else {
+                        searchSection.style.display = 'block';
+                        mapsSection.style.display = 'none';
+                    }
+                });
+            }
+        });
+
+        // GTM Brief Generation
+        async function generateBrief() {
+            const url = document.getElementById('briefUrl').value.trim();
+            if (!url) {
+                alert('Please enter a company URL');
+                return;
+            }
+
+            const btn = document.getElementById('briefBtn');
+            const progress = document.getElementById('briefProgress');
+            const results = document.getElementById('briefResults');
+
+            btn.disabled = true;
+            btn.textContent = 'Generating...';
+            progress.style.display = 'block';
+
+            try {
+                const resp = await fetch('/api/brief', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url })
+                });
+                const data = await resp.json();
+
+                if (data.success) {
+                    displayBrief(data.brief);
+                } else {
+                    results.innerHTML = `<div class="empty-state"><h3>Error</h3><p>${data.error}</p></div>`;
+                }
+            } catch (e) {
+                results.innerHTML = `<div class="empty-state"><h3>Error</h3><p>${e.message}</p></div>`;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Generate GTM Brief';
+                progress.style.display = 'none';
+            }
+        }
+
+        function displayBrief(brief) {
+            const results = document.getElementById('briefResults');
+            results.innerHTML = `
+                <div style="padding: 1rem;">
+                    <div style="background: var(--surface-2); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                        <h3 style="margin-bottom: 0.5rem;">${brief.company?.name || 'Company'}</h3>
+                        <p style="color: var(--text-muted);">${brief.company?.tagline || ''}</p>
+                        <p style="margin-top: 0.5rem;"><strong>Industry:</strong> ${brief.company?.industry || 'N/A'}</p>
+                    </div>
+                    ${brief.value_proposition ? `
+                    <div style="background: var(--surface-2); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                        <h4 style="margin-bottom: 0.5rem;">Value Proposition</h4>
+                        <p>${brief.value_proposition}</p>
+                    </div>` : ''}
+                    ${brief.icp ? `
+                    <div style="background: var(--surface-2); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                        <h4 style="margin-bottom: 0.5rem;">Ideal Customer Profile</h4>
+                        <p><strong>Industries:</strong> ${brief.icp.industries?.join(', ') || 'N/A'}</p>
+                        <p><strong>Company Size:</strong> ${brief.icp.company_size || 'N/A'}</p>
+                        <p><strong>Pain Points:</strong> ${brief.icp.pain_points?.join(', ') || 'N/A'}</p>
+                    </div>` : ''}
+                    ${brief.search_queries?.length ? `
+                    <div style="background: var(--surface-2); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                        <h4 style="margin-bottom: 0.5rem;">Suggested Search Queries</h4>
+                        <ul style="margin-left: 1rem;">
+                            ${brief.search_queries.map(q => `<li>${q}</li>`).join('')}
+                        </ul>
+                        <button class="btn btn-secondary" onclick="useQueriesForDiscovery()" style="margin-top: 1rem;">
+                            Use for Discovery →
+                        </button>
+                    </div>` : ''}
+                </div>
+            `;
+        }
+
+        function useQueriesForDiscovery() {
+            // Switch to discovery tab with queries
+            switchTab('discovery');
+            document.querySelectorAll('.nav-tab')[2].classList.add('active');
+            document.querySelectorAll('.nav-tab')[1].classList.remove('active');
+        }
+
+        // Prospect Discovery
+        async function discoverProspects() {
+            const mode = document.getElementById('discoveryMode').value;
+            const btn = document.getElementById('discoverBtn');
+            const progress = document.getElementById('discoveryProgress');
+            const results = document.getElementById('discoveryResults');
+
+            let payload = { mode };
+
+            if (mode === 'maps') {
+                const mapsUrl = document.getElementById('mapsUrl').value.trim();
+                if (!mapsUrl) {
+                    alert('Please enter a Google Maps URL');
+                    return;
+                }
+                payload.mapsUrl = mapsUrl;
+            } else {
+                const query = document.getElementById('discoveryQuery').value.trim();
+                const location = document.getElementById('discoveryLocation').value.trim();
+                if (!query) {
+                    alert('Please enter a search query');
+                    return;
+                }
+                payload.query = query;
+                payload.location = location;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Searching...';
+            progress.style.display = 'block';
+
+            try {
+                const resp = await fetch('/api/discover', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await resp.json();
+
+                if (data.success) {
+                    discoveredProspects = data.prospects;
+                    displayDiscoveredProspects(data.prospects);
+                    document.getElementById('discoveryCount').textContent = `${data.prospects.length} prospects`;
+                } else {
+                    results.innerHTML = `<div class="empty-state"><h3>Error</h3><p>${data.error}</p></div>`;
+                }
+            } catch (e) {
+                results.innerHTML = `<div class="empty-state"><h3>Error</h3><p>${e.message}</p></div>`;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Discover Prospects';
+                progress.style.display = 'none';
+            }
+        }
+
+        function displayDiscoveredProspects(prospects) {
+            const results = document.getElementById('discoveryResults');
+            if (!prospects.length) {
+                results.innerHTML = '<div class="empty-state"><h3>No prospects found</h3></div>';
+                return;
+            }
+
+            results.innerHTML = `
+                <div style="margin-bottom: 1rem;">
+                    <button class="btn btn-secondary" onclick="sendToEnrichment()">Send to Enrichment →</button>
+                </div>
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Location</th>
+                            <th>Website</th>
+                            <th>Rating</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${prospects.map(p => `
+                            <tr>
+                                <td><strong>${p.name}</strong></td>
+                                <td>${p.category || '-'}</td>
+                                <td>${p.location || '-'}</td>
+                                <td>${p.website ? `<a href="${p.website}" target="_blank">Visit</a>` : '-'}</td>
+                                <td>${p.rating ? p.rating + '⭐' : '-'}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function sendToEnrichment() {
+            const domains = discoveredProspects
+                .filter(p => p.website)
+                .map(p => {
+                    try {
+                        return new URL(p.website).hostname.replace('www.', '');
+                    } catch { return null; }
+                })
+                .filter(d => d);
+
+            document.getElementById('enrichDomains').value = domains.join('\n');
+            switchTab('enrichment');
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-tab')[3].classList.add('active');
+        }
+
+        // Company Enrichment
+        async function enrichCompanies() {
+            const domainsText = document.getElementById('enrichDomains').value.trim();
+            if (!domainsText) {
+                alert('Please enter at least one domain');
+                return;
+            }
+
+            const domains = domainsText.split('\n').map(d => d.trim()).filter(d => d);
+            const btn = document.getElementById('enrichBtn');
+            const progress = document.getElementById('enrichProgress');
+            const results = document.getElementById('enrichResults');
+            const step = document.getElementById('enrichStep');
+
+            btn.disabled = true;
+            progress.style.display = 'block';
+            enrichedCompanies = [];
+
+            for (let i = 0; i < domains.length; i++) {
+                step.textContent = `Enriching ${i + 1}/${domains.length}: ${domains[i]}`;
+
+                try {
+                    const resp = await fetch('/api/enrich', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ domain: domains[i] })
+                    });
+                    const data = await resp.json();
+
+                    if (data.success) {
+                        enrichedCompanies.push(data.data);
+                    } else {
+                        enrichedCompanies.push({ domain: domains[i], error: data.error });
+                    }
+                } catch (e) {
+                    enrichedCompanies.push({ domain: domains[i], error: e.message });
+                }
+            }
+
+            displayEnrichedCompanies(enrichedCompanies);
+            btn.disabled = false;
+            btn.textContent = 'Enrich Companies';
+            progress.style.display = 'none';
+            document.getElementById('exportEnrichedBtn').style.display = 'block';
+        }
+
+        function displayEnrichedCompanies(companies) {
+            const results = document.getElementById('enrichResults');
+
+            results.innerHTML = `
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>Domain</th>
+                            <th>Name</th>
+                            <th>Industry</th>
+                            <th>Email</th>
+                            <th>LinkedIn</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${companies.map(c => `
+                            <tr>
+                                <td><strong>${c.domain}</strong></td>
+                                <td>${c.name || '-'}</td>
+                                <td>${c.industry || '-'}</td>
+                                <td>${c.email || '-'}</td>
+                                <td>${c.linkedin ? `<a href="${c.linkedin}" target="_blank">View</a>` : '-'}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function exportEnriched() {
+            const headers = ['Domain', 'Name', 'Description', 'Industry', 'Email', 'Phone', 'LinkedIn', 'Twitter'];
+            const rows = enrichedCompanies.map(c => [
+                c.domain || '',
+                c.name || '',
+                c.description || '',
+                c.industry || '',
+                c.email || '',
+                c.phone || '',
+                c.linkedin || '',
+                c.twitter || ''
+            ]);
+
+            const csv = [headers, ...rows].map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'enriched_companies.csv';
+            a.click();
+        }
 
         // Presets
         const presets = {
