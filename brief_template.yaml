@@ -1,0 +1,98 @@
+# GTM Lead Finder - Client Brief Template
+# Fill this out for each client engagement
+
+client:
+  brand_name: "Andrés Machado"
+  website: "https://www.andresmachado.com"
+  bio: |
+    Spanish footwear brand specializing in special sizes (small, large, and extreme)
+    for women and men. Manufacturing in Spain and China, combining design with real
+    fit for an audience historically ignored by conventional fashion.
+
+  # What makes this brand unique (used for matching)
+  unique_selling_points:
+    - Special sizes (small, large, extreme)
+    - Made in Spain/China
+    - Mid-premium pricing
+    - Women's and men's footwear
+
+objectives:
+  overarching: "Acquire 10-15 new retail partners in Poland within 6 months"
+  tactical: "Enter Warsaw and Krakow as initial markets — physical presence in key shopping districts"
+  target_partners: 15
+
+target:
+  # Type of retailers to find
+  retailer_types:
+    - "Multi-brand boutique"
+    - "Shoe store"
+    - "Women's footwear store"
+    - "Fashion boutique"
+
+  # Positioning/price segment
+  segment: "mid-premium"
+
+  # Product categories they should carry
+  categories:
+    - "Women's shoes"
+    - "Designer footwear"
+    - "Comfort shoes"
+
+geography:
+  country: "Poland"
+  cities:
+    - name: "Warsaw"
+      districts:
+        - "Mokotów"
+        - "Śródmieście"
+        - "Wilanów"
+      priority: 1
+    - name: "Krakow"
+      districts:
+        - "Stare Miasto"
+        - "Kazimierz"
+      priority: 2
+
+search_queries:
+  # Google Maps search queries to run (generated or manual)
+  - "multi-brand shoe store Warsaw"
+  - "women's footwear boutique Warsaw"
+  - "buty damskie sklep Warszawa"  # Polish: women's shoes store Warsaw
+  - "butik obuwniczy Warszawa"     # Polish: shoe boutique Warsaw
+  - "sklep z obuwiem premium Warszawa"
+  - "multi-brand shoe store Krakow"
+  - "women's footwear boutique Krakow"
+  - "buty damskie sklep Kraków"
+  - "butik obuwniczy Kraków"
+
+filters:
+  min_rating: 4.0
+  min_reviews: 10
+  exclude_chains: true  # Exclude big chains like Deichmann, CCC
+
+  # Keywords that indicate a good match
+  positive_signals:
+    - "boutique"
+    - "premium"
+    - "designer"
+    - "comfortable"
+    - "special sizes"
+    - "Italian"
+    - "Spanish"
+    - "leather"
+
+  # Keywords that indicate a bad match
+  negative_signals:
+    - "discount"
+    - "outlet"
+    - "sports"
+    - "sneakers only"
+    - "children"
+
+# Known chain stores to exclude
+exclude_brands:
+  - "CCC"
+  - "Deichmann"
+  - "Eobuwie"
+  - "Zalando"
+  - "Ryłko"  # Major Polish chain
