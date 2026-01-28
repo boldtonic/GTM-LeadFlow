@@ -1,0 +1,142 @@
+# GTM Lead Finder Brief
+# Client: Andrés Machado - Poland Market Entry
+
+client:
+  brand_name: "Andrés Machado"
+  website: "https://www.andresmachado.com"
+  bio: |
+    Spanish footwear brand specializing in special sizes (small, large, and extreme)
+    for women and men. Manufacturing in Spain and China, combining design with real
+    fit for an audience historically ignored by conventional fashion.
+
+  unique_selling_points:
+    - Special sizes (32-35 and 42-45 for women)
+    - Made in Spain quality
+    - Comfortable fit technology
+    - Mid-premium pricing
+    - 40+ years heritage
+
+objectives:
+  overarching: "Acquire 10-15 new retail partners in Poland within 6 months"
+  tactical: "Enter Warsaw and Krakow as initial markets — physical presence in key shopping districts"
+  target_partners: 15
+
+target:
+  retailer_types:
+    - "Multi-brand boutique"
+    - "Shoe store"
+    - "Women's footwear store"
+    - "Fashion boutique"
+    - "Comfort shoe specialist"
+
+  segment: "mid-premium"
+
+  categories:
+    - "Women's shoes"
+    - "Comfort footwear"
+    - "Special sizes"
+    - "Designer shoes"
+
+geography:
+  country: "Poland"
+  cities:
+    - name: "Warsaw"
+      districts:
+        - "Mokotów"
+        - "Śródmieście"
+        - "Wilanów"
+        - "Ursynów"
+      priority: 1
+    - name: "Krakow"
+      districts:
+        - "Stare Miasto"
+        - "Kazimierz"
+        - "Podgórze"
+      priority: 2
+
+# Search queries optimized for Polish market
+search_queries:
+  # English queries (Google understands both)
+  - "multi-brand shoe store Warsaw"
+  - "women's shoe boutique Warsaw"
+  - "comfort shoes store Warsaw"
+  - "premium footwear Warsaw"
+  - "designer shoes boutique Warsaw Mokotow"
+  - "women's footwear store Krakow"
+  - "shoe boutique Krakow old town"
+  - "multi-brand fashion boutique Warsaw"
+
+  # Polish queries (more local results)
+  - "sklep z obuwiem damskim Warszawa"
+  - "butik obuwniczy Warszawa"
+  - "buty damskie premium Warszawa"
+  - "sklep z butami Mokotów"
+  - "obuwie damskie sklep Warszawa Śródmieście"
+  - "buty na szeroką stopę Warszawa"
+  - "obuwie komfortowe Warszawa"
+  - "sklep z obuwiem damskim Kraków"
+  - "butik obuwniczy Kraków"
+  - "buty damskie Kraków Stare Miasto"
+
+  # Specific shopping areas
+  - "shoe store Galeria Mokotów Warsaw"
+  - "boutique Złote Tarasy Warsaw"
+  - "shoe store Arkadia Warsaw"
+  - "boutique Galeria Krakowska"
+
+  # Specialty searches
+  - "sklep z dużymi rozmiarami butów Warszawa"  # Large sizes
+  - "buty duże rozmiary damskie Warszawa"
+  - "obuwie nietypowe rozmiary Warszawa"
+
+filters:
+  min_rating: 4.0
+  min_reviews: 5
+  exclude_chains: true
+
+  positive_signals:
+    - "boutique"
+    - "butik"
+    - "premium"
+    - "designer"
+    - "comfortable"
+    - "komfortowe"
+    - "special sizes"
+    - "duże rozmiary"
+    - "Italian"
+    - "Spanish"
+    - "hiszpańskie"
+    - "leather"
+    - "skóra"
+    - "elegant"
+    - "eleganckie"
+    - "women"
+    - "damskie"
+
+  negative_signals:
+    - "discount"
+    - "outlet"
+    - "wyprzedaż"
+    - "sports"
+    - "sportowe"
+    - "sneakers"
+    - "children"
+    - "dziecięce"
+    - "second hand"
+    - "używane"
+
+# Polish chains to exclude
+exclude_brands:
+  - "CCC"
+  - "Deichmann"
+  - "Eobuwie"
+  - "Ryłko"
+  - "Wojas"
+  - "Gino Rossi"  # Polish chain
+  - "Badura"
+  - "Kazar"       # Polish chain, might actually be good but large
+  - "Venezia"
+  - "Ecco"
+  - "Geox"
+  - "Clarks"
+  - "Salamander"

@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GTM Lead Finder</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0a0a0a;
+            --surface: #141414;
+            --surface-2: #1a1a1a;
+            --border: #2a2a2a;
+            --text: #fafafa;
+            --text-muted: #888;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --success: #22c55e;
+            --warning: #eab308;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .api-status {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+
+        .status-dot.active { background: var(--success); }
+        .status-dot.inactive { background: var(--danger); }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Form Panel */
+        .form-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            height: fit-content;
+            position: sticky;
+            top: 2rem;
+        }
+
+        .form-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-section h3 {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 0.875rem;
+            margin-bottom: 0.75rem;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .checkbox-group input {
+            width: auto;
+            margin: 0;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.875rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+        }
+
+        .btn-primary:disabled {
+            background: var(--border);
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: var(--surface-2);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        /* Progress */
+        .progress-container {
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .progress-container.active {
+            display: block;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: var(--surface-2);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--accent);
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .progress-text {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* Results Panel */
+        .results-panel {
+            min-height: 400px;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .results-header h2 {
+            font-size: 1.125rem;
+            font-weight: 500;
+        }
+
+        .results-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .results-actions .btn {
+            width: auto;
+            padding: 0.5rem 1rem;
+        }
+
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stat-card.high .stat-value { color: var(--success); }
+        .stat-card.medium .stat-value { color: var(--warning); }
+        .stat-card.low .stat-value { color: var(--text-muted); }
+
+        /* Table */
+        .table-container {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: var(--surface-2);
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.875rem;
+            vertical-align: top;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background: var(--surface-2);
+        }
+
+        .score-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .score-high { background: rgba(34, 197, 94, 0.2); color: var(--success); }
+        .score-medium { background: rgba(234, 179, 8, 0.2); color: var(--warning); }
+        .score-low { background: rgba(136, 136, 136, 0.2); color: var(--text-muted); }
+
+        .lead-name {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .lead-category {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .lead-location {
+            font-size: 0.875rem;
+        }
+
+        .lead-city {
+            font-weight: 500;
+        }
+
+        .lead-address {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .contact-info a {
+            color: var(--accent);
+            text-decoration: none;
+            display: block;
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .contact-info a:hover {
+            text-decoration: underline;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .social-links a {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+
+        .rating {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .rating-star {
+            color: var(--warning);
+        }
+
+        .reviews {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .fit-reasons {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .fit-reasons span {
+            display: inline-block;
+            background: var(--surface-2);
+            padding: 0.125rem 0.5rem;
+            border-radius: 4px;
+            margin: 0.125rem;
+        }
+
+        .actions-cell {
+            white-space: nowrap;
+        }
+
+        .actions-cell a {
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.75rem;
+            margin-right: 0.75rem;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-muted);
+        }
+
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 1.125rem;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Presets */
+        .presets {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .preset-btn {
+            padding: 0.375rem 0.75rem;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .preset-btn:hover {
+            border-color: var(--accent);
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        /* Tags input */
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.375rem;
+            padding: 0.5rem;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            min-height: 42px;
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            background: var(--border);
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+
+        .tag-remove {
+            cursor: pointer;
+            opacity: 0.7;
+        }
+
+        .tag-remove:hover {
+            opacity: 1;
+        }
+
+        .tags-input {
+            flex: 1;
+            min-width: 100px;
+            border: none !important;
+            padding: 0.25rem !important;
+            margin: 0 !important;
+            background: transparent !important;
+        }
+
+        .tags-input:focus {
+            outline: none;
+        }
+
+        /* Decision maker */
+        .dm-info {
+            font-size: 0.75rem;
+        }
+
+        .dm-name {
+            font-weight: 500;
+        }
+
+        .dm-title {
+            color: var(--text-muted);
+        }
+
+        .dm-email {
+            color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>GTM Lead Finder</h1>
+            <div class="api-status" id="apiStatus">
+                <span><span class="status-dot inactive" id="googleStatus"></span>Google Places</span>
+                <span><span class="status-dot inactive" id="apolloStatus"></span>Apollo</span>
+                <span><span class="status-dot inactive" id="firecrawlStatus"></span>Firecrawl</span>
+            </div>
+        </header>
+
+        <div class="main-grid">
+            <!-- Form Panel -->
+            <div class="form-panel">
+                <div class="form-section">
+                    <h3>Client Brief</h3>
+                    <label>Brand Name</label>
+                    <input type="text" id="brandName" placeholder="e.g., Andrés Machado">
+
+                    <label>Brand Website</label>
+                    <input type="url" id="brandWebsite" placeholder="https://...">
+
+                    <label>Target Segment</label>
+                    <select id="segment">
+                        <option value="mid-premium">Mid-Premium</option>
+                        <option value="premium">Premium / Luxury</option>
+                        <option value="mass-market">Mass Market</option>
+                    </select>
+                </div>
+
+                <div class="form-section">
+                    <h3>Search Queries</h3>
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+                        One query per line. Include location in query.
+                    </p>
+                    <div class="presets">
+                        <button class="preset-btn" onclick="loadPreset('warsaw-shoes')">Warsaw Shoes</button>
+                        <button class="preset-btn" onclick="loadPreset('krakow-fashion')">Krakow Fashion</button>
+                        <button class="preset-btn" onclick="loadPreset('madrid-boutiques')">Madrid Boutiques</button>
+                    </div>
+                    <textarea id="queries" placeholder="multi-brand shoe store Warsaw&#10;women's footwear boutique Warsaw&#10;butik obuwniczy Warszawa"></textarea>
+                </div>
+
+                <div class="form-section">
+                    <h3>Filters</h3>
+                    <label>Min Rating</label>
+                    <input type="number" id="minRating" value="4.0" step="0.1" min="0" max="5">
+
+                    <label>Positive Signals (comma-separated)</label>
+                    <input type="text" id="positiveSignals" placeholder="boutique, premium, designer, leather">
+
+                    <label>Negative Signals (comma-separated)</label>
+                    <input type="text" id="negativeSignals" placeholder="discount, outlet, sports, children">
+
+                    <label>Exclude Brands (comma-separated)</label>
+                    <input type="text" id="excludeBrands" placeholder="CCC, Deichmann, Eobuwie">
+                </div>
+
+                <div class="form-section">
+                    <h3>Options</h3>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="enrichLeads" checked>
+                        <label for="enrichLeads" style="margin: 0;">Enrich leads (website + Apollo)</label>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" id="searchBtn" onclick="startSearch()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    Find Leads
+                </button>
+
+                <button class="btn btn-secondary" id="cancelBtn" onclick="cancelSearch()" style="display: none; margin-top: 0.5rem;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="m15 9-6 6"></path>
+                        <path d="m9 9 6 6"></path>
+                    </svg>
+                    Cancel Search
+                </button>
+
+                <div class="progress-container" id="progressContainer">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="progress-text" id="progressText">Initializing...</div>
+                </div>
+            </div>
+
+            <!-- Results Panel -->
+            <div class="results-panel">
+                <div class="results-header">
+                    <h2>Results</h2>
+                    <div class="results-actions" id="resultsActions" style="display: none;">
+                        <button class="btn btn-secondary" onclick="exportCSV()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                            Export CSV
+                        </button>
+                    </div>
+                </div>
+
+                <div class="stats-grid" id="statsGrid" style="display: none;">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalLeads">0</div>
+                        <div class="stat-label">Total Leads</div>
+                    </div>
+                    <div class="stat-card high">
+                        <div class="stat-value" id="highFit">0</div>
+                        <div class="stat-label">High Fit (70+)</div>
+                    </div>
+                    <div class="stat-card medium">
+                        <div class="stat-value" id="mediumFit">0</div>
+                        <div class="stat-label">Medium (50-69)</div>
+                    </div>
+                    <div class="stat-card low">
+                        <div class="stat-value" id="lowFit">0</div>
+                        <div class="stat-label">Low (&lt;50)</div>
+                    </div>
+                </div>
+
+                <div class="table-container" id="resultsTable" style="display: none;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Score</th>
+                                <th>Business</th>
+                                <th>Location</th>
+                                <th>Contact</th>
+                                <th>Rating</th>
+                                <th>Decision Maker</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leadsBody">
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="empty-state" id="emptyState">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                    <h3>No leads yet</h3>
+                    <p>Configure your search and click "Find Leads" to get started.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentJobId = null;
+        let pollInterval = null;
+
+        // Presets
+        const presets = {
+            'warsaw-shoes': {
+                queries: `multi-brand shoe store Warsaw
+women's footwear boutique Warsaw
+sklep z obuwiem damskim Warszawa
+butik obuwniczy Warszawa
+buty damskie premium Warszawa
+obuwie komfortowe Warszawa
+shoe store Mokotow Warsaw
+women's shoes Srodmiescie Warsaw`,
+                positiveSignals: 'boutique, butik, premium, designer, comfortable, komfortowe, leather, skóra, elegant, damskie',
+                negativeSignals: 'discount, outlet, sports, sportowe, sneakers, children, dziecięce, second hand',
+                excludeBrands: 'CCC, Deichmann, Eobuwie, Ryłko, Wojas, Badura'
+            },
+            'krakow-fashion': {
+                queries: `fashion boutique Krakow
+women's clothing store Krakow old town
+butik damski Kraków
+sklep z modą Kraków Stare Miasto
+multi-brand boutique Kazimierz Krakow`,
+                positiveSignals: 'boutique, butik, premium, designer, multi-brand, elegant',
+                negativeSignals: 'discount, outlet, vintage, second hand',
+                excludeBrands: 'H&M, Zara, Reserved, Mohito'
+            },
+            'madrid-boutiques': {
+                queries: `tienda de zapatos mujer Madrid
+boutique calzado Madrid Salamanca
+zapatería premium Madrid
+multi-marca zapatos Madrid
+tienda zapatos diseño Madrid`,
+                positiveSignals: 'boutique, premium, diseño, lujo, elegante, piel',
+                negativeSignals: 'outlet, descuento, deportivo, niños',
+                excludeBrands: 'Marypaz, Merkal, Ulanka, Krack'
+            }
+        };
+
+        function loadPreset(name) {
+            const preset = presets[name];
+            if (preset) {
+                document.getElementById('queries').value = preset.queries;
+                document.getElementById('positiveSignals').value = preset.positiveSignals;
+                document.getElementById('negativeSignals').value = preset.negativeSignals;
+                document.getElementById('excludeBrands').value = preset.excludeBrands;
+            }
+        }
+
+        // Check API config on load
+        async function checkConfig() {
+            try {
+                const resp = await fetch('/api/config');
+                const config = await resp.json();
+
+                document.getElementById('googleStatus').className =
+                    'status-dot ' + (config.google_places ? 'active' : 'inactive');
+                document.getElementById('apolloStatus').className =
+                    'status-dot ' + (config.apollo ? 'active' : 'inactive');
+                document.getElementById('firecrawlStatus').className =
+                    'status-dot ' + (config.firecrawl ? 'active' : 'inactive');
+            } catch (e) {
+                console.error('Config check failed:', e);
+            }
+        }
+
+        async function startSearch() {
+            const queries = document.getElementById('queries').value.trim().split('\n').filter(q => q.trim());
+
+            if (queries.length === 0) {
+                alert('Please enter at least one search query');
+                return;
+            }
+
+            const config = {
+                brand_name: document.getElementById('brandName').value,
+                brand_website: document.getElementById('brandWebsite').value,
+                segment: document.getElementById('segment').value,
+                queries: queries,
+                min_rating: parseFloat(document.getElementById('minRating').value) || 4.0,
+                positive_signals: document.getElementById('positiveSignals').value.split(',').map(s => s.trim()).filter(Boolean),
+                negative_signals: document.getElementById('negativeSignals').value.split(',').map(s => s.trim()).filter(Boolean),
+                exclude_brands: document.getElementById('excludeBrands').value.split(',').map(s => s.trim()).filter(Boolean),
+                enrich: document.getElementById('enrichLeads').checked
+            };
+
+            // Start search
+            document.getElementById('searchBtn').disabled = true;
+            document.getElementById('cancelBtn').style.display = 'block';
+            document.getElementById('progressContainer').classList.add('active');
+            document.getElementById('emptyState').style.display = 'none';
+
+            try {
+                const resp = await fetch('/api/search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(config)
+                });
+
+                const data = await resp.json();
+                currentJobId = data.job_id;
+
+                // Start polling for status
+                pollInterval = setInterval(pollStatus, 1000);
+
+            } catch (e) {
+                console.error('Search failed:', e);
+                alert('Search failed: ' + e.message);
+                document.getElementById('searchBtn').disabled = false;
+                document.getElementById('cancelBtn').style.display = 'none';
+                document.getElementById('progressContainer').classList.remove('active');
+            }
+        }
+
+        async function pollStatus() {
+            if (!currentJobId) return;
+
+            try {
+                const resp = await fetch(`/api/status/${currentJobId}`);
+                const status = await resp.json();
+
+                // Update progress
+                document.getElementById('progressFill').style.width = status.progress + '%';
+                document.getElementById('progressText').textContent = status.step;
+
+                if (status.status === 'completed' || status.status === 'error' || status.status === 'cancelled') {
+                    clearInterval(pollInterval);
+                    document.getElementById('searchBtn').disabled = false;
+                    document.getElementById('cancelBtn').style.display = 'none';
+
+                    if (status.status === 'completed' && status.leads && status.leads.length > 0) {
+                        displayResults(status.leads);
+                    } else if (status.status === 'cancelled') {
+                        document.getElementById('progressContainer').classList.remove('active');
+                        document.getElementById('emptyState').style.display = 'block';
+                        document.getElementById('emptyState').querySelector('h3').textContent = 'Search cancelled';
+                        document.getElementById('emptyState').querySelector('p').textContent = 'The search was cancelled. Click "Find Leads" to start a new search.';
+                    } else if (status.status === 'error') {
+                        alert('Search error: ' + status.step);
+                        document.getElementById('progressContainer').classList.remove('active');
+                        document.getElementById('emptyState').style.display = 'block';
+                    } else {
+                        document.getElementById('progressContainer').classList.remove('active');
+                        document.getElementById('emptyState').style.display = 'block';
+                        document.getElementById('emptyState').querySelector('h3').textContent = 'No results found';
+                        document.getElementById('emptyState').querySelector('p').textContent = 'Try different search queries or locations.';
+                    }
+                }
+
+            } catch (e) {
+                console.error('Poll failed:', e);
+            }
+        }
+
+        function displayResults(leads) {
+            // Hide progress, show results
+            document.getElementById('progressContainer').classList.remove('active');
+            document.getElementById('statsGrid').style.display = 'grid';
+            document.getElementById('resultsTable').style.display = 'block';
+            document.getElementById('resultsActions').style.display = 'flex';
+
+            // Calculate stats
+            const highFit = leads.filter(l => l.fit_score >= 70).length;
+            const mediumFit = leads.filter(l => l.fit_score >= 50 && l.fit_score < 70).length;
+            const lowFit = leads.filter(l => l.fit_score < 50).length;
+
+            document.getElementById('totalLeads').textContent = leads.length;
+            document.getElementById('highFit').textContent = highFit;
+            document.getElementById('mediumFit').textContent = mediumFit;
+            document.getElementById('lowFit').textContent = lowFit;
+
+            // Build table
+            const tbody = document.getElementById('leadsBody');
+            tbody.innerHTML = '';
+
+            leads.forEach(lead => {
+                const scoreClass = lead.fit_score >= 70 ? 'score-high' :
+                                   lead.fit_score >= 50 ? 'score-medium' : 'score-low';
+
+                const dm = lead.decision_makers && lead.decision_makers[0];
+                const email = lead.emails_found && lead.emails_found[0];
+                const instagram = lead.social_links && lead.social_links.instagram;
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <div class="score-badge ${scoreClass}">${lead.fit_score}</div>
+                    </td>
+                    <td>
+                        <div class="lead-name">${escapeHtml(lead.name)}</div>
+                        <div class="lead-category">${escapeHtml(lead.category)}</div>
+                        <div class="fit-reasons">
+                            ${lead.fit_reasons.slice(0, 3).map(r => `<span>${escapeHtml(r)}</span>`).join('')}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="lead-location">
+                            <div class="lead-city">${escapeHtml(lead.city || lead.country || '-')}</div>
+                            <div class="lead-address">${escapeHtml(lead.address_full || '').substring(0, 50)}</div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="contact-info">
+                            ${lead.phone ? `<a href="tel:${lead.phone}">${escapeHtml(lead.phone)}</a>` : ''}
+                            ${lead.website ? `<a href="${lead.website}" target="_blank">Website</a>` : ''}
+                            ${email ? `<a href="mailto:${email}">${escapeHtml(email)}</a>` : ''}
+                        </div>
+                        <div class="social-links">
+                            ${instagram ? `<a href="https://instagram.com/${instagram}" target="_blank">@${instagram}</a>` : ''}
+                            ${lead.linkedin_url ? `<a href="${lead.linkedin_url}" target="_blank">LinkedIn</a>` : ''}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="rating">
+                            <span class="rating-star">★</span>
+                            ${lead.rating || '-'}
+                        </div>
+                        <div class="reviews">${lead.reviews_count || 0} reviews</div>
+                    </td>
+                    <td>
+                        ${dm ? `
+                            <div class="dm-info">
+                                <div class="dm-name">${escapeHtml(dm.name || '-')}</div>
+                                <div class="dm-title">${escapeHtml(dm.title || '')}</div>
+                                ${dm.email ? `<a class="dm-email" href="mailto:${dm.email}">${escapeHtml(dm.email)}</a>` : ''}
+                            </div>
+                        ` : '<span style="color: var(--text-muted)">-</span>'}
+                    </td>
+                    <td class="actions-cell">
+                        <a href="${lead.google_maps_url}" target="_blank">Maps</a>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        async function cancelSearch() {
+            if (!currentJobId) return;
+
+            try {
+                await fetch(`/api/cancel/${currentJobId}`, { method: 'POST' });
+                document.getElementById('progressText').textContent = 'Cancelling...';
+            } catch (e) {
+                console.error('Cancel failed:', e);
+            }
+        }
+
+        function exportCSV() {
+            if (currentJobId) {
+                window.location.href = `/api/export/${currentJobId}`;
+            }
+        }
+
+        // Initialize
+        checkConfig();
+    </script>
+</body>
+</html>
