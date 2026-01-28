@@ -671,6 +671,280 @@ def export_csv(job_id):
     )
 
 
+# ============================================================
+# NEW ENDPOINTS: GTM Brief, Discovery, Enrichment
+# ============================================================
+
+@app.route("/api/brief", methods=["POST"])
+def generate_brief():
+    """Generate GTM Brief from company website using Firecrawl"""
+    data = request.json
+    url = data.get("url", "").strip()
+
+    if not url:
+        return jsonify({"success": False, "error": "URL is required"})
+
+    if not FIRECRAWL_API_KEY:
+        return jsonify({"success": False, "error": "Firecrawl API not configured"})
+
+    try:
+        # Scrape the website
+        firecrawl = FirecrawlClient(FIRECRAWL_API_KEY)
+        scrape_result = firecrawl.scrape(url)
+
+        if not scrape_result:
+            return jsonify({"success": False, "error": "Failed to scrape website"})
+
+        markdown = scrape_result.get("markdown", "")
+        links = scrape_result.get("links", [])
+
+        # Extract company info from markdown
+        brief = {
+            "url": url,
+            "company": {},
+            "value_proposition": "",
+            "icp": {},
+            "search_queries": []
+        }
+
+        # Extract company name from title
+        lines = markdown.split('\n')
+        for line in lines[:10]:
+            if line.startswith('# '):
+                brief["company"]["name"] = line.replace('# ', '').strip()
+                break
+
+        # Extract tagline/description
+        for para in markdown.split('\n\n')[:5]:
+            cleaned = para.strip()
+            if 50 < len(cleaned) < 300 and not cleaned.startswith('#'):
+                brief["company"]["tagline"] = cleaned
+                brief["value_proposition"] = cleaned
+                break
+
+        # Detect industry from keywords
+        industry_keywords = {
+            'SaaS': ['saas', 'software', 'platform', 'cloud', 'api'],
+            'E-commerce': ['shop', 'store', 'ecommerce', 'retail', 'buy'],
+            'Marketing': ['marketing', 'advertising', 'agency', 'seo', 'ads'],
+            'Finance': ['fintech', 'banking', 'payments', 'financial'],
+            'Healthcare': ['health', 'medical', 'healthcare', 'pharma'],
+        }
+        markdown_lower = markdown.lower()
+        for industry, keywords in industry_keywords.items():
+            if any(kw in markdown_lower for kw in keywords):
+                brief["company"]["industry"] = industry
+                break
+
+        # Generate search queries based on content
+        company_name = brief["company"].get("name", "")
+        industry = brief["company"].get("industry", "companies")
+        brief["search_queries"] = [
+            f"{industry} similar to {company_name}",
+            f"{industry} competitors",
+            f"best {industry.lower()} tools",
+        ]
+
+        # Basic ICP
+        brief["icp"] = {
+            "industries": [industry] if industry else ["Technology"],
+            "company_size": "10-500 employees",
+            "pain_points": ["efficiency", "growth", "automation"]
+        }
+
+        return jsonify({"success": True, "brief": brief})
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)})
+
+
+@app.route("/api/discover", methods=["POST"])
+def discover_prospects():
+    """Discover prospects using various methods"""
+    data = request.json
+    mode = data.get("mode", "smart")
+
+    try:
+        prospects = []
+        now = datetime.now().isoformat()
+
+        if mode == "maps":
+            # Google Maps URL scraping
+            maps_url = data.get("mapsUrl", "")
+            if not maps_url:
+                return jsonify({"success": False, "error": "Maps URL is required"})
+
+            if not FIRECRAWL_API_KEY:
+                return jsonify({"success": False, "error": "Firecrawl API not configured"})
+
+            firecrawl = FirecrawlClient(FIRECRAWL_API_KEY)
+            scrape_result = firecrawl.scrape(maps_url)
+
+            if scrape_result:
+                markdown = scrape_result.get("markdown", "")
+                # Parse business listings from Maps
+                lines = markdown.split('\n')
+                for i, line in enumerate(lines):
+                    line = line.strip()
+                    if not line or len(line) < 3 or len(line) > 80:
+                        continue
+                    if line.startswith('http') or 'google' in line.lower():
+                        continue
+
+                    # Look for business-like entries
+                    if re.match(r'^[A-Z]', line) and not line.startswith('#'):
+                        context = ' '.join(lines[i:i+5])
+                        rating_match = re.search(r'(\d\.?\d?)\s*(?:stars?|★)', context, re.I)
+                        phone_match = re.search(r'(\+?1?[-.\s]?\(?[0-9]{3}\)?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4})', context)
+
+                        if rating_match or phone_match:
+                            prospects.append({
+                                "id": str(len(prospects) + 1),
+                                "name": line[:60],
+                                "category": "Business",
+                                "location": data.get("location", ""),
+                                "rating": float(rating_match.group(1)) if rating_match else None,
+                                "phone": phone_match.group(1) if phone_match else None,
+                                "website": None,
+                                "discoveredAt": now
+                            })
+
+        else:
+            # Web search or smart search
+            query = data.get("query", "")
+            location = data.get("location", "")
+
+            if not query:
+                return jsonify({"success": False, "error": "Search query is required"})
+
+            search_query = f"{query} {location}".strip()
+
+            # Try Firecrawl search
+            if FIRECRAWL_API_KEY:
+                firecrawl = FirecrawlClient(FIRECRAWL_API_KEY)
+                results = firecrawl.search(search_query, limit=20)
+
+                for r in results:
+                    title = r.get("title", "")
+                    url = r.get("url", "")
+                    markdown = r.get("markdown", "")
+
+                    if not title or 'wikipedia' in url.lower():
+                        continue
+
+                    name = title.split(' - ')[0].split(' | ')[0].strip()
+                    if len(name) < 2 or len(name) > 80:
+                        continue
+
+                    # Extract website domain
+                    website = url if not any(x in url for x in ['google.', 'yelp.', 'facebook.']) else None
+
+                    prospects.append({
+                        "id": str(len(prospects) + 1),
+                        "name": name,
+                        "category": query.split()[0] if query else "Business",
+                        "location": location,
+                        "website": website,
+                        "rating": None,
+                        "discoveredAt": now
+                    })
+
+        return jsonify({
+            "success": True,
+            "prospects": prospects[:50],
+            "totalFound": len(prospects)
+        })
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)})
+
+
+@app.route("/api/enrich", methods=["POST"])
+def enrich_company():
+    """Enrich a single company by domain"""
+    data = request.json
+    domain = data.get("domain", "").strip()
+
+    if not domain:
+        return jsonify({"success": False, "error": "Domain is required"})
+
+    try:
+        result = {"domain": domain}
+
+        # Use Firecrawl for web scraping
+        if FIRECRAWL_API_KEY:
+            url = f"https://{domain}" if not domain.startswith('http') else domain
+            firecrawl = FirecrawlClient(FIRECRAWL_API_KEY)
+            scrape_result = firecrawl.scrape(url)
+
+            if scrape_result:
+                markdown = scrape_result.get("markdown", "")
+                links = scrape_result.get("links", [])
+
+                # Extract company name
+                for line in markdown.split('\n')[:10]:
+                    if line.startswith('# '):
+                        result["name"] = line.replace('# ', '').strip()
+                        break
+
+                # Extract description
+                for para in markdown.split('\n\n')[:5]:
+                    cleaned = para.strip()
+                    if 50 < len(cleaned) < 400 and not cleaned.startswith('#'):
+                        result["description"] = cleaned
+                        break
+
+                # Extract email
+                email_match = re.search(r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}', markdown)
+                if email_match:
+                    email = email_match.group(0)
+                    if 'example' not in email and 'noreply' not in email:
+                        result["email"] = email
+
+                # Extract phone
+                phone_match = re.search(r'(?:\+1|1)?[-.\s]?\(?[0-9]{3}\)?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}', markdown)
+                if phone_match:
+                    result["phone"] = phone_match.group(0)
+
+                # Extract LinkedIn
+                linkedin_match = re.search(r'linkedin\.com/company/([a-zA-Z0-9_-]+)', markdown + ' '.join(links))
+                if linkedin_match:
+                    result["linkedin"] = f"https://linkedin.com/company/{linkedin_match.group(1)}"
+
+                # Extract Twitter
+                twitter_match = re.search(r'(?:twitter|x)\.com/([a-zA-Z0-9_]+)', markdown + ' '.join(links))
+                if twitter_match:
+                    result["twitter"] = f"https://twitter.com/{twitter_match.group(1)}"
+
+                # Detect industry
+                industry_keywords = {
+                    'Technology': ['software', 'saas', 'tech', 'platform', 'api'],
+                    'E-commerce': ['shop', 'store', 'ecommerce', 'retail'],
+                    'Marketing': ['marketing', 'agency', 'advertising'],
+                    'Finance': ['fintech', 'banking', 'financial'],
+                }
+                markdown_lower = markdown.lower()
+                for industry, keywords in industry_keywords.items():
+                    if any(kw in markdown_lower for kw in keywords):
+                        result["industry"] = industry
+                        break
+
+        # Also try Apollo if available
+        if APOLLO_API_KEY:
+            apollo = ApolloClient(APOLLO_API_KEY)
+            org = apollo.enrich_organization(domain)
+            if org:
+                result["name"] = result.get("name") or org.get("name")
+                result["industry"] = result.get("industry") or org.get("industry")
+                result["linkedin"] = result.get("linkedin") or org.get("linkedin_url")
+                result["employees"] = org.get("estimated_num_employees")
+
+        return jsonify({"success": True, "data": result})
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)})
+
+
 if __name__ == "__main__":
     print("\n" + "="*50)
     print("GTM Lead Finder")
