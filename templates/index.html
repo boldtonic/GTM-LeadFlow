@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GTM Lead Finder</title>
+    <title>LeadFlow</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔥</text></svg>">
     <style>
         * {
             margin: 0;
@@ -52,6 +53,12 @@
             display: flex;
             align-items: center;
             gap: 2rem;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
         }
 
         h1 {
@@ -112,6 +119,181 @@
 
         .status-dot.active { background: var(--success); }
         .status-dot.inactive { background: var(--danger); }
+
+        /* Dev Button */
+        .dev-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+
+        .dev-btn svg {
+            display: block;
+        }
+
+        .dev-btn:hover {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        /* Dev Panel */
+        .dev-panel {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 350px;
+            background: var(--surface);
+            border-top: 2px solid var(--accent);
+            z-index: 1000;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dev-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface-2);
+        }
+
+        .dev-panel-header h3 {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .dev-panel-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+        }
+
+        .dev-close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-muted);
+            padding: 0 0.5rem;
+        }
+
+        .dev-close-btn:hover {
+            color: var(--danger);
+        }
+
+        .dev-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface-2);
+        }
+
+        .dev-tab {
+            padding: 0.5rem 1rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            border-bottom: 2px solid transparent;
+        }
+
+        .dev-tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        .dev-tab-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        .dev-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .dev-stat-card {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .dev-stat-card h4 {
+            margin: 0 0 0.75rem 0;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .dev-stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.25rem 0;
+            font-size: 0.85rem;
+        }
+
+        .dev-stat-row .value {
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .dev-stat-row .value.success { color: var(--success); }
+        .dev-stat-row .value.warning { color: var(--warning); }
+        .dev-stat-row .value.error { color: var(--danger); }
+
+        .dev-logs {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.75rem;
+            line-height: 1.6;
+        }
+
+        .log-entry {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            margin-bottom: 2px;
+        }
+
+        .log-entry:hover {
+            background: var(--surface-2);
+        }
+
+        .log-entry .timestamp {
+            color: var(--text-muted);
+            margin-right: 0.5rem;
+        }
+
+        .log-entry .category {
+            background: var(--surface-2);
+            padding: 0.1rem 0.4rem;
+            border-radius: 3px;
+            margin-right: 0.5rem;
+            font-weight: 600;
+        }
+
+        .log-entry.info .category { color: var(--accent); }
+        .log-entry.success .category { color: var(--success); }
+        .log-entry.warning .category { color: var(--warning); }
+        .log-entry.error .category { color: var(--danger); }
 
         .main-grid {
             display: grid;
@@ -232,7 +414,11 @@
 
         /* Progress */
         .progress-container {
-            margin-top: 1rem;
+            margin: 1.5rem 0;
+            padding: 1.25rem;
+            background: var(--surface-2);
+            border-radius: 12px;
+            border: 1px solid var(--border);
             display: none;
         }
 
@@ -241,23 +427,37 @@
         }
 
         .progress-bar {
-            height: 4px;
-            background: var(--surface-2);
-            border-radius: 2px;
+            height: 6px;
+            background: var(--surface);
+            border-radius: 3px;
             overflow: hidden;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
         }
 
         .progress-fill {
             height: 100%;
-            background: var(--accent);
+            background: linear-gradient(90deg, var(--accent), #818cf8);
             transition: width 0.3s ease;
             width: 0%;
+            border-radius: 3px;
         }
 
         .progress-text {
-            font-size: 0.75rem;
-            color: var(--text-muted);
+            font-size: 0.875rem;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .progress-text::before {
+            content: '';
+            width: 14px;
+            height: 14px;
+            border: 2px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
         }
 
         /* Results Panel */
@@ -570,30 +770,679 @@
         .dm-email {
             color: var(--accent);
         }
+
+        /* Processing Steps */
+        .step-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: var(--surface-2);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+
+        .step-icon {
+            font-size: 1rem;
+        }
+
+        .step-label {
+            flex: 1;
+            font-size: 0.875rem;
+        }
+
+        .step-status {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            background: var(--border);
+            color: var(--text-muted);
+        }
+
+        .step-item.completed .step-icon { color: var(--success); }
+        .step-item.completed .step-status { background: var(--success); color: white; }
+        .step-item.in-progress .step-icon { color: var(--accent); }
+        .step-item.in-progress .step-status { background: var(--accent); color: white; }
+        .step-item.failed .step-status { background: var(--danger); color: white; }
+
+        /* Spinner animation for in-progress steps */
+        .step-spinner {
+            display: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .step-item.in-progress .step-spinner {
+            display: inline-block;
+        }
+
+        .step-item.in-progress .step-icon {
+            display: none;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Dots animation alternative */
+        .loading-dots {
+            display: none;
+        }
+
+        .step-item.in-progress .loading-dots {
+            display: inline-flex;
+            gap: 3px;
+            margin-left: 6px;
+        }
+
+        .loading-dots span {
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+
+        .loading-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .loading-dots span:nth-child(2) { animation-delay: -0.16s; }
+        .loading-dots span:nth-child(3) { animation-delay: 0s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        /* Brief Context Panel */
+        .brief-context-panel {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.05));
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .brief-context-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+        }
+
+        /* Chips */
+        .chips-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .chip {
+            padding: 0.375rem 0.75rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .chip:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .chip.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        /* Brief Display Sections */
+        .brief-section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .brief-section h3 {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .brief-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .brief-field {
+            font-size: 0.875rem;
+        }
+
+        .brief-field-label {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .persona-card {
+            background: var(--surface-2);
+            border-radius: 8px;
+            padding: 1rem;
+            border-left: 3px solid var(--accent);
+        }
+
+        .persona-card.decision_maker { border-left-color: #f59e0b; }
+        .persona-card.influencer { border-left-color: #3b82f6; }
+        .persona-card.worker { border-left-color: #22c55e; }
+
+        .persona-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .persona-badge.decision_maker { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+        .persona-badge.influencer { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+        .persona-badge.worker { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+
+        .tag {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            background: var(--surface-2);
+            border-radius: 4px;
+            font-size: 0.75rem;
+            margin: 0.125rem;
+        }
+
+        .outreach-angle {
+            background: var(--surface-2);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .outreach-angle h4 {
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .outreach-angle p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Enrichment Tabs */
+        .enrich-tabs {
+            background: var(--surface-2);
+            border-radius: 8px;
+            padding: 0.25rem;
+        }
+
+        .enrich-tab {
+            flex: 1;
+            padding: 0.5rem 0.75rem;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .enrich-tab:hover {
+            color: var(--text);
+        }
+
+        .enrich-tab.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* CSV Dropzone */
+        .csv-dropzone {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .csv-dropzone:hover {
+            border-color: var(--accent);
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        /* Lead Row */
+        .lead-row {
+            border-bottom: 1px solid var(--border);
+            transition: background 0.2s;
+        }
+
+        .lead-row:hover {
+            background: var(--surface-2);
+        }
+
+        .lead-row-main {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr auto;
+            gap: 1rem;
+            padding: 1rem;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .lead-row-expanded {
+            display: none;
+            background: var(--surface-2);
+            padding: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .lead-row.expanded .lead-row-expanded {
+            display: block;
+        }
+
+        .lead-company-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .lead-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: rgba(59, 130, 246, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .lead-name {
+            font-weight: 500;
+        }
+
+        .lead-domain {
+            font-size: 0.75rem;
+            color: var(--accent);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-badge.pending { background: var(--surface-2); color: var(--text-muted); }
+        .status-badge.enriching { background: rgba(59, 130, 246, 0.2); color: var(--accent); }
+        .status-badge.enriched { background: rgba(34, 197, 94, 0.2); color: var(--success); }
+        .status-badge.failed { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+
+        .social-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+
+        .social-icon:hover {
+            background: var(--surface-2);
+            color: var(--accent);
+        }
+
+        .expand-icon {
+            transition: transform 0.2s;
+        }
+
+        .lead-row.expanded .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        .expanded-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+        }
+
+        .expanded-field {
+            font-size: 0.875rem;
+        }
+
+        .expanded-field-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+
+        .contact-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.75rem;
+            display: flex;
+            align-items: start;
+            gap: 0.75rem;
+        }
+
+        .contact-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(59, 130, 246, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+        }
+
+        .tech-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.25rem;
+        }
+
+        .spinner-small {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid transparent;
+            border-top-color: currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Objective Grid */
+        .objective-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.75rem;
+            margin-top: 0.75rem;
+        }
+
+        .objective-option {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .objective-option:hover {
+            border-color: var(--accent);
+        }
+
+        .objective-option.active {
+            border-color: var(--accent);
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .objective-icon {
+            font-size: 1.25rem;
+        }
+
+        .objective-text {
+            display: flex;
+            flex-direction: column;
+            gap: 0.125rem;
+        }
+
+        .objective-text strong {
+            font-size: 0.875rem;
+        }
+
+        .objective-text span {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* Discovery Mode Tabs */
+        .discovery-mode-tabs {
+            display: flex;
+            gap: 0.25rem;
+            background: var(--surface-2);
+            border-radius: 8px;
+            padding: 0.25rem;
+        }
+
+        .mode-tab {
+            flex: 1;
+            padding: 0.5rem 0.75rem;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .mode-tab:hover {
+            color: var(--text);
+        }
+
+        .mode-tab.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .mode-info {
+            margin-top: 0.75rem;
+            padding: 0.75rem;
+            background: rgba(59, 130, 246, 0.05);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 6px;
+        }
+
+        .mode-info p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        .mode-warning {
+            margin-top: 0.75rem;
+            padding: 0.75rem;
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: rgb(180, 120, 30);
+        }
+
+        .search-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        @media (max-width: 640px) {
+            .search-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Prospects Table */
+        .prospects-table-container {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .prospect-row {
+            display: grid;
+            grid-template-columns: 40px 2fr 1fr 1fr 1fr auto 1fr;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            transition: background 0.15s;
+        }
+
+        .prospect-row:hover {
+            background: var(--surface-2);
+        }
+
+        .prospect-row:last-child {
+            border-bottom: none;
+        }
+
+        .prospect-row-header {
+            background: var(--surface-2);
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .prospect-row-header:hover {
+            background: var(--surface-2);
+        }
+
+        .prospect-name {
+            font-weight: 500;
+        }
+
+        .prospect-name small {
+            font-weight: 400;
+            color: var(--text-muted);
+            display: block;
+            font-size: 0.75rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .prospect-contact {
+            font-size: 0.8rem;
+        }
+
+        .prospect-contact a {
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .rating-display {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.8rem;
+        }
+
+        .rating-display .star {
+            color: #fbbf24;
+        }
+
+        @media (max-width: 900px) {
+            .prospect-row {
+                grid-template-columns: 40px 1fr 1fr auto;
+            }
+            .prospect-row > :nth-child(4),
+            .prospect-row > :nth-child(5) {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
             <div class="header-left">
-                <h1>🎯 GTM LeadFlow</h1>
+                <h1>🔥 LeadFlow</h1>
             </div>
-            <div class="api-status" id="apiStatus">
-                <span><span class="status-dot inactive" id="googleStatus"></span>Google Places</span>
-                <span><span class="status-dot inactive" id="apolloStatus"></span>Apollo</span>
-                <span><span class="status-dot inactive" id="firecrawlStatus"></span>Firecrawl</span>
+            <div class="header-right">
+                <div class="api-status" id="apiStatus">
+                    <span><span class="status-dot inactive" id="googleStatus"></span>Google Places</span>
+                    <span><span class="status-dot inactive" id="apolloStatus"></span>Apollo</span>
+                    <span><span class="status-dot inactive" id="firecrawlStatus"></span>Firecrawl</span>
+                    <span><span class="status-dot inactive" id="hunterStatus"></span>Hunter.io</span>
+                    <span><span class="status-dot inactive" id="openaiStatus"></span>OpenAI</span>
+                </div>
+                <button class="dev-btn" onclick="toggleDevPanel()" title="Dev Panel">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="16 18 22 12 16 6"></polyline>
+                        <polyline points="8 6 2 12 8 18"></polyline>
+                    </svg>
+                </button>
             </div>
         </header>
 
+        <!-- Dev Panel -->
+        <div id="devPanel" class="dev-panel" style="display: none;">
+            <div class="dev-panel-header">
+                <h3>🛠️ Dev Panel</h3>
+                <div class="dev-panel-actions">
+                    <button class="btn btn-secondary btn-sm" onclick="refreshDevStats()">Refresh</button>
+                    <button class="btn btn-secondary btn-sm" onclick="clearDevLogs()">Clear Logs</button>
+                    <button class="dev-close-btn" onclick="toggleDevPanel()">×</button>
+                </div>
+            </div>
+
+            <div class="dev-tabs">
+                <button class="dev-tab active" onclick="switchDevTab('stats')">Stats</button>
+                <button class="dev-tab" onclick="switchDevTab('logs')">Logs</button>
+            </div>
+
+            <div id="devTabStats" class="dev-tab-content active">
+                <div class="dev-stats-grid" id="devStatsContent">
+                    <p style="color: var(--text-muted);">Run a search to see statistics...</p>
+                </div>
+            </div>
+
+            <div id="devTabLogs" class="dev-tab-content" style="display: none;">
+                <div class="dev-logs" id="devLogsContent">
+                    <p style="color: var(--text-muted);">No logs yet...</p>
+                </div>
+            </div>
+        </div>
+
         <div class="nav-tabs">
-            <button class="nav-tab active" onclick="switchTab('finder')">Lead Finder</button>
-            <button class="nav-tab" onclick="switchTab('brief')">GTM Brief</button>
+            <button class="nav-tab active" onclick="switchTab('brief')">GTM Brief</button>
+            <button class="nav-tab" onclick="switchTab('finder')">GTM Outbound</button>
             <button class="nav-tab" onclick="switchTab('discovery')">Prospect Discovery</button>
             <button class="nav-tab" onclick="switchTab('enrichment')">Enrichment</button>
         </div>
 
         <!-- TAB: Lead Finder (Original) -->
-        <div id="tab-finder" class="tab-content active">
+        <div id="tab-finder" class="tab-content">
         <div class="main-grid">
             <!-- Form Panel -->
             <div class="form-panel">
@@ -622,6 +1471,9 @@
                         <button class="preset-btn" onclick="loadPreset('warsaw-shoes')">Warsaw Shoes</button>
                         <button class="preset-btn" onclick="loadPreset('krakow-fashion')">Krakow Fashion</button>
                         <button class="preset-btn" onclick="loadPreset('madrid-boutiques')">Madrid Boutiques</button>
+                        <button class="preset-btn" onclick="loadPreset('indonesia-food')">Indonesia Food Mfg</button>
+                        <button class="preset-btn" onclick="loadPreset('usa-saas')">USA SaaS</button>
+                        <button class="preset-btn" onclick="loadPreset('barcelona-restaurants')">Barcelona Restaurants</button>
                     </div>
                     <textarea id="queries" placeholder="multi-brand shoe store Warsaw&#10;women's footwear boutique Warsaw&#10;butik obuwniczy Warszawa"></textarea>
                 </div>
@@ -666,12 +1518,6 @@
                     Cancel Search
                 </button>
 
-                <div class="progress-container" id="progressContainer">
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progressFill"></div>
-                    </div>
-                    <div class="progress-text" id="progressText">Initializing...</div>
-                </div>
             </div>
 
             <!-- Results Panel -->
@@ -688,6 +1534,14 @@
                             Export CSV
                         </button>
                     </div>
+                </div>
+
+                <!-- Progress indicator (shown during search) -->
+                <div class="progress-container" id="progressContainer">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="progress-text" id="progressText">Initializing...</div>
                 </div>
 
                 <div class="stats-grid" id="statsGrid" style="display: none;">
@@ -739,130 +1593,340 @@
         </div><!-- End tab-finder -->
 
         <!-- TAB: GTM Brief -->
-        <div id="tab-brief" class="tab-content">
-            <div class="main-grid">
-                <div class="form-panel">
-                    <div class="form-section">
-                        <h3>Generate GTM Brief</h3>
-                        <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">
-                            Analyze any company website to generate a complete Go-To-Market strategy with ICP, personas, and outreach angles.
-                        </p>
-                        <label>Company Website URL</label>
-                        <input type="url" id="briefUrl" placeholder="https://example.com">
-                        <button class="btn btn-primary" onclick="generateBrief()" id="briefBtn" style="width: 100%; margin-top: 1rem;">
-                            Generate GTM Brief
-                        </button>
+        <div id="tab-brief" class="tab-content active">
+            <div id="briefInputSection">
+                <div class="main-grid">
+                    <div class="form-panel">
+                        <div class="form-section">
+                            <h3>🎯 Generate GTM Brief</h3>
+                            <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">
+                                Analyze any company website to generate a complete Go-To-Market strategy with ICP, personas, and outreach angles.
+                            </p>
+                            <label>Company Website URL</label>
+                            <input type="url" id="briefUrl" placeholder="https://example.com">
+                            <label style="margin-top: 1rem;">Additional Context (Optional)</label>
+                            <textarea id="briefContext" rows="3" placeholder="Any specific focus areas, target markets, or goals..."></textarea>
+                            <button class="btn btn-primary" onclick="generateBrief()" id="briefBtn" style="width: 100%; margin-top: 1rem;">
+                                ✨ Generate GTM Brief
+                            </button>
+                        </div>
                     </div>
-                    <div id="briefProgress" style="display: none;">
-                        <div class="progress-indicator">
-                            <div class="spinner"></div>
-                            <span id="briefStep">Analyzing website...</span>
+                    <div class="form-panel">
+                        <div class="form-section">
+                            <h3>Processing Steps</h3>
+                            <div id="processingSteps" style="margin-top: 1rem;">
+                                <div class="step-item" id="step-scrape">
+                                    <span class="step-icon">○</span>
+                                    <span class="step-spinner"></span>
+                                    <span class="step-label">Scraping website content</span>
+                                    <span class="step-status">pending<span class="loading-dots"><span></span><span></span><span></span></span></span>
+                                </div>
+                                <div class="step-item" id="step-analyze">
+                                    <span class="step-icon">○</span>
+                                    <span class="step-spinner"></span>
+                                    <span class="step-label">Analyzing with AI</span>
+                                    <span class="step-status">pending<span class="loading-dots"><span></span><span></span><span></span></span></span>
+                                </div>
+                                <div class="step-item" id="step-structure">
+                                    <span class="step-icon">○</span>
+                                    <span class="step-spinner"></span>
+                                    <span class="step-label">Generating structured brief</span>
+                                    <span class="step-status">pending<span class="loading-dots"><span></span><span></span><span></span></span></span>
+                                </div>
+                            </div>
+                            <p style="color: var(--text-muted); font-size: 0.75rem; margin-top: 1.5rem; text-align: center;">
+                                Enter a URL and click "Generate Brief" to start
+                            </p>
                         </div>
                     </div>
                 </div>
-                <div class="results-panel">
-                    <div class="results-header">
-                        <h2>GTM Brief</h2>
-                    </div>
-                    <div id="briefResults" class="empty-state">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
-                        <h3>No brief generated</h3>
-                        <p>Enter a company URL to generate a GTM brief.</p>
+            </div>
+
+            <div id="briefDisplaySection" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.5rem;">
+                    <button class="btn btn-secondary" onclick="resetBrief()">← Generate New Brief</button>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn btn-secondary" onclick="downloadBriefPDF()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                            Download PDF
+                        </button>
+                        <button class="btn btn-primary" onclick="sendToOutbound()">
+                            Send to Outbound →
+                        </button>
                     </div>
                 </div>
+                <div id="briefResults"></div>
             </div>
         </div><!-- End tab-brief -->
 
         <!-- TAB: Prospect Discovery -->
         <div id="tab-discovery" class="tab-content">
-            <div class="main-grid">
-                <div class="form-panel">
-                    <div class="form-section">
-                        <h3>Discover Prospects</h3>
-                        <label>Discovery Mode</label>
-                        <select id="discoveryMode">
-                            <option value="smart">Smart Search (Recommended)</option>
-                            <option value="web">Web Search (Firecrawl)</option>
-                            <option value="maps">Google Maps URL</option>
-                        </select>
+            <!-- Brief Context Panel (shown when brief exists) -->
+            <div id="briefContextPanel" class="brief-context-panel" style="display: none;">
+                <div class="brief-context-header">
+                    <span>🎯 From Your GTM Brief</span>
+                    <span id="briefCompanyName" style="color: var(--text-muted);"></span>
+                </div>
+                <div id="briefIcpSummary" style="margin-top: 0.5rem; font-size: 0.875rem; color: var(--text-muted);"></div>
+                <div id="briefSuggestedQueries" style="margin-top: 0.75rem;">
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;">Suggested Queries (click to use):</p>
+                    <div id="suggestedQueriesChips" class="chips-container"></div>
+                </div>
+                <div id="briefGeographies" style="margin-top: 0.75rem;">
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;">Target Geographies:</p>
+                    <div id="geographiesChips" class="chips-container"></div>
+                </div>
+            </div>
 
-                        <div id="searchQuerySection">
+            <!-- Step 1: Objective Selection -->
+            <div class="form-section" style="margin-bottom: 1.5rem;">
+                <h3>Step 1: What's Your Objective?</h3>
+                <div class="objective-grid">
+                    <label class="objective-option active" onclick="setDiscoveryObjective('csv_export')" id="objCsvExport">
+                        <input type="radio" name="objective" value="csv_export" checked style="display: none;">
+                        <div class="objective-icon">📥</div>
+                        <div class="objective-text">
+                            <strong>Generate CSV</strong>
+                            <span>Export prospects to CSV for later use</span>
+                        </div>
+                    </label>
+                    <label class="objective-option" onclick="setDiscoveryObjective('enrich_now')" id="objEnrichNow">
+                        <input type="radio" name="objective" value="enrich_now" style="display: none;">
+                        <div class="objective-icon">✨</div>
+                        <div class="objective-text">
+                            <strong>Enrich Immediately</strong>
+                            <span>Find + enrich with emails & data</span>
+                        </div>
+                    </label>
+                    <label class="objective-option" onclick="setDiscoveryObjective('outreach_queue')" id="objOutreach">
+                        <input type="radio" name="objective" value="outreach_queue" style="display: none;">
+                        <div class="objective-icon">📤</div>
+                        <div class="objective-text">
+                            <strong>Queue for Outreach</strong>
+                            <span>Add directly to outreach campaigns</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Step 2: Discovery Method -->
+            <div class="form-section" style="margin-bottom: 1.5rem;">
+                <h3>Step 2: How Do You Want to Discover?</h3>
+
+                <!-- Mode Tabs -->
+                <div class="discovery-mode-tabs">
+                    <button class="mode-tab active" onclick="setDiscoveryMode('smart_search')" id="modeSmartSearch">
+                        ⚡ Smart Search
+                    </button>
+                    <button class="mode-tab" onclick="setDiscoveryMode('web_search')" id="modeWebSearch">
+                        🌐 Web Search
+                    </button>
+                    <button class="mode-tab" onclick="setDiscoveryMode('apollo_search')" id="modeApolloSearch">
+                        🏢 Apollo Database
+                    </button>
+                    <button class="mode-tab" onclick="setDiscoveryMode('maps_url')" id="modeMapsUrl">
+                        📍 Maps URL
+                    </button>
+                </div>
+
+                <!-- Mode Description -->
+                <div id="modeInfo" class="mode-info">
+                    <p id="modeDescription">
+                        ⚡ <strong>Smart Search</strong> combines web search and Apollo database for best results. It automatically falls back if one source is unavailable.
+                    </p>
+                </div>
+
+                <!-- Search Input Section -->
+                <div id="searchInputSection" style="margin-top: 1rem;">
+                    <div class="search-grid">
+                        <div>
                             <label>Search Query</label>
-                            <input type="text" id="discoveryQuery" placeholder="e.g., SaaS companies in Austin">
+                            <input type="text" id="discoveryQuery" placeholder="e.g., footwear retailers, SaaS companies">
+                        </div>
+                        <div>
                             <label>Location</label>
-                            <input type="text" id="discoveryLocation" placeholder="e.g., Austin, TX">
-                        </div>
-
-                        <div id="mapsUrlSection" style="display: none;">
-                            <label>Google Maps URL</label>
-                            <input type="url" id="mapsUrl" placeholder="Paste Google Maps search URL">
-                            <p style="color: var(--text-muted); font-size: 0.75rem; margin-top: 0.5rem;">
-                                Search on Google Maps, copy the URL, and paste it here.
-                            </p>
-                        </div>
-
-                        <button class="btn btn-primary" onclick="discoverProspects()" id="discoverBtn" style="width: 100%; margin-top: 1rem;">
-                            Discover Prospects
-                        </button>
-                    </div>
-                    <div id="discoveryProgress" style="display: none;">
-                        <div class="progress-indicator">
-                            <div class="spinner"></div>
-                            <span id="discoveryStep">Searching...</span>
+                            <select id="discoveryLocationSelect">
+                                <option value="">Select location...</option>
+                                <optgroup label="From Your Brief" id="briefLocationsGroup"></optgroup>
+                                <optgroup label="Common Locations">
+                                    <option value="United States">United States</option>
+                                    <option value="United Kingdom">United Kingdom</option>
+                                    <option value="Germany">Germany</option>
+                                    <option value="France">France</option>
+                                    <option value="Spain">Spain</option>
+                                    <option value="Netherlands">Netherlands</option>
+                                    <option value="Canada">Canada</option>
+                                    <option value="Australia">Australia</option>
+                                </optgroup>
+                                <option value="custom">Custom location...</option>
+                            </select>
+                            <input type="text" id="discoveryLocationCustom" placeholder="Enter custom location..." style="display: none; margin-top: 0.5rem;">
                         </div>
                     </div>
                 </div>
-                <div class="results-panel">
-                    <div class="results-header">
-                        <h2>Discovered Prospects</h2>
-                        <span id="discoveryCount" class="results-count">0 prospects</span>
-                    </div>
-                    <div id="discoveryResults" class="empty-state">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                        </svg>
-                        <h3>No prospects yet</h3>
-                        <p>Configure your search to discover prospects.</p>
+
+                <!-- Apollo Warning -->
+                <div id="apolloWarning" class="mode-warning" style="display: none;">
+                    ⚠️ If Apollo API fails, we'll automatically fall back to web search.
+                </div>
+
+                <!-- Maps URL Section -->
+                <div id="mapsUrlSection" style="display: none; margin-top: 1rem;">
+                    <label>Google Maps Search URL</label>
+                    <textarea id="mapsUrl" rows="3" placeholder="Paste a Google Maps search URL like: https://www.google.com/maps/search/fashion+shoes+warsaw/..." style="font-family: monospace; font-size: 0.8rem;"></textarea>
+                    <p style="color: var(--text-muted); font-size: 0.75rem; margin-top: 0.5rem;">
+                        Search for businesses on Google Maps, then copy the URL from your browser and paste it here.
+                    </p>
+                </div>
+
+                <button class="btn btn-primary" onclick="discoverProspects()" id="discoverBtn" style="width: 100%; margin-top: 1rem;">
+                    🔍 Discover Prospects
+                </button>
+
+                <div id="discoveryProgress" style="display: none; margin-top: 1rem;">
+                    <div class="progress-indicator">
+                        <div class="spinner"></div>
+                        <span id="discoveryStep">Searching...</span>
                     </div>
                 </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="form-section" id="discoveryResultsSection" style="display: none;">
+                <div class="results-header" style="margin-bottom: 1rem;">
+                    <div>
+                        <h3>Discovery Results</h3>
+                        <p id="discoveryCount" style="color: var(--text-muted); font-size: 0.875rem;">0 prospects found • 0 selected</p>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn btn-secondary" onclick="exportDiscovered()" id="exportDiscoveredBtn">📥 Export CSV</button>
+                        <button class="btn btn-primary" onclick="executePrimaryAction()" id="primaryActionBtn">📥 Download CSV</button>
+                    </div>
+                </div>
+
+                <!-- Select All -->
+                <div style="margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <input type="checkbox" id="selectAllProspects" onchange="toggleSelectAllProspects()">
+                    <label for="selectAllProspects" style="font-size: 0.875rem; cursor: pointer;">Select All</label>
+                </div>
+
+                <!-- Results Table -->
+                <div id="discoveryResults" class="prospects-table-container">
+                    <!-- Will be populated by JS -->
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div id="discoveryEmptyState" class="empty-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width: 48px; height: 48px;">
+                    <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                <h3>Ready to discover prospects</h3>
+                <p id="discoveryEmptyText">Generate a GTM Brief first to get AI-powered search suggestions, or enter a search query manually.</p>
             </div>
         </div><!-- End tab-discovery -->
 
         <!-- TAB: Enrichment -->
         <div id="tab-enrichment" class="tab-content">
+            <!-- Stats Cards -->
+            <div id="enrichStatsGrid" class="stats-grid" style="display: none; margin-bottom: 1.5rem;">
+                <div class="stat-card">
+                    <div class="stat-value" id="enrichTotal">0</div>
+                    <div class="stat-label">Total Leads</div>
+                </div>
+                <div class="stat-card high">
+                    <div class="stat-value" id="enrichEnriched">0</div>
+                    <div class="stat-label">Enriched</div>
+                </div>
+                <div class="stat-card medium">
+                    <div class="stat-value" id="enrichProcessing">0</div>
+                    <div class="stat-label">Processing</div>
+                </div>
+                <div class="stat-card low">
+                    <div class="stat-value" id="enrichFailed">0</div>
+                    <div class="stat-label">Failed</div>
+                </div>
+            </div>
+
             <div class="main-grid">
                 <div class="form-panel">
                     <div class="form-section">
-                        <h3>Enrich Companies</h3>
+                        <h3>✨ Enrich Leads</h3>
                         <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">
-                            Get detailed company info: emails, social links, tech stack, and decision makers.
+                            Enter company domains to enrich with data from the web
                         </p>
-                        <label>Domains (one per line)</label>
-                        <textarea id="enrichDomains" rows="6" placeholder="example.com&#10;another-company.com&#10;startup.io"></textarea>
-                        <button class="btn btn-primary" onclick="enrichCompanies()" id="enrichBtn" style="width: 100%; margin-top: 1rem;">
-                            Enrich Companies
-                        </button>
-                    </div>
-                    <div id="enrichProgress" style="display: none;">
-                        <div class="progress-indicator">
-                            <div class="spinner"></div>
-                            <span id="enrichStep">Enriching...</span>
+
+                        <!-- Input Mode Tabs -->
+                        <div class="enrich-tabs" style="display: flex; gap: 0.25rem; margin-bottom: 1rem;">
+                            <button class="enrich-tab active" onclick="switchEnrichMode('single')" id="enrichTabSingle">
+                                🌐 Single
+                            </button>
+                            <button class="enrich-tab" onclick="switchEnrichMode('bulk')" id="enrichTabBulk">
+                                📄 Bulk
+                            </button>
+                            <button class="enrich-tab" onclick="switchEnrichMode('csv')" id="enrichTabCsv">
+                                📁 CSV
+                            </button>
+                        </div>
+
+                        <!-- Single Domain Input -->
+                        <div id="enrichModeSingle">
+                            <div style="display: flex; gap: 0.5rem;">
+                                <input type="text" id="singleDomain" placeholder="example.com" style="flex: 1;">
+                                <button class="btn btn-primary" onclick="enrichSingle()" id="enrichSingleBtn" style="width: auto; padding: 0.75rem 1.25rem;">
+                                    Enrich
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Bulk Domains Input -->
+                        <div id="enrichModeBulk" style="display: none;">
+                            <textarea id="bulkDomains" rows="6" placeholder="Enter one domain per line:&#10;example.com&#10;acme.io&#10;startup.co" style="font-family: monospace; font-size: 0.8rem;"></textarea>
+                            <button class="btn btn-primary" onclick="enrichBulk()" id="enrichBulkBtn" style="width: 100%; margin-top: 0.75rem;">
+                                ✨ Enrich All (<span id="bulkCount">0</span> domains)
+                            </button>
+                        </div>
+
+                        <!-- CSV Upload -->
+                        <div id="enrichModeCsv" style="display: none;">
+                            <input type="file" id="csvFileInput" accept=".csv" style="display: none;" onchange="handleCsvUpload(event)">
+                            <div class="csv-dropzone" onclick="document.getElementById('csvFileInput').click()">
+                                <div style="font-size: 2rem; margin-bottom: 0.5rem;">📁</div>
+                                <p style="margin-bottom: 0.25rem;">Click to upload CSV file</p>
+                                <p style="font-size: 0.75rem; color: var(--text-muted);">CSV should contain a column with company domains</p>
+                            </div>
                         </div>
                     </div>
+
+                    <div id="enrichProgress" style="display: none; margin-top: 1rem;">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="enrichProgressFill" style="width: 0%;"></div>
+                        </div>
+                        <p id="enrichProgressText" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">Enriching...</p>
+                    </div>
                 </div>
+
                 <div class="results-panel">
                     <div class="results-header">
-                        <h2>Enriched Companies</h2>
-                        <button class="btn btn-secondary" onclick="exportEnriched()" id="exportEnrichedBtn" style="display: none;">Export CSV</button>
+                        <h2>Leads</h2>
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <span id="enrichLeadsCount" style="color: var(--text-muted); font-size: 0.875rem;"></span>
+                            <button class="btn btn-secondary" onclick="exportEnriched()" id="exportEnrichedBtn" style="display: none;">
+                                📥 Export CSV
+                            </button>
+                        </div>
                     </div>
+
                     <div id="enrichResults" class="empty-state">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                             <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                         </svg>
-                        <h3>No companies enriched</h3>
-                        <p>Enter domains above to enrich company data.</p>
+                        <h3>No leads yet</h3>
+                        <p>Enter company domains or upload a CSV to start enriching your leads with data from the web.</p>
                     </div>
                 </div>
             </div>
@@ -875,16 +1939,16 @@
         let pollInterval = null;
         let discoveredProspects = [];
         let enrichedCompanies = [];
+        let currentBrief = null;
 
         // Tab switching
         function switchTab(tabName) {
-            // Hide all tabs
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
-
-            // Show selected tab
             document.getElementById('tab-' + tabName).classList.add('active');
-            event.target.classList.add('active');
+            if (event && event.target) event.target.classList.add('active');
+            // Update brief context panel visibility
+            updateBriefContextPanel();
         }
 
         // Discovery mode toggle
@@ -894,127 +1958,779 @@
                 modeSelect.addEventListener('change', function() {
                     const searchSection = document.getElementById('searchQuerySection');
                     const mapsSection = document.getElementById('mapsUrlSection');
+                    const modeDesc = document.getElementById('modeDescription');
                     if (this.value === 'maps') {
                         searchSection.style.display = 'none';
                         mapsSection.style.display = 'block';
+                        modeDesc.textContent = 'Extract businesses directly from a Google Maps search URL';
+                    } else if (this.value === 'web') {
+                        searchSection.style.display = 'block';
+                        mapsSection.style.display = 'none';
+                        modeDesc.textContent = 'Search the web using Firecrawl';
                     } else {
                         searchSection.style.display = 'block';
                         mapsSection.style.display = 'none';
+                        modeDesc.textContent = 'Combines web search and Apollo database for best results';
                     }
                 });
             }
         });
 
+        // Update step status
+        function updateStep(stepId, status) {
+            const step = document.getElementById('step-' + stepId);
+            if (!step) return;
+            step.className = 'step-item ' + status;
+            const icon = step.querySelector('.step-icon');
+            const statusEl = step.querySelector('.step-status');
+            if (status === 'completed') {
+                icon.textContent = '✓';
+                statusEl.textContent = 'completed';
+            } else if (status === 'in-progress') {
+                icon.textContent = '◉';
+                statusEl.textContent = 'processing';
+            } else if (status === 'failed') {
+                icon.textContent = '✗';
+                statusEl.textContent = 'failed';
+            } else {
+                icon.textContent = '○';
+                statusEl.textContent = 'pending';
+            }
+        }
+
+        // Reset all steps
+        function resetSteps() {
+            ['scrape', 'analyze', 'structure'].forEach(s => updateStep(s, 'pending'));
+        }
+
         // GTM Brief Generation
         async function generateBrief() {
             const url = document.getElementById('briefUrl').value.trim();
+            const additionalContext = document.getElementById('briefContext')?.value.trim() || '';
             if (!url) {
                 alert('Please enter a company URL');
                 return;
             }
 
             const btn = document.getElementById('briefBtn');
-            const progress = document.getElementById('briefProgress');
-            const results = document.getElementById('briefResults');
-
             btn.disabled = true;
-            btn.textContent = 'Generating...';
-            progress.style.display = 'block';
+            btn.textContent = '✨ Generating...';
+            resetSteps();
 
             try {
+                updateStep('scrape', 'in-progress');
+
                 const resp = await fetch('/api/brief', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ url })
+                    body: JSON.stringify({ url, additionalContext })
                 });
+
+                updateStep('scrape', 'completed');
+                updateStep('analyze', 'in-progress');
+
                 const data = await resp.json();
 
+                updateStep('analyze', 'completed');
+                updateStep('structure', 'in-progress');
+
                 if (data.success) {
-                    displayBrief(data.brief);
+                    updateStep('structure', 'completed');
+                    currentBrief = data.brief;
+                    displayFullBrief(data.brief);
+                    updateBriefContextPanel();
                 } else {
-                    results.innerHTML = `<div class="empty-state"><h3>Error</h3><p>${data.error}</p></div>`;
+                    updateStep('structure', 'failed');
+                    alert('Error: ' + data.error);
                 }
             } catch (e) {
-                results.innerHTML = `<div class="empty-state"><h3>Error</h3><p>${e.message}</p></div>`;
+                updateStep('scrape', 'failed');
+                alert('Error: ' + e.message);
             } finally {
                 btn.disabled = false;
-                btn.textContent = 'Generate GTM Brief';
-                progress.style.display = 'none';
+                btn.textContent = '✨ Generate GTM Brief';
             }
         }
 
-        function displayBrief(brief) {
+        function displayFullBrief(brief) {
+            document.getElementById('briefInputSection').style.display = 'none';
+            document.getElementById('briefDisplaySection').style.display = 'block';
+
             const results = document.getElementById('briefResults');
+            const cs = brief.companySnapshot || {};
+            const pi = brief.productIntelligence || {};
+            const pos = brief.positioning || {};
+            const icp = brief.icp || {};
+            const ss = brief.searchStrategy || {};
+
             results.innerHTML = `
-                <div style="padding: 1rem;">
-                    <div style="background: var(--surface-2); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
-                        <h3 style="margin-bottom: 0.5rem;">${brief.company?.name || 'Company'}</h3>
-                        <p style="color: var(--text-muted);">${brief.company?.tagline || ''}</p>
-                        <p style="margin-top: 0.5rem;"><strong>Industry:</strong> ${brief.company?.industry || 'N/A'}</p>
+                <!-- Company Snapshot -->
+                <div class="brief-section">
+                    <h3>🏢 Company Snapshot</h3>
+                    <div class="brief-grid">
+                        <div class="brief-field"><div class="brief-field-label">Company</div><strong>${cs.name || 'N/A'}</strong></div>
+                        <div class="brief-field"><div class="brief-field-label">Industry</div>${cs.industry || 'N/A'}</div>
+                        <div class="brief-field"><div class="brief-field-label">Location</div>${cs.location || 'N/A'}</div>
+                        <div class="brief-field"><div class="brief-field-label">Employees</div>${cs.employees || 'N/A'}</div>
                     </div>
-                    ${brief.value_proposition ? `
-                    <div style="background: var(--surface-2); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
-                        <h4 style="margin-bottom: 0.5rem;">Value Proposition</h4>
-                        <p>${brief.value_proposition}</p>
-                    </div>` : ''}
-                    ${brief.icp ? `
-                    <div style="background: var(--surface-2); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
-                        <h4 style="margin-bottom: 0.5rem;">Ideal Customer Profile</h4>
-                        <p><strong>Industries:</strong> ${brief.icp.industries?.join(', ') || 'N/A'}</p>
-                        <p><strong>Company Size:</strong> ${brief.icp.company_size || 'N/A'}</p>
-                        <p><strong>Pain Points:</strong> ${brief.icp.pain_points?.join(', ') || 'N/A'}</p>
-                    </div>` : ''}
-                    ${brief.search_queries?.length ? `
-                    <div style="background: var(--surface-2); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
-                        <h4 style="margin-bottom: 0.5rem;">Suggested Search Queries</h4>
-                        <ul style="margin-left: 1rem;">
-                            ${brief.search_queries.map(q => `<li>${q}</li>`).join('')}
-                        </ul>
-                        <button class="btn btn-secondary" onclick="useQueriesForDiscovery()" style="margin-top: 1rem;">
-                            Use for Discovery →
-                        </button>
-                    </div>` : ''}
+                    <p style="margin-top: 1rem; color: var(--text-muted);">${cs.tagline || ''}</p>
+                </div>
+
+                <!-- Product Intelligence -->
+                <div class="brief-section">
+                    <h3>📦 Product Intelligence</h3>
+                    ${(pi.products || []).length ? `
+                        <div style="margin-bottom: 1rem;">
+                            <div class="brief-field-label">Products & Services</div>
+                            ${(pi.products || []).map(p => `
+                                <div style="background: var(--surface-2); padding: 0.75rem; border-radius: 6px; margin-top: 0.5rem;">
+                                    <strong>${p.name || p}</strong>
+                                    ${p.category ? `<span class="tag">${p.category}</span>` : ''}
+                                    ${p.description ? `<p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">${p.description}</p>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                    ${(pi.keyFeatures || []).length ? `
+                        <div class="brief-field-label">Key Features</div>
+                        <div>${(pi.keyFeatures || []).map(f => `<span class="tag">${f}</span>`).join('')}</div>
+                    ` : ''}
+                    ${(pi.techStack || []).length ? `
+                        <div class="brief-field-label" style="margin-top: 0.75rem;">Tech Stack</div>
+                        <div>${(pi.techStack || []).map(t => `<span class="tag">${t}</span>`).join('')}</div>
+                    ` : ''}
+                </div>
+
+                <!-- Positioning -->
+                <div class="brief-section">
+                    <h3>🎯 Market Positioning</h3>
+                    ${pos.marketTension ? `<div style="margin-bottom: 1rem;"><div class="brief-field-label">Market Tension</div><p>${pos.marketTension}</p></div>` : ''}
+                    ${pos.valueProposition ? `<div style="margin-bottom: 1rem;"><div class="brief-field-label">Value Proposition</div><p style="font-weight: 500;">${pos.valueProposition}</p></div>` : ''}
+                    ${(pos.differentiators || []).length ? `
+                        <div class="brief-field-label">Differentiators</div>
+                        <ul style="margin-left: 1rem; margin-bottom: 1rem;">${(pos.differentiators || []).map(d => `<li>${d}</li>`).join('')}</ul>
+                    ` : ''}
+                    ${(pos.proofPoints || []).length ? `
+                        <div class="brief-field-label">Proof Points</div>
+                        <ul style="margin-left: 1rem;">${(pos.proofPoints || []).map(p => `<li>${p}</li>`).join('')}</ul>
+                    ` : ''}
+                </div>
+
+                <!-- ICP -->
+                <div class="brief-section">
+                    <h3>👥 Ideal Customer Profile</h3>
+                    ${(icp.primaryProfiles || []).length ? `
+                        <div class="brief-field-label">Target Personas</div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-top: 0.5rem;">
+                            ${(icp.primaryProfiles || []).map(p => `
+                                <div class="persona-card ${p.role || 'worker'}">
+                                    <span class="persona-badge ${p.role || 'worker'}">${
+                                        p.role === 'decision_maker' ? '👑 Decision Maker' :
+                                        p.role === 'influencer' ? '💡 Influencer' : '🔧 Worker/User'
+                                    }</span>
+                                    <div style="font-weight: 500;">${p.title || 'Unknown'}</div>
+                                    <div style="font-size: 0.8rem; color: var(--text-muted);">${p.seniority || ''} • ${p.department || ''}</div>
+                                    ${(p.painPoints || []).length ? `
+                                        <div style="margin-top: 0.5rem; font-size: 0.75rem;">
+                                            <strong>Pain Points:</strong>
+                                            <ul style="margin: 0.25rem 0 0 1rem;">${(p.painPoints || []).slice(0, 3).map(pp => `<li>${pp}</li>`).join('')}</ul>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                    ${icp.companyCharacteristics ? `
+                        <div style="margin-top: 1rem;">
+                            <div class="brief-field-label">Company Characteristics</div>
+                            <span class="tag">${icp.companyCharacteristics.size || 'Various'}</span>
+                            ${(icp.companyCharacteristics.industries || []).map(i => `<span class="tag">${i}</span>`).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+
+                <!-- Search Strategy -->
+                <div class="brief-section">
+                    <h3>🔍 Search Strategy</h3>
+                    ${(ss.suggestedQueries || []).length ? `
+                        <div class="brief-field-label">Suggested Search Queries</div>
+                        <div class="chips-container" style="margin-bottom: 1rem;">
+                            ${(ss.suggestedQueries || []).map(q => `<span class="chip" onclick="useQuery('${q.replace(/'/g, "\\'")}')">${q}</span>`).join('')}
+                        </div>
+                    ` : ''}
+                    ${(ss.geographies || []).length ? `
+                        <div class="brief-field-label">Target Geographies</div>
+                        <div class="chips-container" style="margin-bottom: 1rem;">
+                            ${(ss.geographies || []).map(g => `<span class="chip" onclick="useLocation('${g.replace(/'/g, "\\'")}')">${g}</span>`).join('')}
+                        </div>
+                    ` : ''}
+                    ${(ss.outreachAngles || []).length ? `
+                        <div class="brief-field-label">Outreach Angles</div>
+                        ${(ss.outreachAngles || []).map(a => `
+                            <div class="outreach-angle">
+                                <h4>${a.angle || a}</h4>
+                                ${a.targetPersona ? `<span class="tag">${a.targetPersona}</span>` : ''}
+                                ${a.keyMessage ? `<p>${a.keyMessage}</p>` : ''}
+                            </div>
+                        `).join('')}
+                    ` : ''}
                 </div>
             `;
         }
 
-        function useQueriesForDiscovery() {
-            // Switch to discovery tab with queries
-            switchTab('discovery');
+        function resetBrief() {
+            currentBrief = null;
+            document.getElementById('briefInputSection').style.display = 'block';
+            document.getElementById('briefDisplaySection').style.display = 'none';
+            document.getElementById('briefUrl').value = '';
+            document.getElementById('briefContext').value = '';
+            resetSteps();
+            updateBriefContextPanel();
+        }
+
+        function useBriefForDiscovery() {
+            document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.nav-tab')[2].classList.add('active');
-            document.querySelectorAll('.nav-tab')[1].classList.remove('active');
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.getElementById('tab-discovery').classList.add('active');
+            updateBriefContextPanel();
+
+            // Pre-fill first query and geography
+            if (currentBrief?.searchStrategy?.suggestedQueries?.[0]) {
+                document.getElementById('discoveryQuery').value = currentBrief.searchStrategy.suggestedQueries[0];
+            }
+            if (currentBrief?.searchStrategy?.geographies?.[0]) {
+                document.getElementById('discoveryLocation').value = currentBrief.searchStrategy.geographies[0];
+            }
+        }
+
+        function sendToOutbound() {
+            if (!currentBrief) {
+                alert('No brief available. Please generate a brief first.');
+                return;
+            }
+
+            const cs = currentBrief.companySnapshot || {};
+            const ss = currentBrief.searchStrategy || {};
+            const icp = currentBrief.icp || {};
+            const pos = currentBrief.positioning || {};
+
+            // Fill Brand Name
+            if (cs.name) {
+                document.getElementById('brandName').value = cs.name;
+            }
+
+            // Fill Brand Website
+            if (cs.website) {
+                document.getElementById('brandWebsite').value = cs.website;
+            } else if (document.getElementById('briefUrl').value) {
+                document.getElementById('brandWebsite').value = document.getElementById('briefUrl').value;
+            }
+
+            // Fill Search Queries (combine suggested queries with geographies)
+            const queries = ss.suggestedQueries || [];
+            const geos = ss.geographies || [];
+            let combinedQueries = [];
+
+            if (queries.length && geos.length) {
+                // Combine first 3 queries with first 2 geographies
+                queries.slice(0, 3).forEach(q => {
+                    geos.slice(0, 2).forEach(g => {
+                        combinedQueries.push(`${q} ${g}`);
+                    });
+                });
+            } else if (queries.length) {
+                combinedQueries = queries.slice(0, 6);
+            }
+
+            if (combinedQueries.length) {
+                document.getElementById('queries').value = combinedQueries.join('\n');
+            }
+
+            // Fill Positive Signals from ICP signals and differentiators
+            const positiveSignals = [];
+            if (icp.companyCharacteristics?.signals) {
+                positiveSignals.push(...icp.companyCharacteristics.signals.slice(0, 3));
+            }
+            if (pos.differentiators) {
+                positiveSignals.push(...pos.differentiators.slice(0, 2));
+            }
+            if (positiveSignals.length) {
+                document.getElementById('positiveSignals').value = positiveSignals.join(', ');
+            }
+
+            // Fill Negative Signals from disqualifiers
+            if (icp.disqualifiers && icp.disqualifiers.length) {
+                document.getElementById('negativeSignals').value = icp.disqualifiers.slice(0, 5).join(', ');
+            }
+
+            // Switch to Outbound tab
+            document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.nav-tab')[1].classList.add('active'); // GTM Outbound is now index 1
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.getElementById('tab-finder').classList.add('active');
+        }
+
+        function downloadBriefPDF() {
+            if (!currentBrief) {
+                alert('No brief available. Please generate a brief first.');
+                return;
+            }
+
+            const cs = currentBrief.companySnapshot || {};
+            const pi = currentBrief.productIntelligence || {};
+            const pos = currentBrief.positioning || {};
+            const icp = currentBrief.icp || {};
+            const ss = currentBrief.searchStrategy || {};
+
+            // Create printable HTML content
+            const printContent = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>GTM Brief - ${cs.name || 'Company'}</title>
+                    <style>
+                        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; color: #333; }
+                        h1 { color: #1a1a2e; border-bottom: 3px solid #4f46e5; padding-bottom: 10px; }
+                        h2 { color: #4f46e5; margin-top: 30px; }
+                        h3 { color: #666; margin-top: 20px; }
+                        .section { margin-bottom: 30px; }
+                        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+                        .field { background: #f8f9fa; padding: 12px; border-radius: 6px; }
+                        .field-label { font-size: 11px; color: #666; text-transform: uppercase; margin-bottom: 4px; }
+                        .tag { display: inline-block; background: #e8e8ff; color: #4f46e5; padding: 4px 10px; border-radius: 12px; font-size: 12px; margin: 2px; }
+                        ul { margin: 10px 0; padding-left: 20px; }
+                        li { margin: 5px 0; }
+                        .persona { background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 10px 0; border-left: 4px solid #4f46e5; }
+                        .persona-title { font-weight: bold; font-size: 16px; }
+                        .persona-meta { color: #666; font-size: 13px; }
+                        .angle { background: #fff; border: 1px solid #e0e0e0; padding: 15px; border-radius: 8px; margin: 10px 0; }
+                        .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #e0e0e0; color: #999; font-size: 12px; text-align: center; }
+                    </style>
+                </head>
+                <body>
+                    <h1>🎯 GTM Brief: ${cs.name || 'Company'}</h1>
+                    <p style="color: #666;">${cs.tagline || ''}</p>
+
+                    <div class="section">
+                        <h2>🏢 Company Snapshot</h2>
+                        <div class="grid">
+                            <div class="field"><div class="field-label">Company</div><strong>${cs.name || 'N/A'}</strong></div>
+                            <div class="field"><div class="field-label">Industry</div>${cs.industry || 'N/A'}</div>
+                            <div class="field"><div class="field-label">Location</div>${cs.location || 'N/A'}</div>
+                            <div class="field"><div class="field-label">Employees</div>${cs.employees || 'N/A'}</div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h2>📦 Product Intelligence</h2>
+                        ${(pi.products || []).length ? `
+                            <h3>Products & Services</h3>
+                            ${(pi.products || []).map(p => `<div class="field"><strong>${p.name || p}</strong>${p.description ? ` - ${p.description}` : ''}</div>`).join('')}
+                        ` : ''}
+                        ${(pi.keyFeatures || []).length ? `
+                            <h3>Key Features</h3>
+                            <div>${(pi.keyFeatures || []).map(f => `<span class="tag">${f}</span>`).join(' ')}</div>
+                        ` : ''}
+                    </div>
+
+                    <div class="section">
+                        <h2>🎯 Market Positioning</h2>
+                        ${pos.marketTension ? `<h3>Market Tension</h3><p>${pos.marketTension}</p>` : ''}
+                        ${pos.valueProposition ? `<h3>Value Proposition</h3><p><strong>${pos.valueProposition}</strong></p>` : ''}
+                        ${(pos.differentiators || []).length ? `<h3>Differentiators</h3><ul>${(pos.differentiators || []).map(d => `<li>${d}</li>`).join('')}</ul>` : ''}
+                        ${(pos.proofPoints || []).length ? `<h3>Proof Points</h3><ul>${(pos.proofPoints || []).map(p => `<li>${p}</li>`).join('')}</ul>` : ''}
+                    </div>
+
+                    <div class="section">
+                        <h2>👥 Ideal Customer Profile</h2>
+                        ${(icp.primaryProfiles || []).length ? `
+                            <h3>Target Personas</h3>
+                            ${(icp.primaryProfiles || []).map(p => `
+                                <div class="persona">
+                                    <div class="persona-title">${p.title || 'Unknown'}</div>
+                                    <div class="persona-meta">${p.seniority || ''} • ${p.department || ''} • ${
+                                        p.role === 'decision_maker' ? '👑 Decision Maker' :
+                                        p.role === 'influencer' ? '💡 Influencer' : '🔧 Worker/User'
+                                    }</div>
+                                    ${(p.painPoints || []).length ? `<p><strong>Pain Points:</strong> ${p.painPoints.join(', ')}</p>` : ''}
+                                </div>
+                            `).join('')}
+                        ` : ''}
+                        ${icp.companyCharacteristics ? `
+                            <h3>Company Characteristics</h3>
+                            <p><strong>Size:</strong> ${icp.companyCharacteristics.size || 'Various'}</p>
+                            ${(icp.companyCharacteristics.industries || []).length ? `<p><strong>Industries:</strong> ${icp.companyCharacteristics.industries.join(', ')}</p>` : ''}
+                        ` : ''}
+                    </div>
+
+                    <div class="section">
+                        <h2>🔍 Search Strategy</h2>
+                        ${(ss.suggestedQueries || []).length ? `
+                            <h3>Suggested Search Queries</h3>
+                            <div>${(ss.suggestedQueries || []).map(q => `<span class="tag">${q}</span>`).join(' ')}</div>
+                        ` : ''}
+                        ${(ss.geographies || []).length ? `
+                            <h3>Target Geographies</h3>
+                            <div>${(ss.geographies || []).map(g => `<span class="tag">${g}</span>`).join(' ')}</div>
+                        ` : ''}
+                        ${(ss.outreachAngles || []).length ? `
+                            <h3>Outreach Angles</h3>
+                            ${(ss.outreachAngles || []).map(a => `
+                                <div class="angle">
+                                    <strong>${a.angle || a}</strong>
+                                    ${a.targetPersona ? ` <span class="tag">${a.targetPersona}</span>` : ''}
+                                    ${a.keyMessage ? `<p>${a.keyMessage}</p>` : ''}
+                                </div>
+                            `).join('')}
+                        ` : ''}
+                    </div>
+
+                    <div class="footer">
+                        Generated by GTM LeadFlow • ${new Date().toLocaleDateString()}
+                    </div>
+                </body>
+                </html>
+            `;
+
+            // Open print dialog
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(printContent);
+            printWindow.document.close();
+            printWindow.onload = function() {
+                printWindow.print();
+            };
+        }
+
+        function updateBriefContextPanel() {
+            const panel = document.getElementById('briefContextPanel');
+            if (!panel) return;
+
+            if (currentBrief) {
+                panel.style.display = 'block';
+                document.getElementById('briefCompanyName').textContent = currentBrief.companySnapshot?.name || '';
+
+                // ICP Summary
+                const icpSummary = document.getElementById('briefIcpSummary');
+                if (icpSummary && currentBrief.icp?.primaryProfiles) {
+                    const titles = currentBrief.icp.primaryProfiles.slice(0, 2).map(p => p.title || p).join(', ');
+                    icpSummary.innerHTML = `<strong>Target:</strong> ${titles}`;
+                }
+
+                // Suggested queries
+                const queriesContainer = document.getElementById('suggestedQueriesChips');
+                const queries = currentBrief.searchStrategy?.suggestedQueries || [];
+                queriesContainer.innerHTML = queries.map(q =>
+                    `<span class="chip" onclick="useQuery('${q.replace(/'/g, "\\'")}')">${q}</span>`
+                ).join('');
+
+                // Geographies chips
+                const geosContainer = document.getElementById('geographiesChips');
+                const geos = currentBrief.searchStrategy?.geographies || [];
+                geosContainer.innerHTML = geos.map(g =>
+                    `<span class="chip" onclick="useLocation('${g.replace(/'/g, "\\'")}')">${g}</span>`
+                ).join('');
+
+                // Populate location dropdown with brief locations
+                const briefLocationsGroup = document.getElementById('briefLocationsGroup');
+                if (briefLocationsGroup && geos.length > 0) {
+                    briefLocationsGroup.innerHTML = geos.map(g =>
+                        `<option value="${g}">${g}</option>`
+                    ).join('');
+                }
+
+                // Update empty state text
+                const emptyText = document.getElementById('discoveryEmptyText');
+                if (emptyText) {
+                    emptyText.textContent = 'Click a suggested query above or enter your own search to find prospects matching your ICP.';
+                }
+            } else {
+                panel.style.display = 'none';
+
+                // Clear brief locations from dropdown
+                const briefLocationsGroup = document.getElementById('briefLocationsGroup');
+                if (briefLocationsGroup) {
+                    briefLocationsGroup.innerHTML = '';
+                }
+
+                // Update empty state text
+                const emptyText = document.getElementById('discoveryEmptyText');
+                if (emptyText) {
+                    emptyText.textContent = 'Generate a GTM Brief first to get AI-powered search suggestions, or enter a search query manually.';
+                }
+            }
+        }
+
+        function useQuery(query) {
+            document.getElementById('discoveryQuery').value = query;
+            document.querySelectorAll('#suggestedQueriesChips .chip').forEach(c => c.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function useLocation(location) {
+            // Try to select in dropdown first
+            const select = document.getElementById('discoveryLocationSelect');
+            const customInput = document.getElementById('discoveryLocationCustom');
+
+            // Check if location is in the dropdown options
+            let found = false;
+            for (const option of select.options) {
+                if (option.value === location) {
+                    select.value = location;
+                    customInput.style.display = 'none';
+                    found = true;
+                    break;
+                }
+            }
+
+            // If not found, use custom input
+            if (!found) {
+                select.value = 'custom';
+                customInput.value = location;
+                customInput.style.display = 'block';
+            }
+
+            // Update chip styles
+            document.querySelectorAll('#geographiesChips .chip').forEach(c => c.classList.remove('active'));
+            if (event && event.target) event.target.classList.add('active');
         }
 
         // Prospect Discovery
+        // ============================================
+        // PROSPECT DISCOVERY - NEW COMPREHENSIVE VERSION
+        // ============================================
+
+        let discoveryObjective = 'csv_export';
+        let discoveryMode = 'smart_search';
+        let selectedProspectIds = new Set();
+
+        function setDiscoveryObjective(objective) {
+            discoveryObjective = objective;
+            document.querySelectorAll('.objective-option').forEach(o => o.classList.remove('active'));
+            document.getElementById('obj' + objective.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('')).classList.add('active');
+            updatePrimaryActionButton();
+
+            // Auto-select all if objective is enrich_now
+            if (objective === 'enrich_now' && discoveredProspects.length > 0) {
+                selectedProspectIds = new Set(discoveredProspects.map(p => p.id));
+                document.getElementById('selectAllProspects').checked = true;
+                displayDiscoveredProspects(discoveredProspects);
+            }
+        }
+
+        function setDiscoveryMode(mode) {
+            discoveryMode = mode;
+            document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+
+            const modeButtons = {
+                'smart_search': 'modeSmartSearch',
+                'web_search': 'modeWebSearch',
+                'apollo_search': 'modeApolloSearch',
+                'maps_url': 'modeMapsUrl'
+            };
+            document.getElementById(modeButtons[mode])?.classList.add('active');
+
+            // Show/hide relevant sections
+            const searchSection = document.getElementById('searchInputSection');
+            const mapsSection = document.getElementById('mapsUrlSection');
+            const apolloWarning = document.getElementById('apolloWarning');
+            const modeDesc = document.getElementById('modeDescription');
+
+            if (mode === 'maps_url') {
+                searchSection.style.display = 'none';
+                mapsSection.style.display = 'block';
+                apolloWarning.style.display = 'none';
+                modeDesc.innerHTML = '📍 <strong>Maps URL</strong> extracts businesses directly from a Google Maps search results page.';
+            } else {
+                searchSection.style.display = 'block';
+                mapsSection.style.display = 'none';
+
+                if (mode === 'smart_search') {
+                    apolloWarning.style.display = 'none';
+                    modeDesc.innerHTML = '⚡ <strong>Smart Search</strong> combines web search and Apollo database for best results. It automatically falls back if one source is unavailable.';
+                } else if (mode === 'web_search') {
+                    apolloWarning.style.display = 'none';
+                    modeDesc.innerHTML = '🌐 <strong>Web Search</strong> uses Firecrawl to search the web for businesses matching your query.';
+                } else if (mode === 'apollo_search') {
+                    apolloWarning.style.display = 'block';
+                    modeDesc.innerHTML = '🏢 <strong>Apollo Database</strong> searches Apollo.io\'s company database for prospects.';
+                }
+            }
+        }
+
+        // Location dropdown handler
+        document.addEventListener('DOMContentLoaded', function() {
+            const locationSelect = document.getElementById('discoveryLocationSelect');
+            const customInput = document.getElementById('discoveryLocationCustom');
+
+            if (locationSelect) {
+                locationSelect.addEventListener('change', function() {
+                    if (this.value === 'custom') {
+                        customInput.style.display = 'block';
+                        customInput.focus();
+                    } else {
+                        customInput.style.display = 'none';
+                    }
+                });
+            }
+        });
+
+        function getEffectiveLocation() {
+            const select = document.getElementById('discoveryLocationSelect');
+            const custom = document.getElementById('discoveryLocationCustom');
+            return select.value === 'custom' ? custom.value.trim() : select.value;
+        }
+
+        function updatePrimaryActionButton() {
+            const btn = document.getElementById('primaryActionBtn');
+            const count = selectedProspectIds.size || discoveredProspects.length;
+
+            switch (discoveryObjective) {
+                case 'csv_export':
+                    btn.textContent = `📥 Download CSV (${count})`;
+                    break;
+                case 'enrich_now':
+                    btn.textContent = `✨ Enrich Selected (${selectedProspectIds.size})`;
+                    break;
+                case 'outreach_queue':
+                    btn.textContent = `📤 Add to Outreach (${selectedProspectIds.size})`;
+                    break;
+            }
+        }
+
+        function toggleProspectSelection(id) {
+            if (selectedProspectIds.has(id)) {
+                selectedProspectIds.delete(id);
+            } else {
+                selectedProspectIds.add(id);
+            }
+
+            // Update checkbox UI
+            const checkbox = document.getElementById('prospect-check-' + id);
+            if (checkbox) checkbox.checked = selectedProspectIds.has(id);
+
+            // Update select all checkbox
+            const selectAll = document.getElementById('selectAllProspects');
+            selectAll.checked = selectedProspectIds.size === discoveredProspects.length;
+
+            // Update count display
+            document.getElementById('discoveryCount').textContent =
+                `${discoveredProspects.length} prospects found • ${selectedProspectIds.size} selected`;
+            updatePrimaryActionButton();
+        }
+
+        function toggleSelectAllProspects() {
+            const selectAll = document.getElementById('selectAllProspects');
+            if (selectAll.checked) {
+                selectedProspectIds = new Set(discoveredProspects.map(p => p.id));
+            } else {
+                selectedProspectIds.clear();
+            }
+
+            // Update all checkboxes
+            discoveredProspects.forEach(p => {
+                const checkbox = document.getElementById('prospect-check-' + p.id);
+                if (checkbox) checkbox.checked = selectAll.checked;
+            });
+
+            document.getElementById('discoveryCount').textContent =
+                `${discoveredProspects.length} prospects found • ${selectedProspectIds.size} selected`;
+            updatePrimaryActionButton();
+        }
+
+        function executePrimaryAction() {
+            const selected = discoveredProspects.filter(p => selectedProspectIds.has(p.id));
+
+            switch (discoveryObjective) {
+                case 'csv_export':
+                    exportDiscovered();
+                    break;
+                case 'enrich_now':
+                    if (selected.length === 0) {
+                        alert('Please select prospects to enrich');
+                        return;
+                    }
+                    sendSelectedToEnrichment(selected);
+                    break;
+                case 'outreach_queue':
+                    if (selected.length === 0) {
+                        alert('Please select prospects for outreach');
+                        return;
+                    }
+                    alert(`Added ${selected.length} prospects to outreach queue (Outreach feature coming soon)`);
+                    break;
+            }
+        }
+
+        function sendSelectedToEnrichment(prospects) {
+            // Get domains from prospects
+            const domains = prospects
+                .filter(p => p.website)
+                .map(p => {
+                    let domain = p.website;
+                    domain = domain.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0];
+                    return domain;
+                })
+                .filter(d => d);
+
+            if (domains.length === 0) {
+                alert('No valid domains found in selected prospects');
+                return;
+            }
+
+            // Switch to enrichment tab
+            switchTab('enrichment');
+
+            // Fill in the bulk input
+            document.getElementById('bulkDomains').value = domains.join('\n');
+            document.getElementById('bulkCount').textContent = domains.length;
+            switchEnrichMode('bulk');
+
+            alert(`Added ${domains.length} domains to enrichment. Click "Enrich All" to start.`);
+        }
+
         async function discoverProspects() {
-            const mode = document.getElementById('discoveryMode').value;
             const btn = document.getElementById('discoverBtn');
             const progress = document.getElementById('discoveryProgress');
-            const results = document.getElementById('discoveryResults');
+            const step = document.getElementById('discoveryStep');
 
-            let payload = { mode };
+            let payload = { mode: discoveryMode };
 
-            if (mode === 'maps') {
+            if (discoveryMode === 'maps_url') {
                 const mapsUrl = document.getElementById('mapsUrl').value.trim();
                 if (!mapsUrl) {
                     alert('Please enter a Google Maps URL');
                     return;
                 }
-                payload.mapsUrl = mapsUrl;
-            } else {
-                const query = document.getElementById('discoveryQuery').value.trim();
-                const location = document.getElementById('discoveryLocation').value.trim();
-                if (!query) {
-                    alert('Please enter a search query');
+                if (!mapsUrl.includes('google.com/maps')) {
+                    alert('Please enter a valid Google Maps URL');
                     return;
                 }
-                payload.query = query;
+                payload.mapsUrl = mapsUrl;
+                payload.location = getEffectiveLocation();
+            } else {
+                const query = document.getElementById('discoveryQuery').value.trim();
+                const location = getEffectiveLocation();
+
+                if (!query && !currentBrief?.searchStrategy?.suggestedQueries?.length) {
+                    alert('Please enter a search query or select from suggested queries');
+                    return;
+                }
+
+                payload.query = query || currentBrief?.searchStrategy?.suggestedQueries?.[0];
+                payload.queries = query ? [query] : currentBrief?.searchStrategy?.suggestedQueries?.slice(0, 3);
                 payload.location = location;
+                payload.category = query?.split(' ')[0] || '';
+                payload.industry = currentBrief?.icp?.companyCharacteristics?.industries?.[0] || '';
             }
 
             btn.disabled = true;
-            btn.textContent = 'Searching...';
+            btn.textContent = '🔍 Searching...';
             progress.style.display = 'block';
+            step.textContent = `Searching for "${payload.query || payload.mapsUrl || 'businesses'}"...`;
+
+            // Reset selection
+            selectedProspectIds.clear();
 
             try {
                 const resp = await fetch('/api/discover', {
@@ -1026,167 +2742,542 @@
 
                 if (data.success) {
                     discoveredProspects = data.prospects;
+
+                    // Show results section, hide empty state
+                    document.getElementById('discoveryResultsSection').style.display = 'block';
+                    document.getElementById('discoveryEmptyState').style.display = 'none';
+
                     displayDiscoveredProspects(data.prospects);
-                    document.getElementById('discoveryCount').textContent = `${data.prospects.length} prospects`;
+
+                    // Auto-select all if objective is enrich_now
+                    if (discoveryObjective === 'enrich_now') {
+                        selectedProspectIds = new Set(data.prospects.map(p => p.id));
+                        document.getElementById('selectAllProspects').checked = true;
+                    }
+
+                    document.getElementById('discoveryCount').textContent =
+                        `${data.prospects.length} prospects found • ${selectedProspectIds.size} selected`;
+                    updatePrimaryActionButton();
+
+                    // Show fallback warning if applicable
+                    if (data.fallbackReason) {
+                        alert(`Note: ${data.fallbackReason}. Found ${data.prospects.length} prospects via ${data.source}.`);
+                    }
                 } else {
-                    results.innerHTML = `<div class="empty-state"><h3>Error</h3><p>${data.error}</p></div>`;
+                    document.getElementById('discoveryResultsSection').style.display = 'none';
+                    document.getElementById('discoveryEmptyState').style.display = 'block';
+                    document.getElementById('discoveryEmptyText').textContent = data.error || 'Search failed. Try a different query.';
                 }
             } catch (e) {
-                results.innerHTML = `<div class="empty-state"><h3>Error</h3><p>${e.message}</p></div>`;
+                document.getElementById('discoveryResultsSection').style.display = 'none';
+                document.getElementById('discoveryEmptyState').style.display = 'block';
+                document.getElementById('discoveryEmptyText').textContent = e.message || 'Connection error.';
             } finally {
                 btn.disabled = false;
-                btn.textContent = 'Discover Prospects';
+                btn.textContent = '🔍 Discover Prospects';
                 progress.style.display = 'none';
             }
         }
 
         function displayDiscoveredProspects(prospects) {
             const results = document.getElementById('discoveryResults');
+
             if (!prospects.length) {
-                results.innerHTML = '<div class="empty-state"><h3>No prospects found</h3></div>';
+                results.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--text-muted);">No prospects found. Try a different search.</div>';
                 return;
             }
 
             results.innerHTML = `
-                <div style="margin-bottom: 1rem;">
-                    <button class="btn btn-secondary" onclick="sendToEnrichment()">Send to Enrichment →</button>
+                <div class="prospect-row prospect-row-header">
+                    <div></div>
+                    <div>Business</div>
+                    <div>Category</div>
+                    <div>Location</div>
+                    <div>Contact</div>
+                    <div>Rating</div>
+                    <div>Website</div>
                 </div>
-                <table class="results-table">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Category</th>
-                            <th>Location</th>
-                            <th>Website</th>
-                            <th>Rating</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${prospects.map(p => `
-                            <tr>
-                                <td><strong>${p.name}</strong></td>
-                                <td>${p.category || '-'}</td>
-                                <td>${p.location || '-'}</td>
-                                <td>${p.website ? `<a href="${p.website}" target="_blank">Visit</a>` : '-'}</td>
-                                <td>${p.rating ? p.rating + '⭐' : '-'}</td>
-                            </tr>
-                        `).join('')}
+                ${prospects.map(p => `
+                    <div class="prospect-row">
+                        <div>
+                            <input type="checkbox"
+                                   id="prospect-check-${p.id}"
+                                   ${selectedProspectIds.has(p.id) ? 'checked' : ''}
+                                   onchange="toggleProspectSelection('${p.id}')">
+                        </div>
+                        <div class="prospect-name">
+                            ${escapeHtml(p.name)}
+                            ${p.description ? `<small>${escapeHtml(p.description.substring(0, 60))}${p.description.length > 60 ? '...' : ''}</small>` : ''}
+                        </div>
+                        <div><span class="tag">${escapeHtml(p.category || 'Business')}</span></div>
+                        <div>
+                            ${escapeHtml(p.location || '-')}
+                            ${p.address ? `<small>${escapeHtml(p.address.substring(0, 40))}</small>` : ''}
+                        </div>
+                        <div class="prospect-contact">
+                            ${p.phone ? `<a href="tel:${p.phone}">📞 ${p.phone}</a>` : ''}
+                            ${p.email ? `<a href="mailto:${p.email}">✉️ ${p.email}</a>` : ''}
+                            ${!p.phone && !p.email ? '<span style="color: var(--text-muted);">—</span>' : ''}
+                        </div>
+                        <div class="rating-display">
+                            ${p.rating ? `<span class="star">★</span> ${p.rating}${p.reviewCount ? ` (${p.reviewCount})` : ''}` : '<span style="color: var(--text-muted);">—</span>'}
+                        </div>
+                        <div>
+                            ${p.website ?
+                                `<a href="${p.website.startsWith('http') ? p.website : 'https://' + p.website}" target="_blank" style="color: var(--accent); font-size: 0.8rem;">
+                                    ${new URL(p.website.startsWith('http') ? p.website : 'https://' + p.website).hostname.replace('www.', '').substring(0, 20)} ↗
+                                </a>` :
+                                '<span style="color: var(--text-muted);">—</span>'
+                            }
+                        </div>
+                    </div>
+                `).join('')}
                     </tbody>
                 </table>
             `;
         }
 
+        function exportDiscovered() {
+            // Export selected or all prospects
+            const prospectsToExport = selectedProspectIds.size > 0
+                ? discoveredProspects.filter(p => selectedProspectIds.has(p.id))
+                : discoveredProspects;
+
+            if (!prospectsToExport.length) {
+                alert('No prospects to export');
+                return;
+            }
+
+            const headers = ['Name', 'Category', 'Location', 'Address', 'Phone', 'Email', 'Website', 'Rating', 'Reviews', 'Source URL'];
+            const rows = prospectsToExport.map(p => [
+                p.name || '',
+                p.category || '',
+                p.location || '',
+                p.address || '',
+                p.phone || '',
+                p.email || '',
+                p.website || '',
+                p.rating || '',
+                p.reviewCount || '',
+                p.sourceUrl || ''
+            ]);
+
+            const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `prospects-${new Date().toISOString().slice(0,10)}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            alert(`Exported ${prospectsToExport.length} prospects to CSV`);
+        }
+
         function sendToEnrichment() {
-            const domains = discoveredProspects
+            // Use selected or all prospects
+            const prospects = selectedProspectIds.size > 0
+                ? discoveredProspects.filter(p => selectedProspectIds.has(p.id))
+                : discoveredProspects;
+
+            const domains = prospects
                 .filter(p => p.website)
                 .map(p => {
                     try {
-                        return new URL(p.website).hostname.replace('www.', '');
+                        const url = p.website.startsWith('http') ? p.website : 'https://' + p.website;
+                        return new URL(url).hostname.replace('www.', '');
                     } catch { return null; }
                 })
                 .filter(d => d);
 
-            document.getElementById('enrichDomains').value = domains.join('\n');
-            switchTab('enrichment');
-            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.nav-tab')[3].classList.add('active');
-        }
-
-        // Company Enrichment
-        async function enrichCompanies() {
-            const domainsText = document.getElementById('enrichDomains').value.trim();
-            if (!domainsText) {
-                alert('Please enter at least one domain');
+            if (!domains.length) {
+                alert('No websites found in selected prospects to enrich');
                 return;
             }
 
-            const domains = domainsText.split('\n').map(d => d.trim()).filter(d => d);
-            const btn = document.getElementById('enrichBtn');
+            // Switch to enrichment tab
+            switchTab('enrichment');
+
+            // Fill in the bulk input
+            const uniqueDomains = [...new Set(domains)];
+            document.getElementById('bulkDomains').value = uniqueDomains.join('\n');
+            document.getElementById('bulkCount').textContent = uniqueDomains.length;
+            switchEnrichMode('bulk');
+
+            alert(`Added ${uniqueDomains.length} domains to enrichment. Click "Enrich All" to start.`);
+        }
+
+        // ============================================
+        // ENRICHMENT FUNCTIONALITY
+        // ============================================
+
+        // Switch enrichment input mode
+        function switchEnrichMode(mode) {
+            document.querySelectorAll('.enrich-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('enrichTab' + mode.charAt(0).toUpperCase() + mode.slice(1)).classList.add('active');
+            document.getElementById('enrichModeSingle').style.display = mode === 'single' ? 'block' : 'none';
+            document.getElementById('enrichModeBulk').style.display = mode === 'bulk' ? 'block' : 'none';
+            document.getElementById('enrichModeCsv').style.display = mode === 'csv' ? 'block' : 'none';
+        }
+
+        // Update bulk count
+        document.addEventListener('DOMContentLoaded', function() {
+            const bulkInput = document.getElementById('bulkDomains');
+            if (bulkInput) {
+                bulkInput.addEventListener('input', function() {
+                    const count = this.value.split('\n').filter(d => d.trim()).length;
+                    document.getElementById('bulkCount').textContent = count;
+                });
+            }
+        });
+
+        // Single domain enrichment
+        async function enrichSingle() {
+            const domain = document.getElementById('singleDomain').value.trim();
+            console.log('enrichSingle called with domain:', domain);
+            if (!domain) {
+                alert('Please enter a domain');
+                return;
+            }
+            await enrichDomains([domain]);
+            document.getElementById('singleDomain').value = '';
+        }
+
+        // Bulk domains enrichment
+        async function enrichBulk() {
+            const domains = document.getElementById('bulkDomains').value
+                .split('\n')
+                .map(d => d.trim())
+                .filter(d => d.length > 0);
+
+            if (domains.length === 0) {
+                alert('Please enter at least one domain');
+                return;
+            }
+            await enrichDomains(domains);
+            document.getElementById('bulkDomains').value = '';
+            document.getElementById('bulkCount').textContent = '0';
+        }
+
+        // CSV upload handler
+        function handleCsvUpload(event) {
+            const file = event.target.files?.[0];
+            if (!file) return;
+
+            if (!file.name.endsWith('.csv')) {
+                alert('Please upload a CSV file');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const text = e.target?.result;
+                const lines = text.split('\n').slice(1); // Skip header
+                const domains = lines
+                    .map(line => {
+                        const columns = line.split(',');
+                        // Try to find domain column
+                        return columns.find(col =>
+                            col.includes('.') && !col.includes('@') && !col.startsWith('http')
+                        )?.trim().replace(/"/g, '') || columns[0]?.trim().replace(/"/g, '');
+                    })
+                    .filter(d => d && d.includes('.') && d.length > 3);
+
+                if (domains.length === 0) {
+                    alert('No valid domains found in CSV');
+                    return;
+                }
+
+                alert(`Found ${domains.length} domains. Starting enrichment...`);
+                enrichDomains(domains);
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        // Generate unique ID
+        function generateId() {
+            return Math.random().toString(36).substring(2, 15);
+        }
+
+        // Main enrichment function
+        async function enrichDomains(domains) {
+            console.log('enrichDomains called with:', domains);
             const progress = document.getElementById('enrichProgress');
-            const results = document.getElementById('enrichResults');
-            const step = document.getElementById('enrichStep');
+            const progressFill = document.getElementById('enrichProgressFill');
+            const progressText = document.getElementById('enrichProgressText');
 
-            btn.disabled = true;
+            // Create new leads with pending status
+            const newLeads = domains.map(domain => ({
+                id: generateId(),
+                domain: domain.replace(/^https?:\/\//, '').replace(/\/$/, '').replace('www.', ''),
+                status: 'enriching',
+                createdAt: new Date()
+            }));
+
+            console.log('Created newLeads:', newLeads);
+
+            // Add to beginning of list
+            enrichedCompanies = [...newLeads, ...enrichedCompanies];
+            console.log('enrichedCompanies now has', enrichedCompanies.length, 'items');
+            updateEnrichStats();
+            displayEnrichedCompanies();
+
             progress.style.display = 'block';
-            enrichedCompanies = [];
 
-            for (let i = 0; i < domains.length; i++) {
-                step.textContent = `Enriching ${i + 1}/${domains.length}: ${domains[i]}`;
+            for (let i = 0; i < newLeads.length; i++) {
+                const lead = newLeads[i];
+                progressFill.style.width = `${((i + 1) / newLeads.length) * 100}%`;
+                progressText.textContent = `Enriching ${i + 1}/${newLeads.length}: ${lead.domain}`;
 
                 try {
+                    console.log('Fetching enrichment for:', lead.domain);
                     const resp = await fetch('/api/enrich', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ domain: domains[i] })
+                        body: JSON.stringify({ domain: lead.domain })
                     });
                     const data = await resp.json();
+                    console.log('API response for', lead.domain, ':', data);
 
-                    if (data.success) {
-                        enrichedCompanies.push(data.data);
-                    } else {
-                        enrichedCompanies.push({ domain: domains[i], error: data.error });
+                    // Update the lead in our array
+                    const leadIndex = enrichedCompanies.findIndex(l => l.id === lead.id);
+                    console.log('Found lead at index:', leadIndex);
+                    if (leadIndex !== -1) {
+                        if (data.success && data.data) {
+                            enrichedCompanies[leadIndex] = {
+                                ...enrichedCompanies[leadIndex],
+                                ...data.data,
+                                status: 'enriched',
+                                enrichedAt: new Date()
+                            };
+                            console.log('Lead enriched successfully:', enrichedCompanies[leadIndex]);
+                        } else {
+                            enrichedCompanies[leadIndex].status = 'failed';
+                            enrichedCompanies[leadIndex].errorMessage = data.error || 'Unknown error';
+                            console.log('Lead enrichment failed:', data.error);
+                        }
                     }
                 } catch (e) {
-                    enrichedCompanies.push({ domain: domains[i], error: e.message });
+                    console.error('Enrichment error:', e);
+                    const leadIndex = enrichedCompanies.findIndex(l => l.id === lead.id);
+                    if (leadIndex !== -1) {
+                        enrichedCompanies[leadIndex].status = 'failed';
+                        enrichedCompanies[leadIndex].errorMessage = e.message;
+                    }
                 }
+
+                updateEnrichStats();
+                displayEnrichedCompanies();
             }
 
-            displayEnrichedCompanies(enrichedCompanies);
-            btn.disabled = false;
-            btn.textContent = 'Enrich Companies';
             progress.style.display = 'none';
-            document.getElementById('exportEnrichedBtn').style.display = 'block';
+            progressFill.style.width = '0%';
         }
 
-        function displayEnrichedCompanies(companies) {
+        // Update enrichment stats
+        function updateEnrichStats() {
+            const total = enrichedCompanies.length;
+            const enriched = enrichedCompanies.filter(l => l.status === 'enriched').length;
+            const processing = enrichedCompanies.filter(l => l.status === 'enriching' || l.status === 'pending').length;
+            const failed = enrichedCompanies.filter(l => l.status === 'failed').length;
+
+            console.log('updateEnrichStats:', { total, enriched, processing, failed });
+
+            document.getElementById('enrichTotal').textContent = total;
+            document.getElementById('enrichEnriched').textContent = enriched;
+            document.getElementById('enrichProcessing').textContent = processing;
+            document.getElementById('enrichFailed').textContent = failed;
+
+            // Only show stats grid if there are leads
+            const statsGrid = document.getElementById('enrichStatsGrid');
+            const exportBtn = document.getElementById('exportEnrichedBtn');
+            const leadsCount = document.getElementById('enrichLeadsCount');
+
+            if (statsGrid) statsGrid.style.display = total > 0 ? 'grid' : 'none';
+            if (exportBtn) exportBtn.style.display = total > 0 ? 'inline-block' : 'none';
+            if (leadsCount) leadsCount.textContent = total > 0 ? `${total} total • ${enriched} enriched` : '';
+        }
+
+        // Display enriched companies with rich UI
+        function displayEnrichedCompanies() {
             const results = document.getElementById('enrichResults');
 
+            if (enrichedCompanies.length === 0) {
+                results.innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                        </svg>
+                        <h3>No leads yet</h3>
+                        <p>Enter company domains or upload a CSV to start enriching.</p>
+                    </div>
+                `;
+                return;
+            }
+
             results.innerHTML = `
-                <table class="results-table">
-                    <thead>
-                        <tr>
-                            <th>Domain</th>
-                            <th>Name</th>
-                            <th>Industry</th>
-                            <th>Email</th>
-                            <th>LinkedIn</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${companies.map(c => `
-                            <tr>
-                                <td><strong>${c.domain}</strong></td>
-                                <td>${c.name || '-'}</td>
-                                <td>${c.industry || '-'}</td>
-                                <td>${c.email || '-'}</td>
-                                <td>${c.linkedin ? `<a href="${c.linkedin}" target="_blank">View</a>` : '-'}</td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
+                <div class="table-container">
+                    ${enrichedCompanies.map(lead => `
+                        <div class="lead-row" id="lead-${lead.id}" onclick="toggleLeadRow('${lead.id}')">
+                            <div class="lead-row-main">
+                                <div class="lead-company-info">
+                                    <div class="lead-avatar">🏢</div>
+                                    <div>
+                                        <div class="lead-name">${escapeHtml(lead.name || lead.domain)}</div>
+                                        <a href="https://${lead.domain}" target="_blank" class="lead-domain" onclick="event.stopPropagation();">${lead.domain} ↗</a>
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="tag">${lead.industry || '—'}</span>
+                                </div>
+                                <div style="font-size: 0.875rem;">
+                                    ${lead.employees ? `👥 ${lead.employees}` : '—'}
+                                </div>
+                                <div>
+                                    <span class="status-badge ${lead.status}">
+                                        ${lead.status === 'enriching' ? '<span class="spinner-small"></span>' : ''}
+                                        ${lead.status === 'enriched' ? '✓' : ''}
+                                        ${lead.status === 'failed' ? '✗' : ''}
+                                        ${lead.status === 'pending' ? '○' : ''}
+                                        ${lead.status.charAt(0).toUpperCase() + lead.status.slice(1)}
+                                    </span>
+                                </div>
+                                <div style="display: flex; gap: 0.25rem; align-items: center;">
+                                    ${lead.linkedin ? `<a href="${lead.linkedin}" target="_blank" class="social-icon" onclick="event.stopPropagation();" title="LinkedIn">in</a>` : ''}
+                                    ${lead.twitter ? `<a href="${lead.twitter}" target="_blank" class="social-icon" onclick="event.stopPropagation();" title="Twitter">𝕏</a>` : ''}
+                                    ${lead.email ? `<a href="mailto:${lead.email}" class="social-icon" onclick="event.stopPropagation();" title="${lead.email}">✉</a>` : ''}
+                                    <span class="expand-icon" style="margin-left: 0.5rem; color: var(--text-muted);">▼</span>
+                                </div>
+                            </div>
+                            <div class="lead-row-expanded">
+                                <div class="expanded-grid">
+                                    ${lead.description ? `
+                                        <div class="expanded-field" style="grid-column: 1 / -1;">
+                                            <div class="expanded-field-label">Description</div>
+                                            <div style="color: var(--text-muted);">${escapeHtml(lead.description).substring(0, 300)}${lead.description.length > 300 ? '...' : ''}</div>
+                                        </div>
+                                    ` : ''}
+                                    ${lead.email ? `
+                                        <div class="expanded-field">
+                                            <div class="expanded-field-label">Email</div>
+                                            <a href="mailto:${lead.email}" style="color: var(--accent);">${lead.email}</a>
+                                        </div>
+                                    ` : ''}
+                                    ${lead.phone ? `
+                                        <div class="expanded-field">
+                                            <div class="expanded-field-label">Phone</div>
+                                            <a href="tel:${lead.phone}" style="color: var(--accent);">${lead.phone}</a>
+                                        </div>
+                                    ` : ''}
+                                    ${lead.location ? `
+                                        <div class="expanded-field">
+                                            <div class="expanded-field-label">Location</div>
+                                            <div>${lead.location}</div>
+                                        </div>
+                                    ` : ''}
+                                    ${lead.founded ? `
+                                        <div class="expanded-field">
+                                            <div class="expanded-field-label">Founded</div>
+                                            <div>${lead.founded}</div>
+                                        </div>
+                                    ` : ''}
+                                    ${lead.revenue ? `
+                                        <div class="expanded-field">
+                                            <div class="expanded-field-label">Revenue</div>
+                                            <div>${lead.revenue}</div>
+                                        </div>
+                                    ` : ''}
+                                    ${lead.technologies && lead.technologies.length > 0 ? `
+                                        <div class="expanded-field" style="grid-column: 1 / -1;">
+                                            <div class="expanded-field-label">Technologies</div>
+                                            <div class="tech-tags">
+                                                ${lead.technologies.map(t => `<span class="tag">${t}</span>`).join('')}
+                                            </div>
+                                        </div>
+                                    ` : ''}
+                                    ${lead.contacts && lead.contacts.length > 0 ? `
+                                        <div class="expanded-field" style="grid-column: 1 / -1;">
+                                            <div class="expanded-field-label">Contacts</div>
+                                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.5rem; margin-top: 0.5rem;">
+                                                ${lead.contacts.map(c => `
+                                                    <div class="contact-card">
+                                                        <div class="contact-avatar">👤</div>
+                                                        <div style="min-width: 0; flex: 1;">
+                                                            <div style="font-weight: 500;">${c.linkedin ? `<a href="${c.linkedin}" target="_blank" style="color: var(--accent);">${escapeHtml(c.name)}</a>` : escapeHtml(c.name)}</div>
+                                                            <div style="font-size: 0.75rem; color: var(--text-muted);">${escapeHtml(c.title || '')}</div>
+                                                            ${c.email ? `<a href="mailto:${c.email}" style="font-size: 0.75rem; color: var(--accent); display: block;">✉ ${c.email}</a>` : ''}
+                                                            ${c.phone ? `<a href="tel:${c.phone}" style="font-size: 0.75rem; color: var(--accent);">📞 ${c.phone}</a>` : ''}
+                                                        </div>
+                                                    </div>
+                                                `).join('')}
+                                            </div>
+                                        </div>
+                                    ` : ''}
+                                    ${lead.errorMessage ? `
+                                        <div class="expanded-field" style="grid-column: 1 / -1;">
+                                            <div class="expanded-field-label" style="color: var(--danger);">Error</div>
+                                            <div style="color: var(--danger);">${escapeHtml(lead.errorMessage)}</div>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
             `;
         }
 
+        // Toggle lead row expansion
+        function toggleLeadRow(id) {
+            const row = document.getElementById('lead-' + id);
+            if (row) {
+                row.classList.toggle('expanded');
+            }
+        }
+
+        // Export enriched companies
         function exportEnriched() {
-            const headers = ['Domain', 'Name', 'Description', 'Industry', 'Email', 'Phone', 'LinkedIn', 'Twitter'];
-            const rows = enrichedCompanies.map(c => [
-                c.domain || '',
-                c.name || '',
-                c.description || '',
-                c.industry || '',
-                c.email || '',
-                c.phone || '',
-                c.linkedin || '',
-                c.twitter || ''
+            if (enrichedCompanies.length === 0) {
+                alert('No leads to export');
+                return;
+            }
+
+            const headers = [
+                'Domain', 'Company Name', 'Description', 'Industry', 'Employees',
+                'Location', 'Email', 'Phone', 'LinkedIn', 'Twitter', 'Founded',
+                'Revenue', 'Technologies', 'Status'
+            ];
+
+            const rows = enrichedCompanies.map(lead => [
+                lead.domain || '',
+                lead.name || '',
+                (lead.description || '').replace(/"/g, '""'),
+                lead.industry || '',
+                lead.employees || '',
+                lead.location || '',
+                lead.email || '',
+                lead.phone || '',
+                lead.linkedin || '',
+                lead.twitter || '',
+                lead.founded || '',
+                lead.revenue || '',
+                (lead.technologies || []).join('; '),
+                lead.status || ''
             ]);
 
-            const csv = [headers, ...rows].map(r => r.map(v => `"${v}"`).join(',')).join('\n');
-            const blob = new Blob([csv], { type: 'text/csv' });
+            const csv = [
+                headers.join(','),
+                ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+            ].join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'enriched_companies.csv';
-            a.click();
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `leads-export-${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+            URL.revokeObjectURL(url);
         }
 
         // Presets
@@ -1223,6 +3314,40 @@ tienda zapatos diseño Madrid`,
                 positiveSignals: 'boutique, premium, diseño, lujo, elegante, piel',
                 negativeSignals: 'outlet, descuento, deportivo, niños',
                 excludeBrands: 'Marypaz, Merkal, Ulanka, Krack'
+            },
+            'indonesia-food': {
+                queries: `food manufacturing company Jakarta
+food processing factory Indonesia
+FMCG manufacturer Surabaya
+snack food producer Indonesia
+beverage manufacturing Jakarta
+frozen food manufacturer Indonesia
+food packaging company Bandung`,
+                positiveSignals: 'manufacturing, factory, export, BPOM certified, halal certified, ISO, established',
+                negativeSignals: 'home industry, small scale, restaurant, catering, retail',
+                excludeBrands: 'Indofood, Mayora, Wings, Garuda Food, Orang Tua'
+            },
+            'usa-saas': {
+                queries: `B2B software company San Francisco
+SaaS startup New York
+enterprise software company Austin
+cloud software company Boston
+tech startup Silicon Valley
+software development company Seattle`,
+                positiveSignals: 'SaaS, enterprise, B2B, cloud, funded, growing, series A, series B',
+                negativeSignals: 'consulting, agency, freelance, B2C, gaming, crypto',
+                excludeBrands: 'Salesforce, Microsoft, Google, Amazon, Oracle'
+            },
+            'barcelona-restaurants': {
+                queries: `restaurante premium Barcelona
+fine dining Barcelona Eixample
+restaurante gourmet Barcelona
+cocina mediterránea Barcelona
+restaurante con estrella Barcelona
+gastrobar Barcelona Gracia`,
+                positiveSignals: 'gourmet, premium, chef, mediterráneo, terraza, reservas, wine',
+                negativeSignals: 'fast food, franquicia, buffet, turistico, cadena',
+                excludeBrands: 'McDonalds, Burger King, Telepizza, 100 Montaditos, Taco Bell'
             }
         };
 
@@ -1233,6 +3358,168 @@ tienda zapatos diseño Madrid`,
                 document.getElementById('positiveSignals').value = preset.positiveSignals;
                 document.getElementById('negativeSignals').value = preset.negativeSignals;
                 document.getElementById('excludeBrands').value = preset.excludeBrands;
+            }
+        }
+
+        // ============================================================
+        // DEV PANEL
+        // ============================================================
+
+        let devPanelOpen = false;
+        let devLogsPollInterval = null;
+
+        function toggleDevPanel() {
+            devPanelOpen = !devPanelOpen;
+            document.getElementById('devPanel').style.display = devPanelOpen ? 'flex' : 'none';
+
+            if (devPanelOpen) {
+                refreshDevStats();
+                refreshDevLogs();
+                // Poll logs every 2 seconds when panel is open
+                devLogsPollInterval = setInterval(refreshDevLogs, 2000);
+            } else {
+                if (devLogsPollInterval) {
+                    clearInterval(devLogsPollInterval);
+                    devLogsPollInterval = null;
+                }
+            }
+        }
+
+        function switchDevTab(tab) {
+            document.querySelectorAll('.dev-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.dev-tab-content').forEach(c => c.style.display = 'none');
+
+            if (tab === 'stats') {
+                document.querySelector('.dev-tab:nth-child(1)').classList.add('active');
+                document.getElementById('devTabStats').style.display = 'block';
+                refreshDevStats();
+            } else {
+                document.querySelector('.dev-tab:nth-child(2)').classList.add('active');
+                document.getElementById('devTabLogs').style.display = 'block';
+                refreshDevLogs();
+            }
+        }
+
+        async function refreshDevStats() {
+            try {
+                const resp = await fetch('/api/dev/stats');
+                const data = await resp.json();
+
+                const container = document.getElementById('devStatsContent');
+
+                if (!data.hasData) {
+                    container.innerHTML = '<p style="color: var(--text-muted);">Run a search to see statistics...</p>';
+                    return;
+                }
+
+                const dq = data.data_quality;
+                const sd = data.score_distribution;
+                const es = data.enrichment_stats || {};
+
+                container.innerHTML = `
+                    <div class="dev-stat-card">
+                        <h4>📊 Data Quality (${data.total_leads} leads)</h4>
+                        <div class="dev-stat-row">
+                            <span>With Email</span>
+                            <span class="value ${dq.with_email > 0 ? 'success' : ''}">${dq.with_email} (${Math.round(dq.with_email/data.total_leads*100)}%)</span>
+                        </div>
+                        <div class="dev-stat-row">
+                            <span>With Website</span>
+                            <span class="value">${dq.with_website} (${Math.round(dq.with_website/data.total_leads*100)}%)</span>
+                        </div>
+                        <div class="dev-stat-row">
+                            <span>With LinkedIn</span>
+                            <span class="value ${dq.with_linkedin > 0 ? 'success' : 'warning'}">${dq.with_linkedin} (${Math.round(dq.with_linkedin/data.total_leads*100)}%)</span>
+                        </div>
+                        <div class="dev-stat-row">
+                            <span>With Instagram</span>
+                            <span class="value ${dq.with_instagram > 0 ? 'success' : 'warning'}">${dq.with_instagram} (${Math.round(dq.with_instagram/data.total_leads*100)}%)</span>
+                        </div>
+                        <div class="dev-stat-row">
+                            <span>With Decision Makers</span>
+                            <span class="value ${dq.with_decision_makers > 0 ? 'success' : 'warning'}">${dq.with_decision_makers} (${Math.round(dq.with_decision_makers/data.total_leads*100)}%)</span>
+                        </div>
+                    </div>
+
+                    <div class="dev-stat-card">
+                        <h4>🎯 Score Distribution</h4>
+                        <div class="dev-stat-row">
+                            <span>High Fit (70+)</span>
+                            <span class="value success">${sd.high}</span>
+                        </div>
+                        <div class="dev-stat-row">
+                            <span>Medium (50-69)</span>
+                            <span class="value warning">${sd.medium}</span>
+                        </div>
+                        <div class="dev-stat-row">
+                            <span>Low (&lt;50)</span>
+                            <span class="value error">${sd.low}</span>
+                        </div>
+                    </div>
+
+                    <div class="dev-stat-card">
+                        <h4>🔌 API Usage</h4>
+                        <div class="dev-stat-row">
+                            <span>Firecrawl Success</span>
+                            <span class="value success">${es.firecrawl_success || 0}</span>
+                        </div>
+                        <div class="dev-stat-row">
+                            <span>Basic Scrape (fallback)</span>
+                            <span class="value warning">${es.basic_scrape || 0}</span>
+                        </div>
+                        <div class="dev-stat-row">
+                            <span>Apollo Org Success</span>
+                            <span class="value success">${es.apollo_org_success || 0}</span>
+                        </div>
+                        <div class="dev-stat-row">
+                            <span>Apollo Org Failed</span>
+                            <span class="value error">${es.apollo_org_failed || 0}</span>
+                        </div>
+                        <div class="dev-stat-row">
+                            <span>Apollo Contacts Found</span>
+                            <span class="value">${es.apollo_contacts_found || 0}</span>
+                        </div>
+                        <div class="dev-stat-row">
+                            <span>No Website (skipped)</span>
+                            <span class="value">${es.no_website || 0}</span>
+                        </div>
+                    </div>
+                `;
+            } catch (e) {
+                console.error('Failed to fetch dev stats:', e);
+            }
+        }
+
+        async function refreshDevLogs() {
+            try {
+                const resp = await fetch('/api/dev/logs?limit=200');
+                const data = await resp.json();
+
+                const container = document.getElementById('devLogsContent');
+
+                if (!data.logs || data.logs.length === 0) {
+                    container.innerHTML = '<p style="color: var(--text-muted);">No logs yet...</p>';
+                    return;
+                }
+
+                container.innerHTML = data.logs.reverse().map(log => `
+                    <div class="log-entry ${log.level}">
+                        <span class="timestamp">${log.timestamp.split('T')[1].split('.')[0]}</span>
+                        <span class="category">${log.category}</span>
+                        <span class="message">${log.message}</span>
+                    </div>
+                `).join('');
+            } catch (e) {
+                console.error('Failed to fetch dev logs:', e);
+            }
+        }
+
+        async function clearDevLogs() {
+            try {
+                await fetch('/api/dev/logs/clear', { method: 'POST' });
+                refreshDevLogs();
+            } catch (e) {
+                console.error('Failed to clear logs:', e);
             }
         }
 
@@ -1248,6 +3535,10 @@ tienda zapatos diseño Madrid`,
                     'status-dot ' + (config.apollo ? 'active' : 'inactive');
                 document.getElementById('firecrawlStatus').className =
                     'status-dot ' + (config.firecrawl ? 'active' : 'inactive');
+                document.getElementById('hunterStatus').className =
+                    'status-dot ' + (config.hunter ? 'active' : 'inactive');
+                document.getElementById('openaiStatus').className =
+                    'status-dot ' + (config.openai ? 'active' : 'inactive');
             } catch (e) {
                 console.error('Config check failed:', e);
             }
