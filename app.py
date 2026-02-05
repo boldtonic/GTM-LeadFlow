@@ -33,6 +33,7 @@ APOLLO_API_KEY = os.getenv("APOLLO_API_KEY", "")
 HUNTER_API_KEY = os.getenv("HUNTER_API_KEY", "")
 FIRECRAWL_API_KEY = os.getenv("FIRECRAWL_API_KEY", "")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+NEW_API_KEY = os.getenv("NEW_API_KEY", "")
 
 # Global state for progress tracking
 job_status = {}
@@ -769,6 +770,7 @@ def get_config():
         "hunter": bool(HUNTER_API_KEY),
         "firecrawl": bool(FIRECRAWL_API_KEY),
         "openai": bool(OPENAI_API_KEY),
+        "new_api": bool(NEW_API_KEY),
     })
 
 

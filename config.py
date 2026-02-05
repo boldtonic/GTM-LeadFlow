@@ -24,6 +24,7 @@ RATE_LIMITS = {
     "google_places": 10,  # Google allows up to 100 QPS
     "apollo": 5,          # Apollo is more restrictive
     "hunter": 10,
+    "new_api": 10,        # Placeholder for new API integration
 }
 
 # Output settings
