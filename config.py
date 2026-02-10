@@ -19,11 +19,16 @@ HUNTER_API_KEY = ""
 # Get from: https://firecrawl.dev
 FIRECRAWL_API_KEY = ""
 
+# Optional: Instantly.ai for outreach & SuperSearch enrichment
+# Get from: https://app.instantly.ai/settings/integrations
+INSTANTLY_API_KEY = ""
+
 # Rate limiting (requests per second)
 RATE_LIMITS = {
     "google_places": 10,  # Google allows up to 100 QPS
     "apollo": 5,          # Apollo is more restrictive
     "hunter": 10,
+    "instantly": 10,
     "new_api": 10,        # Placeholder for new API integration
 }
 

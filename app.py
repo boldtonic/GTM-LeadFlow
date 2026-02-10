@@ -33,6 +33,7 @@ APOLLO_API_KEY = os.getenv("APOLLO_API_KEY", "")
 HUNTER_API_KEY = os.getenv("HUNTER_API_KEY", "")
 FIRECRAWL_API_KEY = os.getenv("FIRECRAWL_API_KEY", "")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+INSTANTLY_API_KEY = os.getenv("INSTANTLY_API_KEY", "")
 NEW_API_KEY = os.getenv("NEW_API_KEY", "")
 
 # Global state for progress tracking
@@ -526,6 +527,29 @@ def extract_domain(url: str) -> str:
         return ""
 
 
+# Domains that are platforms, not actual businesses — skip for enrichment
+SKIP_DOMAINS = {
+    "instagram.com", "facebook.com", "twitter.com", "x.com",
+    "linkedin.com", "tiktok.com", "youtube.com", "pinterest.com",
+    "linktr.ee", "linktree.com", "bit.ly", "goo.gl",
+    "yelp.com", "tripadvisor.com", "tripadvisor.es", "google.com",
+    "maps.google.com", "foursquare.com", "booking.com",
+    "ubereats.com", "deliveroo.com", "glovo.com", "justeat.com",
+    "thefork.com", "eltenedor.es", "opentable.com",
+}
+
+
+def is_business_domain(domain: str) -> bool:
+    """Return True if domain belongs to actual business, not a social/platform site."""
+    if not domain:
+        return False
+    d = domain.lower().strip()
+    for skip in SKIP_DOMAINS:
+        if d == skip or d.endswith("." + skip):
+            return False
+    return True
+
+
 def run_search(job_id: str, config: dict):
     """Run the search in background"""
     global job_status
@@ -651,6 +675,9 @@ def run_search(job_id: str, config: dict):
                 "apollo_org_success": 0,
                 "apollo_org_failed": 0,
                 "apollo_contacts_found": 0,
+                "hunter_emails_found": 0,
+                "hunter_verified": 0,
+                "hunter_failed": 0,
                 "emails_found": 0,
                 "social_found": 0,
                 "no_website": 0,
@@ -690,8 +717,11 @@ def run_search(job_id: str, config: dict):
                 if lead.social_links:
                     enrich_stats["social_found"] += 1
 
+                # Only enrich via Apollo/Hunter if domain is a real business site
+                biz_domain = is_business_domain(domain)
+
                 # Apollo
-                if APOLLO_API_KEY:
+                if APOLLO_API_KEY and biz_domain:
                     try:
                         org = apollo.enrich_organization(domain)
                         if org:
@@ -717,6 +747,59 @@ def run_search(job_id: str, config: dict):
                     except Exception as e:
                         log_dev("APOLLO", f"Contact search failed for {domain}: {str(e)[:50]}", "error")
 
+                # Hunter.io email enrichment
+                if HUNTER_API_KEY and biz_domain:
+                    try:
+                        hunter = HunterClient(HUNTER_API_KEY)
+                        hunter_data = hunter.domain_search(domain, limit=5)
+                        if hunter_data:
+                            hunter_emails = hunter_data.get("emails", [])
+                            existing_emails = {e.lower() for e in lead.emails_found}
+                            # Also collect emails from decision makers
+                            for dm in lead.decision_makers:
+                                if dm.get("email"):
+                                    existing_emails.add(dm["email"].lower())
+
+                            for he in hunter_emails:
+                                email = he.get("value", "")
+                                if email and email.lower() not in existing_emails:
+                                    lead.emails_found.append(email)
+                                    existing_emails.add(email.lower())
+                                    # Add as decision maker if has name + title
+                                    name = f"{he.get('first_name', '')} {he.get('last_name', '')}".strip()
+                                    if name and he.get("position"):
+                                        lead.decision_makers.append({
+                                            "name": name,
+                                            "title": he.get("position", ""),
+                                            "email": email,
+                                            "source": "hunter",
+                                            "confidence": he.get("confidence", 0),
+                                        })
+
+                            if hunter_emails:
+                                enrich_stats["hunter_emails_found"] += len(hunter_emails)
+                                log_dev("HUNTER", f"Found {len(hunter_emails)} emails for {domain}", "info")
+                    except Exception as e:
+                        log_dev("HUNTER", f"Domain search failed for {domain}: {str(e)[:50]}", "error")
+
+                # Email verification (verify best email)
+                if HUNTER_API_KEY and biz_domain and lead.emails_found:
+                    try:
+                        hunter = HunterClient(HUNTER_API_KEY)
+                        best_email = lead.emails_found[0]
+                        verify_result = hunter.email_verifier(best_email)
+                        if verify_result:
+                            status = verify_result.get("result", "unknown")
+                            if status == "deliverable":
+                                enrich_stats["hunter_verified"] += 1
+                            elif status == "undeliverable":
+                                # Demote bad email to end of list
+                                lead.emails_found.append(lead.emails_found.pop(0))
+                                enrich_stats["hunter_failed"] += 1
+                                log_dev("HUNTER", f"Undeliverable email demoted for {domain}: {best_email}", "warning")
+                    except Exception as e:
+                        log_dev("HUNTER", f"Verify failed for {domain}: {str(e)[:50]}", "error")
+
                 lead.enriched_at = datetime.now().isoformat()
                 time.sleep(0.1)
 
@@ -726,7 +809,7 @@ def run_search(job_id: str, config: dict):
 
             # Save enrichment stats
             job_status[job_id]["enrichment_stats"] = enrich_stats
-            log_dev("ENRICH", f"Enrichment complete: Firecrawl={enrich_stats['firecrawl_success']}, Basic={enrich_stats['basic_scrape']}, Apollo={enrich_stats['apollo_org_success']}", "success")
+            log_dev("ENRICH", f"Enrichment complete: Firecrawl={enrich_stats['firecrawl_success']}, Basic={enrich_stats['basic_scrape']}, Apollo={enrich_stats['apollo_org_success']}, Hunter={enrich_stats['hunter_emails_found']} emails/{enrich_stats['hunter_verified']} verified", "success")
 
         # Step 4: Score
         job_status[job_id]["step"] = "Scoring leads..."
@@ -770,6 +853,7 @@ def get_config():
         "hunter": bool(HUNTER_API_KEY),
         "firecrawl": bool(FIRECRAWL_API_KEY),
         "openai": bool(OPENAI_API_KEY),
+        "instantly": bool(INSTANTLY_API_KEY),
         "new_api": bool(NEW_API_KEY),
     })
 
@@ -887,30 +971,62 @@ def export_csv(job_id):
     writer = csv.writer(output)
 
     writer.writerow([
-        "Score", "Name", "City", "Country", "Address", "Phone", "Website",
-        "Email", "Rating", "Reviews", "Instagram", "LinkedIn",
-        "Decision Maker", "DM Email", "Fit Reasons", "Google Maps URL"
+        "Score", "Name", "Category", "City", "Country", "Address", "Postal Code",
+        "Phone", "Website", "Domain",
+        "Email (Best)", "Email (All)",
+        "Rating", "Reviews", "Price Level",
+        "Instagram", "Facebook", "Twitter", "LinkedIn",
+        "Company Size", "Revenue", "About",
+        "DM1 Name", "DM1 Title", "DM1 Email",
+        "DM2 Name", "DM2 Title", "DM2 Email",
+        "Fit Reasons", "Google Maps URL", "Source Query", "Enriched At"
     ])
 
     for lead in leads:
-        dm = lead.get("decision_makers", [{}])[0] if lead.get("decision_makers") else {}
+        dms = lead.get("decision_makers", [])
+        dm1 = dms[0] if len(dms) > 0 else {}
+        dm2 = dms[1] if len(dms) > 1 else {}
+        social = lead.get("social_links", {})
+        emails = lead.get("emails_found", [])
+        website = lead.get("website", "")
+        # Extract domain from website
+        domain = ""
+        if website:
+            domain = website.replace("https://", "").replace("http://", "").replace("www.", "").rstrip("/").split("/")[0]
+
         writer.writerow([
             lead.get("fit_score", 0),
             lead.get("name", ""),
+            lead.get("category", ""),
             lead.get("city", ""),
             lead.get("country", ""),
             lead.get("address_full", ""),
+            lead.get("postal_code", ""),
             lead.get("phone", ""),
-            lead.get("website", ""),
-            lead.get("emails_found", [""])[0] if lead.get("emails_found") else "",
+            website,
+            domain,
+            emails[0] if emails else "",
+            "; ".join(emails) if len(emails) > 1 else "",
             lead.get("rating", 0),
             lead.get("reviews_count", 0),
-            lead.get("social_links", {}).get("instagram", ""),
-            lead.get("linkedin_url", ""),
-            dm.get("name", ""),
-            dm.get("email", ""),
+            lead.get("price_level", ""),
+            social.get("instagram", ""),
+            social.get("facebook", ""),
+            social.get("twitter", ""),
+            lead.get("linkedin_url", "") or social.get("linkedin", ""),
+            lead.get("company_size", ""),
+            lead.get("estimated_revenue", ""),
+            lead.get("about_text", "")[:200],
+            dm1.get("name", ""),
+            dm1.get("title", ""),
+            dm1.get("email", ""),
+            dm2.get("name", ""),
+            dm2.get("title", ""),
+            dm2.get("email", ""),
             "; ".join(lead.get("fit_reasons", [])),
             lead.get("google_maps_url", ""),
+            lead.get("source_query", ""),
+            lead.get("enriched_at", ""),
         ])
 
     output.seek(0)
@@ -1915,11 +2031,11 @@ def enrich_company():
         domain = domain.replace("https://", "").replace("http://", "").replace("www.", "").rstrip("/")
         result = {"domain": domain}
 
-        # Use Firecrawl for web scraping
+        # Use WebsiteScraper for web scraping (Firecrawl with fallback)
         if FIRECRAWL_API_KEY:
             url = f"https://{domain}"
-            firecrawl = FirecrawlClient(FIRECRAWL_API_KEY)
-            scrape_result = firecrawl.scrape(url)
+            scraper = WebsiteScraper(FIRECRAWL_API_KEY)
+            scrape_result = scraper.scrape(url)
 
             if scrape_result:
                 markdown = scrape_result.get("markdown", "")
@@ -2198,6 +2314,7 @@ if __name__ == "__main__":
     print(f"  Firecrawl:     {'✓' if FIRECRAWL_API_KEY else '✗ (optional)'}")
     print(f"  Hunter.io:     {'✓' if HUNTER_API_KEY else '✗ (email finding)'}")
     print(f"  OpenAI:        {'✓' if OPENAI_API_KEY else '✗ (for GTM Brief)'}")
+    print(f"  Instantly:     {'✓' if INSTANTLY_API_KEY else '✗ (for outreach)'}")
     print("\n" + "="*50 + "\n")
 
     app.run(debug=True, port=5001, host='0.0.0.0')

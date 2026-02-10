@@ -1395,6 +1395,7 @@
                     <span><span class="status-dot inactive" id="firecrawlStatus"></span>Firecrawl</span>
                     <span><span class="status-dot inactive" id="hunterStatus"></span>Hunter.io</span>
                     <span><span class="status-dot inactive" id="openaiStatus"></span>OpenAI</span>
+                    <span><span class="status-dot inactive" id="instantlyStatus"></span>Instantly</span>
                 </div>
                 <button class="dev-btn" onclick="toggleDevPanel()" title="Dev Panel">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -3539,6 +3540,8 @@ gastrobar Barcelona Gracia`,
                     'status-dot ' + (config.hunter ? 'active' : 'inactive');
                 document.getElementById('openaiStatus').className =
                     'status-dot ' + (config.openai ? 'active' : 'inactive');
+                document.getElementById('instantlyStatus').className =
+                    'status-dot ' + (config.instantly ? 'active' : 'inactive');
             } catch (e) {
                 console.error('Config check failed:', e);
             }
