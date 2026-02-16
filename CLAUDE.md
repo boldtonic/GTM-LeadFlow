@@ -61,12 +61,18 @@ Background jobs use threading with polling (`/api/status/<job_id>` at 1s interva
 | `/api/config` | Which APIs are configured (bool per key) |
 | `/api/search` | Start background search job |
 | `/api/status/<job_id>` | Poll job progress |
+| `/api/cancel/<job_id>` | Cancel running job |
 | `/api/export/<job_id>` | Download CSV |
 | `/api/brief` | AI brief generation (OpenAI + Firecrawl) |
 | `/api/discover` | Smart search / Apollo search / Maps URL scraping |
-| `/api/enrich` | Single/batch domain enrichment |
-| `/api/hunter/*` | Hunter.io email operations |
+| `/api/enrich` | Single domain enrichment |
+| `/api/enrich-batch` | Batch domain enrichment |
+| `/api/enrich-contacts` | Find decision makers |
+| `/api/hunter/domain-search` | Hunter domain search |
+| `/api/hunter/email-finder` | Hunter email finder |
+| `/api/hunter/verify` | Hunter email verification |
 | `/api/dev/logs` | Dev panel log stream |
+| `/api/dev/stats` | Enrichment statistics |
 
 ## API Client Pattern
 
@@ -100,4 +106,4 @@ Categories: SEARCH, GOOGLE, APOLLO, FIRECRAWL, HUNTER, ENRICH, CONFIG. Rolling b
 - **Domain filtering** — `extract_domain()` normalizes URLs; `is_business_domain()` + `SKIP_DOMAINS` set filters out social/platform domains before enrichment.
 - **Scoring** — `LeadScorer` produces 0-100 `fit_score` based on rating, reviews, website presence, emails found, decision makers, and signal keywords. Excluded brands get score 0.
 - **No auth on endpoints** — designed for local/internal use. CORS open to all origins.
-- **API keys** — loaded from `.env` (gitignored). `.env.example` has placeholders. `config.py` is legacy and not used at runtime.
+- **API keys** — loaded from `.env` (gitignored). `.env.example` has placeholders. Keys: `GOOGLE_PLACES_API_KEY` (required), `APOLLO_API_KEY`, `HUNTER_API_KEY`, `FIRECRAWL_API_KEY`, `OPENAI_API_KEY`, `INSTANTLY_API_KEY` (all optional). `config.py` is legacy and not used at runtime.
