@@ -319,115 +319,249 @@
         }
 
         /* Finder Layout — full-width landscape */
+        /* ============================================================
+           PROSPECTING TAB — Instantly SuperSearch Layout
+           ============================================================ */
+
         .finder-layout {
             display: flex;
             flex-direction: column;
             gap: 1.5rem;
         }
 
+        /* Two-column flex layout */
         .finder-form {
+            display: flex;
+            gap: 1.5rem;
+            background: transparent;
+            border: none;
+            padding: 0;
+        }
+
+        /* --- Left column (search + chips + accordion) --- */
+        .finder-left {
+            flex: 3;
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: 12px;
-            padding: 1.5rem;
+            padding: 1.25rem;
+            min-width: 0;
         }
 
-        .search-method-bar {
+        /* --- Right column (summary card + controls) --- */
+        .finder-right {
+            flex: 2;
+            position: sticky;
+            top: 1rem;
+            align-self: flex-start;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            min-width: 0;
+        }
+
+        /* --- Compact search input row --- */
+        .finder-search {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            flex-wrap: wrap;
-            margin-bottom: 1rem;
-            padding-bottom: 0.75rem;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .search-method-label {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-right: 0.25rem;
-        }
-
-        .method-btn {
-            padding: 0.35rem 0.75rem;
+            background: var(--surface-2);
             border: 1px solid var(--border);
-            border-radius: 6px;
-            background: transparent;
+            border-radius: 8px;
+            padding: 0 0.75rem;
+            margin-bottom: 0;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .finder-search:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+        }
+        .finder-search__icon {
             color: var(--text-muted);
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: all 0.15s;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+            pointer-events: none;
+            line-height: 1;
+        }
+        .finder-search__input {
+            flex: 1;
+            border: none !important;
+            background: transparent !important;
+            padding: 0.75rem 0 !important;
+            margin: 0 !important;
+            font-size: 0.875rem;
+            color: var(--text);
+            outline: none;
+            min-width: 0;
+        }
+        .finder-search__input::placeholder {
+            color: var(--text-muted);
+            opacity: 0.6;
+            transition: opacity 0.3s;
+        }
+        .finder-search__input.placeholder-fade::placeholder {
+            opacity: 0;
         }
 
-        .method-btn:hover {
+        /* --- Suggestion chips --- */
+        .suggestion-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 0.25rem;
+        }
+        .suggestion-chip {
+            padding: 0.35rem 0.75rem;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .suggestion-chip:hover {
             border-color: var(--accent);
             color: var(--text);
+            background: rgba(59, 130, 246, 0.08);
         }
-
-        .method-btn.active {
-            background: var(--accent);
+        .suggestion-chip.active {
             border-color: var(--accent);
-            color: white;
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--accent);
         }
 
-        .method-description {
-            font-size: 0.75rem;
+        /* --- Filter accordion (Instantly-style vertical stack) --- */
+        .filter-accordion {}
+
+        .filter-section {
+            border-bottom: 1px solid var(--border);
+        }
+        .filter-section:last-child {
+            border-bottom: none;
+        }
+        .filter-section > summary {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 0.25rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text);
+            cursor: pointer;
+            list-style: none;
+            user-select: none;
+            transition: color 0.2s;
+        }
+        .filter-section > summary::-webkit-details-marker { display: none; }
+        .filter-section > summary::marker { content: ""; }
+        .filter-section > summary:hover { color: var(--accent); }
+
+        .filter-section__icon {
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+        .filter-section__chevron {
+            margin-left: auto;
+            transition: transform 0.2s;
             color: var(--text-muted);
-            margin-bottom: 0.75rem;
-            padding: 0.5rem 0.75rem;
-            background: var(--surface-2);
-            border-radius: 6px;
-            line-height: 1.4;
-            border-left: 3px solid var(--accent);
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+        }
+        .filter-section[open] > summary .filter-section__chevron {
+            transform: rotate(180deg);
+        }
+        .filter-section__body {
+            padding: 0.25rem 0.25rem 0.75rem;
         }
 
-        .finder-form .section-label {
+        /* Filter body form elements */
+        .filter-section__body label {
             font-size: 0.7rem;
             font-weight: 600;
-            color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: 0.08em;
-            margin-bottom: 0.5rem;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            margin-bottom: 0.35rem;
+            display: block;
+        }
+        .filter-section__body input,
+        .filter-section__body select,
+        .filter-section__body textarea {
+            width: 100%;
+            padding: 0.6rem 0.75rem;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 0.875rem;
+            margin-bottom: 0.75rem;
+            transition: border-color 0.2s;
+        }
+        .filter-section__body input:focus,
+        .filter-section__body select:focus,
+        .filter-section__body textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        .filter-section__body textarea {
+            resize: vertical;
+            min-height: 70px;
         }
 
-        .search-setup-row {
+        /* Grid layouts for multi-field filters */
+        .filter-grid {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
             gap: 0.75rem;
-            margin-bottom: 1rem;
+        }
+        .filter-grid--2col { grid-template-columns: 1fr 1fr; }
+        .filter-grid--3col { grid-template-columns: repeat(3, 1fr); }
+
+        /* Checkbox row inside filter body */
+        .filter-check-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0;
+        }
+        .filter-check-row input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+            accent-color: var(--accent);
+        }
+        .filter-check-row label {
+            font-size: 0.8rem;
+            font-weight: 400;
+            text-transform: none;
+            letter-spacing: 0;
+            color: var(--text);
+            margin: 0;
+            cursor: pointer;
         }
 
-        .filters-action-row {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr 140px auto;
-            gap: 0.75rem;
-            align-items: end;
+        /* --- Right column: Search Summary --- */
+        .search-summary__title {
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
         }
-
-        .filters-action-row label {
-            margin-bottom: 0.25rem;
-        }
-
-        .filters-action-row input,
-        .filters-action-row select {
-            margin-bottom: 0;
-        }
-
-        .enrich-toggle {
+        .search-summary__tags {
             display: flex;
             flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1.25rem;
+            min-height: 60px;
         }
-
-        .enrich-toggle > label {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-bottom: 0.25rem;
-        }
-
-        .enrich-toggle-inner {
+        .summary-tag {
             display: flex;
             align-items: center;
             gap: 0.5rem;
@@ -435,139 +569,195 @@
             background: var(--surface-2);
             border: 1px solid var(--border);
             border-radius: 8px;
-        }
-
-        .enrich-toggle-inner input[type="checkbox"] {
-            width: auto;
-            margin: 0;
-        }
-
-        .enrich-toggle-inner label {
-            margin: 0;
             font-size: 0.8rem;
-            cursor: pointer;
-            white-space: nowrap;
         }
-
-        .find-leads-cell .btn {
-            width: auto;
-            white-space: nowrap;
-            padding: 0.75rem 1.5rem;
-            height: 42px;
-        }
-
-        .templates-bar {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-            padding: 0.5rem 0;
-            margin-bottom: 0.75rem;
-        }
-
-        .templates-bar .templates-label {
+        .summary-tag__icon { flex-shrink: 0; }
+        .summary-tag__label {
+            color: var(--text-muted);
             font-size: 0.7rem;
-            color: var(--text-muted);
         }
-
-        .client-brief-details {
-            margin-bottom: 0.75rem;
-            padding-bottom: 0.75rem;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .client-brief-details summary {
-            cursor: pointer;
+        .summary-tag__value {
+            color: var(--text);
+            margin-left: auto;
             font-size: 0.8rem;
-            font-weight: 500;
+            max-width: 140px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .summary-tag__remove {
+            margin-left: 0.5rem;
             color: var(--text-muted);
-        }
-
-        .client-brief-fields {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 0.75rem;
-            margin-top: 0.75rem;
-        }
-
-        .advanced-filters-details {
-            margin-top: 0.75rem;
-            padding-top: 0.75rem;
-            border-top: 1px solid var(--border);
-        }
-
-        .advanced-filters-details summary {
             cursor: pointer;
-            font-size: 0.8rem;
-            font-weight: 500;
+            font-size: 0.75rem;
+            padding: 0.1rem 0.3rem;
+            border-radius: 4px;
+            transition: all 0.15s;
+            flex-shrink: 0;
+        }
+        .summary-tag__remove:hover {
+            color: var(--danger);
+            background: rgba(239, 68, 68, 0.1);
+        }
+        .search-summary__empty {
             color: var(--text-muted);
+            font-size: 0.8rem;
+            font-style: italic;
+            padding: 1rem 0;
+            text-align: center;
+            opacity: 0.6;
         }
 
-        .advanced-filters-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 0.75rem;
-            margin-top: 0.75rem;
-        }
-
-        .queries-row {
-            margin-top: 0.75rem;
-            padding-top: 0.75rem;
+        /* --- Right column: Search Controls --- */
+        .search-controls {
             border-top: 1px solid var(--border);
+            padding-top: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
         }
-
-        .queries-toggle {
+        .search-controls__row {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            cursor: pointer;
-            font-size: 0.8rem;
+            gap: 0.75rem;
+        }
+        .search-controls__label {
+            font-size: 0.75rem;
             color: var(--text-muted);
+            white-space: nowrap;
+        }
+        .search-controls__select {
+            padding: 0.45rem 0.65rem;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 0.8rem;
+            width: 110px;
+            transition: border-color 0.2s;
+            margin-bottom: 0;
+        }
+        .search-controls__select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        .search-controls__check-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+        .search-controls__check-row input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+            accent-color: var(--accent);
+        }
+        .search-controls__check-row label {
+            font-size: 0.8rem;
+            color: var(--text);
+            margin: 0;
+            cursor: pointer;
+        }
+        .search-controls__cta {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .search-controls__cta:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+        }
+        .search-controls__cta:active:not(:disabled) { transform: translateY(0); }
+
+        /* --- HTML-agent compat aliases & missing classes --- */
+        .filter-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+        .filter-field {}
+        .filter-group + .filter-group {
+            margin-top: 1.25rem;
+            padding-top: 1.25rem;
+            border-top: 1px solid var(--border);
+        }
+        .filter-group__title {
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+        }
+        .field-hint {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            opacity: 0.7;
+            font-weight: 400;
+            margin-left: 0.5rem;
+        }
+        .advanced-pill-btn {
+            padding: 0.2rem 0.5rem;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-muted);
+            font-size: 0.65rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .advanced-pill-btn:hover { border-color: var(--accent); color: var(--text); }
+        .queries-preview {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.5rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            max-height: 120px;
+            overflow-y: auto;
+            line-height: 1.5;
+        }
+        .filter-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+        .filter-toggle input[type="checkbox"] { width: auto; margin: 0; accent-color: var(--accent); }
+        .filter-toggle__label {
+            font-size: 0.8rem;
+            cursor: pointer;
+            white-space: nowrap;
+            color: var(--text);
+            margin: 0;
         }
 
-        .finder-results {
-            min-height: 300px;
-        }
+        /* --- Results area --- */
+        .finder-results { min-height: 300px; }
 
-        @media (max-width: 1200px) {
-            .search-setup-row {
-                grid-template-columns: repeat(3, 1fr);
+        /* --- Responsive: Prospecting Tab --- */
+        @media (max-width: 900px) {
+            .finder-form {
+                flex-direction: column;
             }
-            .filters-action-row {
-                grid-template-columns: repeat(3, 1fr);
-            }
-            .find-leads-cell {
-                grid-column: 1 / -1;
-            }
-            .find-leads-cell .btn {
-                width: 100%;
+            .finder-right {
+                position: static;
+                align-self: auto;
             }
         }
-
-        @media (max-width: 768px) {
-            .search-method-bar {
-                gap: 0.375rem;
-            }
-            .search-method-label {
-                width: 100%;
-                margin-bottom: 0.125rem;
-            }
-            .method-btn {
-                flex: 1 1 auto;
-                text-align: center;
-                min-width: 0;
-                font-size: 0.75rem;
-                padding: 0.35rem 0.5rem;
-            }
-            .search-setup-row {
+        @media (max-width: 600px) {
+            .filter-grid--2col,
+            .filter-grid--3col,
+            .filter-grid-2 {
                 grid-template-columns: 1fr;
             }
-            .filters-action-row {
-                grid-template-columns: 1fr 1fr;
+            .search-controls__row {
+                flex-direction: column;
+                align-items: flex-start;
             }
-            .client-brief-fields,
-            .advanced-filters-grid {
-                grid-template-columns: 1fr;
+            .search-controls__select {
+                width: 100%;
             }
         }
 
@@ -1710,339 +1900,339 @@
         <div id="tab-finder" class="tab-content">
         <div class="finder-layout">
 
-            <!-- FORM: Full-width horizontal card -->
+            <!-- FORM: Two-column layout -->
             <div class="finder-form">
 
-                <!-- Search Method Selector -->
-                <div class="search-method-bar">
-                    <span class="search-method-label">Search Method:</span>
-                    <button class="method-btn active" onclick="setSearchMethod('google_places')" id="methodGooglePlaces">Google Places</button>
-                    <button class="method-btn" onclick="setSearchMethod('smart_search')" id="methodSmartSearch">Smart Search</button>
-                    <button class="method-btn" onclick="setSearchMethod('apollo_search')" id="methodApolloSearch">Apollo Database</button>
-                    <button class="method-btn" onclick="setSearchMethod('maps_url')" id="methodMapsUrl">Maps URL</button>
-                </div>
+                <!-- LEFT COLUMN -->
+                <div class="finder-left">
 
-                <!-- Method description -->
-                <div class="method-description" id="methodDescription">
-                    Search Google Maps for businesses by location and type. Best for retail, restaurants, and local services.
-                </div>
+                    <!-- Compact search input -->
+                    <div class="finder-search">
+                        <span class="finder-search__icon">&#128269;</span>
+                        <input type="text" id="prospectWhat" class="finder-search__input"
+                               placeholder="Find shoe stores in Madrid..."
+                               oninput="updateStrategyIndicator(); updateSearchSummary()">
+                    </div>
 
-                <!-- Collapsible Client Brief -->
-                <details class="client-brief-details">
-                    <summary>Client Brief (optional — auto-filled from GTM Brief tab)</summary>
-                    <div class="client-brief-fields">
-                        <div>
-                            <label>Brand Name</label>
-                            <input type="text" id="brandName" placeholder="e.g., Andrés Machado">
-                        </div>
-                        <div>
-                            <label>Brand Website</label>
-                            <input type="url" id="brandWebsite" placeholder="https://...">
-                        </div>
-                        <div>
-                            <label>Target Segment</label>
-                            <select id="segment">
-                                <option value="mid-premium">Mid-Premium</option>
-                                <option value="premium">Premium / Luxury</option>
-                                <option value="mass-market">Mass Market</option>
-                            </select>
-                        </div>
+                    <!-- Suggestion Chips -->
+                    <div class="suggestion-chips">
+                        <button class="suggestion-chip" onclick="addSuggestionChip('industry', 'B2B Services')">B2B</button>
+                        <button class="suggestion-chip" onclick="addSuggestionChip('industry', 'Retail')">Retail</button>
+                        <button class="suggestion-chip" onclick="addSuggestionChip('industry', 'Restaurant')">Restaurant</button>
+                        <button class="suggestion-chip" onclick="addSuggestionChip('industry', 'SaaS')">SaaS</button>
+                        <button class="suggestion-chip" onclick="addSuggestionChip('title', 'Marketing Director')">Marketing Director</button>
+                        <button class="suggestion-chip" onclick="addSuggestionChip('title', 'CEO')">CEO</button>
+                        <button class="suggestion-chip" onclick="addSuggestionChip('industry', 'Premium / Luxury')">Premium</button>
+                        <button class="suggestion-chip" onclick="addSuggestionChip('industry', 'Hospitality')">Hospitality</button>
+                        <button class="suggestion-chip" onclick="addSuggestionChip('size', '51-200')">50-200 employees</button>
+                        <button class="suggestion-chip" onclick="addSuggestionChip('industry', 'Startup / Tech')">Startup</button>
                     </div>
-                </details>
 
-                <!-- Google Places fields (shown by default) -->
-                <div id="googlePlacesFields">
+                    <!-- Accordion Filters -->
+                    <div class="filter-accordion">
 
-                <!-- Templates bar -->
-                <div class="templates-bar">
-                    <span class="templates-label">Templates:</span>
-                    <button class="preset-btn" onclick="loadPreset('warsaw-shoes')">Warsaw Shoes</button>
-                    <button class="preset-btn" onclick="loadPreset('krakow-fashion')">Krakow Fashion</button>
-                    <button class="preset-btn" onclick="loadPreset('madrid-boutiques')">Madrid Boutiques</button>
-                    <button class="preset-btn" onclick="loadPreset('indonesia-food')">Indonesia Food Mfg</button>
-                    <button class="preset-btn" onclick="loadPreset('usa-saas')">USA SaaS</button>
-                    <button class="preset-btn" onclick="loadPreset('barcelona-restaurants')">Barcelona Restaurants</button>
-                </div>
+                        <!-- 1. Industry -->
+                        <details class="filter-section" open>
+                            <summary>
+                                <span class="filter-section__icon">&#127970;</span>
+                                Industry
+                                <span class="filter-section__chevron">&#9660;</span>
+                            </summary>
+                            <div class="filter-section__body">
+                                <select id="filterIndustry" onchange="updateStrategyIndicator(); updateSearchSummary()">
+                                    <option value="">Any industry</option>
+                                    <optgroup label="Retail &amp; Consumer">
+                                        <option value="shoe store">Shoe Store</option>
+                                        <option value="fashion boutique">Fashion Boutique</option>
+                                        <option value="clothing store">Clothing Store</option>
+                                        <option value="jewelry store">Jewelry Store</option>
+                                        <option value="beauty store">Beauty / Cosmetics</option>
+                                        <option value="home decor store">Home Decor</option>
+                                        <option value="sports store">Sports Store</option>
+                                        <option value="electronics store">Electronics</option>
+                                        <option value="pet store">Pet Store</option>
+                                        <option value="pharmacy">Pharmacy</option>
+                                    </optgroup>
+                                    <optgroup label="Food &amp; Hospitality">
+                                        <option value="restaurant">Restaurant</option>
+                                        <option value="cafe">Cafe / Coffee Shop</option>
+                                        <option value="hotel">Hotel</option>
+                                        <option value="bar">Bar / Lounge</option>
+                                        <option value="bakery">Bakery / Pastry</option>
+                                        <option value="catering">Catering Company</option>
+                                    </optgroup>
+                                    <optgroup label="Professional Services">
+                                        <option value="law firm">Law Firm</option>
+                                        <option value="accounting firm">Accounting Firm</option>
+                                        <option value="consulting firm">Consulting Firm</option>
+                                        <option value="real estate agency">Real Estate</option>
+                                        <option value="insurance agency">Insurance Agency</option>
+                                        <option value="architecture firm">Architecture Firm</option>
+                                    </optgroup>
+                                    <optgroup label="Health &amp; Wellness">
+                                        <option value="dental clinic">Dental Clinic</option>
+                                        <option value="medical clinic">Medical Clinic</option>
+                                        <option value="spa">Spa / Wellness</option>
+                                        <option value="gym">Gym / Fitness</option>
+                                        <option value="salon">Hair / Beauty Salon</option>
+                                    </optgroup>
+                                    <optgroup label="Tech &amp; B2B">
+                                        <option value="software company">Software / SaaS</option>
+                                        <option value="marketing agency">Marketing Agency</option>
+                                        <option value="IT services">IT Services</option>
+                                        <option value="coworking space">Coworking Space</option>
+                                        <option value="startup">Startup</option>
+                                        <option value="fintech company">Fintech</option>
+                                    </optgroup>
+                                    <optgroup label="Manufacturing &amp; Industry">
+                                        <option value="food manufacturer">Food Manufacturer</option>
+                                        <option value="textile manufacturer">Textile / Apparel</option>
+                                        <option value="packaging company">Packaging</option>
+                                        <option value="chemical manufacturer">Chemical / Pharma</option>
+                                        <option value="construction company">Construction</option>
+                                        <option value="logistics company">Logistics / Transport</option>
+                                    </optgroup>
+                                    <optgroup label="Education &amp; Non-Profit">
+                                        <option value="school">School / Academy</option>
+                                        <option value="training center">Training Center</option>
+                                        <option value="NGO">NGO / Non-Profit</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                        </details>
 
-                <!-- Row 1: Target Definition (5 columns) -->
-                <div class="section-label">Target Definition</div>
-                <div class="search-setup-row">
-                    <div>
-                        <label>Country</label>
-                        <input type="text" id="searchCountry" list="countryList" placeholder="Type country..." oninput="updateGeneratedQueries()">
-                        <datalist id="countryList">
-                            <option value="Spain"><option value="USA"><option value="Poland">
-                            <option value="United Kingdom"><option value="Germany"><option value="France">
-                            <option value="Italy"><option value="Portugal"><option value="Netherlands">
-                            <option value="Indonesia"><option value="Mexico"><option value="Colombia">
-                            <option value="Argentina"><option value="Brazil"><option value="Japan">
-                            <option value="Australia"><option value="Canada"><option value="India">
-                            <option value="China"><option value="South Korea"><option value="Thailand">
-                            <option value="Vietnam"><option value="Turkey"><option value="UAE">
-                            <option value="Saudi Arabia"><option value="South Africa"><option value="Nigeria">
-                            <option value="Egypt"><option value="Chile"><option value="Peru">
-                            <option value="Sweden"><option value="Norway"><option value="Denmark">
-                            <option value="Finland"><option value="Ireland"><option value="Switzerland">
-                            <option value="Austria"><option value="Belgium"><option value="Czech Republic">
-                            <option value="Romania"><option value="Greece"><option value="Israel">
-                            <option value="Singapore"><option value="Malaysia"><option value="Philippines">
-                            <option value="New Zealand"><option value="Russia"><option value="Ukraine">
-                        </datalist>
-                    </div>
-                    <div>
-                        <label>City / Region</label>
-                        <input type="text" id="searchCity" placeholder="e.g., Madrid, Barcelona..." oninput="updateGeneratedQueries()">
-                    </div>
-                    <div>
-                        <label>Business Type</label>
-                        <select id="searchBusinessType" onchange="updateGeneratedQueries()">
-                            <option value="">Select type...</option>
-                            <optgroup label="Retail">
-                                <option value="shoe store">Shoe Store</option>
-                                <option value="fashion boutique">Fashion Boutique</option>
-                                <option value="clothing store">Clothing Store</option>
-                                <option value="jewelry store">Jewelry Store</option>
-                                <option value="beauty store">Beauty / Cosmetics</option>
-                                <option value="home decor store">Home Decor</option>
-                                <option value="sports store">Sports Store</option>
-                                <option value="electronics store">Electronics</option>
-                                <option value="pet store">Pet Store</option>
-                                <option value="pharmacy">Pharmacy</option>
-                            </optgroup>
-                            <optgroup label="Food & Hospitality">
-                                <option value="restaurant">Restaurant</option>
-                                <option value="cafe">Cafe / Coffee Shop</option>
-                                <option value="hotel">Hotel</option>
-                                <option value="bar">Bar / Lounge</option>
-                                <option value="bakery">Bakery / Pastry</option>
-                                <option value="catering">Catering Company</option>
-                            </optgroup>
-                            <optgroup label="Professional Services">
-                                <option value="law firm">Law Firm</option>
-                                <option value="accounting firm">Accounting Firm</option>
-                                <option value="consulting firm">Consulting Firm</option>
-                                <option value="real estate agency">Real Estate</option>
-                                <option value="insurance agency">Insurance Agency</option>
-                                <option value="architecture firm">Architecture Firm</option>
-                            </optgroup>
-                            <optgroup label="Health & Wellness">
-                                <option value="dental clinic">Dental Clinic</option>
-                                <option value="medical clinic">Medical Clinic</option>
-                                <option value="spa">Spa / Wellness</option>
-                                <option value="gym">Gym / Fitness</option>
-                                <option value="salon">Hair / Beauty Salon</option>
-                            </optgroup>
-                            <optgroup label="Tech & B2B">
-                                <option value="software company">Software / SaaS</option>
-                                <option value="marketing agency">Marketing Agency</option>
-                                <option value="IT services">IT Services</option>
-                                <option value="coworking space">Coworking Space</option>
-                                <option value="startup">Startup</option>
-                                <option value="fintech company">Fintech</option>
-                            </optgroup>
-                            <optgroup label="Manufacturing & Industry">
-                                <option value="food manufacturer">Food Manufacturer</option>
-                                <option value="textile manufacturer">Textile / Apparel</option>
-                                <option value="packaging company">Packaging</option>
-                                <option value="chemical manufacturer">Chemical / Pharma</option>
-                                <option value="construction company">Construction</option>
-                                <option value="logistics company">Logistics / Transport</option>
-                            </optgroup>
-                            <optgroup label="Education & Non-Profit">
-                                <option value="school">School / Academy</option>
-                                <option value="training center">Training Center</option>
-                                <option value="NGO">NGO / Non-Profit</option>
-                            </optgroup>
-                        </select>
-                    </div>
-                    <div>
-                        <label>Product / Specialty</label>
-                        <input type="text" id="searchProduct" placeholder="e.g., leather shoes, organic..." oninput="updateGeneratedQueries()">
-                    </div>
-                    <div>
-                        <label>Company Size</label>
-                        <select id="companySize">
-                            <option value="">Any size</option>
-                            <option value="1,10">1-10 employees</option>
-                            <option value="11,50">11-50 employees</option>
-                            <option value="51,200">51-200 employees</option>
-                            <option value="201,1000">201-1,000 employees</option>
-                            <option value="1001,10000">1,000+ employees</option>
-                        </select>
-                    </div>
-                </div>
+                        <!-- 2. Location -->
+                        <details class="filter-section" open>
+                            <summary>
+                                <span class="filter-section__icon">&#128205;</span>
+                                Location
+                                <span class="filter-section__chevron">&#9660;</span>
+                            </summary>
+                            <div class="filter-section__body">
+                                <div class="filter-grid-2">
+                                    <div class="filter-field">
+                                        <label for="prospectCountry">Country</label>
+                                        <input type="text" id="prospectCountry" list="countryList"
+                                               placeholder="e.g. Spain"
+                                               oninput="updateStrategyIndicator(); updateSearchSummary()">
+                                        <datalist id="countryList">
+                                            <option value="United States">
+                                            <option value="United Kingdom">
+                                            <option value="Spain">
+                                            <option value="France">
+                                            <option value="Germany">
+                                            <option value="Italy">
+                                            <option value="Portugal">
+                                            <option value="Netherlands">
+                                            <option value="Belgium">
+                                            <option value="Switzerland">
+                                            <option value="Austria">
+                                            <option value="Sweden">
+                                            <option value="Norway">
+                                            <option value="Denmark">
+                                            <option value="Finland">
+                                            <option value="Poland">
+                                            <option value="Czech Republic">
+                                            <option value="Hungary">
+                                            <option value="Romania">
+                                            <option value="Greece">
+                                            <option value="Canada">
+                                            <option value="Australia">
+                                            <option value="New Zealand">
+                                            <option value="Brazil">
+                                            <option value="Mexico">
+                                            <option value="Argentina">
+                                            <option value="Colombia">
+                                            <option value="Chile">
+                                            <option value="Japan">
+                                            <option value="South Korea">
+                                            <option value="China">
+                                            <option value="India">
+                                            <option value="Singapore">
+                                            <option value="Indonesia">
+                                            <option value="Malaysia">
+                                            <option value="Thailand">
+                                            <option value="Philippines">
+                                            <option value="United Arab Emirates">
+                                            <option value="Saudi Arabia">
+                                            <option value="Israel">
+                                            <option value="Turkey">
+                                            <option value="South Africa">
+                                            <option value="Nigeria">
+                                            <option value="Kenya">
+                                            <option value="Egypt">
+                                        </datalist>
+                                    </div>
+                                    <div class="filter-field">
+                                        <label for="prospectWhere">City / Region</label>
+                                        <input type="text" id="prospectWhere" placeholder="e.g. Madrid"
+                                               oninput="updateStrategyIndicator(); updateSearchSummary()">
+                                    </div>
+                                </div>
+                            </div>
+                        </details>
 
-                <!-- Row 2: Filters + Action -->
-                <div class="section-label">Filters & Action</div>
-                <div class="filters-action-row">
-                    <div>
-                        <label>Decision Maker Titles</label>
-                        <input type="text" id="targetTitles" placeholder="owner, founder, CEO, buyer...">
-                    </div>
-                    <div>
-                        <label>Min Rating</label>
-                        <input type="number" id="minRating" value="4.0" step="0.1" min="0" max="5">
-                    </div>
-                    <div>
-                        <label>Max Leads</label>
-                        <select id="maxLeads">
-                            <option value="10">10</option>
-                            <option value="25">25</option>
-                            <option value="50" selected>50</option>
-                            <option value="100">100</option>
-                            <option value="200">200</option>
-                        </select>
-                    </div>
-                    <div class="enrich-toggle">
-                        <label>Enrich</label>
-                        <div class="enrich-toggle-inner">
-                            <input type="checkbox" id="enrichLeads" checked>
-                            <label for="enrichLeads">Auto-enrich leads</label>
+                        <!-- 3. Company Size -->
+                        <details class="filter-section">
+                            <summary>
+                                <span class="filter-section__icon">&#128101;</span>
+                                Company Size
+                                <span class="filter-section__chevron">&#9660;</span>
+                            </summary>
+                            <div class="filter-section__body">
+                                <select id="companySize" onchange="updateStrategyIndicator(); updateSearchSummary()">
+                                    <option value="">Any size</option>
+                                    <option value="1,10">1-10</option>
+                                    <option value="11,50">11-50</option>
+                                    <option value="51,200">51-200</option>
+                                    <option value="201,1000">201-1K</option>
+                                    <option value="1001,10000">1K+</option>
+                                </select>
+                            </div>
+                        </details>
+
+                        <!-- 4. Decision Makers -->
+                        <details class="filter-section">
+                            <summary>
+                                <span class="filter-section__icon">&#127919;</span>
+                                Decision Makers
+                                <span class="filter-section__chevron">&#9660;</span>
+                            </summary>
+                            <div class="filter-section__body">
+                                <div class="filter-field">
+                                    <label for="targetTitles">Job Titles</label>
+                                    <input type="text" id="targetTitles" placeholder="CEO, Founder, Marketing Director"
+                                           oninput="updateSearchSummary()">
+                                    <span class="field-hint">Comma-separated titles</span>
+                                </div>
+                            </div>
+                        </details>
+
+                        <!-- 5. Advanced Options -->
+                        <details class="filter-section">
+                            <summary>
+                                <span class="filter-section__icon">&#9881;&#65039;</span>
+                                Advanced Options
+                                <span class="filter-section__chevron">&#9660;</span>
+                            </summary>
+                            <div class="filter-section__body">
+
+                                <!-- Scoring Signals group -->
+                                <div class="filter-group">
+                                    <div class="filter-group__title">Scoring Signals</div>
+                                    <div class="filter-grid-2">
+                                        <div class="filter-field">
+                                            <label for="positiveSignals">Positive Signals</label>
+                                            <input type="text" id="positiveSignals" placeholder="premium, boutique, artisan">
+                                        </div>
+                                        <div class="filter-field">
+                                            <label for="negativeSignals">Negative Signals</label>
+                                            <input type="text" id="negativeSignals" placeholder="closed, franchise">
+                                        </div>
+                                    </div>
+                                    <div class="filter-field" style="margin-top: 0.75rem;">
+                                        <label for="excludeBrands">Exclude Brands</label>
+                                        <input type="text" id="excludeBrands" placeholder="Nike, Zara, H&amp;M">
+                                    </div>
+                                </div>
+
+                                <!-- Quality & Client group -->
+                                <div class="filter-group">
+                                    <div class="filter-group__title">Quality &amp; Client</div>
+                                    <div class="filter-grid-2">
+                                        <div class="filter-field">
+                                            <label for="minRating">Min Rating</label>
+                                            <select id="minRating">
+                                                <option value="">Any</option>
+                                                <option value="3">3+ stars</option>
+                                                <option value="3.5">3.5+ stars</option>
+                                                <option value="4" selected>4+ stars</option>
+                                                <option value="4.5">4.5+ stars</option>
+                                            </select>
+                                        </div>
+                                        <div class="filter-field">
+                                            <label for="segment">Segment</label>
+                                            <select id="segment">
+                                                <option value="">Any</option>
+                                                <option value="mid-premium">Mid-Premium</option>
+                                                <option value="premium">Premium / Luxury</option>
+                                                <option value="mass-market">Mass Market</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="filter-grid-2" style="margin-top: 0.75rem;">
+                                        <div class="filter-field">
+                                            <label for="brandName">Client Brand</label>
+                                            <input type="text" id="brandName" placeholder="Your brand name">
+                                        </div>
+                                        <div class="filter-field">
+                                            <label for="brandWebsite">Client Website</label>
+                                            <input type="text" id="brandWebsite" placeholder="https://...">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Import & Queries group -->
+                                <div class="filter-group">
+                                    <div class="filter-group__title">Import &amp; Queries</div>
+                                    <div class="filter-field">
+                                        <label for="mapsUrlInput">Google Maps URL</label>
+                                        <textarea id="mapsUrlInput" rows="2" placeholder="Paste a Google Maps search URL..."
+                                                  oninput="updateStrategyIndicator(); updateSearchSummary()"></textarea>
+                                    </div>
+                                    <div class="filter-field" style="margin-top: 0.75rem;">
+                                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                                            <label>Generated Queries</label>
+                                            <button class="advanced-pill-btn" onclick="toggleAdvancedQueries()" id="advancedQueriesToggle">Edit</button>
+                                        </div>
+                                        <div id="generatedQueriesPreview" class="queries-preview">Queries will appear based on your inputs...</div>
+                                        <textarea id="queries" style="display:none; width:100%; margin-top:0.5rem;" rows="4" placeholder="One query per line..."></textarea>
+                                        <span id="queryCount" class="field-hint"></span>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </details>
+
+                    </div><!-- end filter-accordion -->
+                </div><!-- end finder-left -->
+
+                <!-- RIGHT COLUMN -->
+                <div class="finder-right">
+                    <div class="search-summary">
+                        <div class="search-summary__title">Your Search</div>
+                        <div class="search-summary__tags" id="searchSummaryTags">
+                            <div class="search-summary__empty">Add filters to build your search</div>
                         </div>
                     </div>
-                    <div class="find-leads-cell">
-                        <button class="btn btn-primary" id="searchBtn" onclick="startSearch()">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="11" cy="11" r="8"></circle>
-                                <path d="m21 21-4.35-4.35"></path>
-                            </svg>
-                            Find Leads
-                        </button>
-                        <button class="btn btn-secondary" id="cancelBtn" onclick="cancelSearch()" style="display: none;">
-                            Cancel
-                        </button>
-                    </div>
-                </div>
 
-                <!-- Advanced Filters (collapsible) -->
-                <details class="advanced-filters-details">
-                    <summary>Scoring Signals & Exclusions</summary>
-                    <div class="advanced-filters-grid">
-                        <div>
-                            <label>Positive Signals <span style="font-size: 0.65rem; color: var(--text-muted);">(comma-separated)</span></label>
-                            <input type="text" id="positiveSignals" placeholder="boutique, premium, designer, leather">
-                        </div>
-                        <div>
-                            <label>Negative Signals <span style="font-size: 0.65rem; color: var(--text-muted);">(comma-separated)</span></label>
-                            <input type="text" id="negativeSignals" placeholder="discount, outlet, sports, children">
-                        </div>
-                        <div>
-                            <label>Exclude Brands <span style="font-size: 0.65rem; color: var(--text-muted);">(comma-separated)</span></label>
-                            <input type="text" id="excludeBrands" placeholder="CCC, Deichmann, Eobuwie">
-                        </div>
-                    </div>
-                </details>
-
-                <!-- Generated Queries (collapsible) -->
-                <div class="queries-row">
-                    <div class="queries-toggle" onclick="toggleQueriesSection()">
-                        <span>Generated Queries <span id="queryCount" style="color: var(--accent);"></span></span>
-                        <button class="preset-btn" style="font-size: 0.65rem; padding: 2px 6px;" id="advancedQueriesToggle">Show</button>
-                    </div>
-                    <div id="queriesContent" style="display: none; margin-top: 0.5rem;">
-                        <div id="generatedQueriesPreview" style="background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem; font-size: 0.75rem; color: var(--text-secondary); max-height: 120px; overflow-y: auto; line-height: 1.5;">
-                            <span style="color: var(--text-muted);">Fill in the fields above to generate search queries...</span>
-                        </div>
-                        <textarea id="queries" placeholder="Edit queries manually here..." style="display: none; margin-top: 0.5rem;"></textarea>
-                        <button class="preset-btn" onclick="toggleAdvancedQueries()" style="font-size: 0.65rem; padding: 2px 6px; margin-top: 0.25rem;" id="manualEditToggle">Edit manually</button>
-                    </div>
-                </div>
-
-                </div><!-- End googlePlacesFields -->
-
-                <!-- Smart Search / Web Search fields -->
-                <div id="smartSearchFields" style="display: none;">
-                    <div class="section-label">Smart Search</div>
-                    <div class="search-setup-row" style="grid-template-columns: 2fr 1fr 1fr auto;">
-                        <div>
-                            <label>Search Query</label>
-                            <input type="text" id="smartQuery" placeholder="e.g., footwear retailers, SaaS companies, organic food stores">
-                        </div>
-                        <div>
-                            <label>Location</label>
-                            <input type="text" id="smartLocation" list="countryList" placeholder="e.g., Spain, London...">
-                        </div>
-                        <div>
-                            <label>Max Results</label>
-                            <select id="smartMaxResults">
+                    <div class="search-controls">
+                        <div class="filter-field">
+                            <label for="maxLeads">Max Results</label>
+                            <select id="maxLeads" onchange="updateSearchSummary()">
                                 <option value="10">10</option>
                                 <option value="25" selected>25</option>
                                 <option value="50">50</option>
+                                <option value="100">100</option>
+                                <option value="200">200</option>
                             </select>
                         </div>
-                        <div class="find-leads-cell">
-                            <button class="btn btn-primary" id="smartSearchBtn" onclick="runSmartSearch()">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="11" cy="11" r="8"></circle>
-                                    <path d="m21 21-4.35-4.35"></path>
-                                </svg>
-                                Search
-                            </button>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Apollo Database fields -->
-                <div id="apolloSearchFields" style="display: none;">
-                    <div class="section-label">Apollo Company Search</div>
-                    <div class="search-setup-row" style="grid-template-columns: 2fr 1fr 1fr auto;">
-                        <div>
-                            <label>Industry / Query</label>
-                            <input type="text" id="apolloQuery" placeholder="e.g., retail, software, manufacturing">
-                        </div>
-                        <div>
-                            <label>Location</label>
-                            <input type="text" id="apolloLocation" list="countryList" placeholder="e.g., Spain, London...">
-                        </div>
-                        <div>
-                            <label>Company Size</label>
-                            <select id="apolloCompanySize">
-                                <option value="">Any size</option>
-                                <option value="1,10">1-10</option>
-                                <option value="11,50">11-50</option>
-                                <option value="51,200">51-200</option>
-                                <option value="201,1000">201-1K</option>
-                                <option value="1001,10000">1K+</option>
-                            </select>
-                        </div>
-                        <div class="find-leads-cell">
-                            <button class="btn btn-primary" id="apolloSearchBtn" onclick="runSmartSearch()">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="11" cy="11" r="8"></circle>
-                                    <path d="m21 21-4.35-4.35"></path>
-                                </svg>
-                                Search
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                        <label class="filter-toggle" style="margin: 0.75rem 0; display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" id="enrichLeads" checked>
+                            <span class="filter-toggle__label" id="enrichLabel">Auto-enrich leads</span>
+                        </label>
 
-                <!-- Maps URL fields -->
-                <div id="mapsUrlFields" style="display: none;">
-                    <div class="section-label">Google Maps URL</div>
-                    <div style="margin-bottom: 0.5rem;">
-                        <label>Paste a Google Maps search URL</label>
-                        <textarea id="mapsUrlInput" rows="2" placeholder="https://www.google.com/maps/search/fashion+shoes+warsaw/..." style="font-family: monospace; font-size: 0.8rem;"></textarea>
-                        <p style="color: var(--text-muted); font-size: 0.7rem; margin-top: 0.25rem;">
-                            Search for businesses on Google Maps, then copy the URL from your browser.
-                        </p>
+                        <button id="searchBtn" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem; padding: 0.75rem;"
+                                onclick="findProspects()">
+                            Find Prospects
+                        </button>
+                        <button id="cancelBtn" class="btn btn-outline" style="width: 100%; margin-top: 0.5rem; display: none;"
+                                onclick="cancelSearch()">
+                            Cancel
+                        </button>
                     </div>
-                    <div class="search-setup-row" style="grid-template-columns: 1fr auto;">
-                        <div>
-                            <label>Location label (for results)</label>
-                            <input type="text" id="mapsUrlLocation" placeholder="e.g., Warsaw, Poland">
-                        </div>
-                        <div class="find-leads-cell">
-                            <button class="btn btn-primary" id="mapsUrlBtn" onclick="runSmartSearch()">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="11" cy="11" r="8"></circle>
-                                    <path d="m21 21-4.35-4.35"></path>
-                                </svg>
-                                Extract
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                </div><!-- end finder-right -->
 
             </div>
 
@@ -2566,56 +2756,29 @@
             const icp = currentBrief.icp || {};
             const pos = currentBrief.positioning || {};
 
-            // Fill Brand Name & Website
-            if (cs.name) {
-                document.getElementById('brandName').value = cs.name;
+            // Build "What" from industry + first suggested query
+            const industry = icp.companyCharacteristics?.industry || '';
+            const firstQuery = (ss.suggestedQueries || [])[0] || '';
+            const whatParts = [industry, firstQuery].filter(Boolean);
+            document.getElementById('prospectWhat').value = whatParts.join(', ');
+
+            // Build "Where" from geographies — first entry as city, last as country hint
+            const geos = ss.geographies || [];
+            document.getElementById('prospectWhere').value = geos[0] || '';
+            const countryEl = document.getElementById('prospectCountry');
+            if (countryEl) {
+                countryEl.value = geos.length > 1 ? geos[geos.length - 1] : '';
             }
+
+            // Fill advanced fields
+            if (cs.name) document.getElementById('brandName').value = cs.name;
             if (cs.website) {
                 document.getElementById('brandWebsite').value = cs.website;
             } else if (document.getElementById('briefUrl').value) {
                 document.getElementById('brandWebsite').value = document.getElementById('briefUrl').value;
             }
 
-            // Fill structured search fields from brief geographies
-            const geos = ss.geographies || [];
-            if (geos.length > 0) {
-                const firstGeo = geos[0];
-                const parts = firstGeo.split(',').map(s => s.trim());
-                if (parts.length >= 2) {
-                    document.getElementById('searchCity').value = parts[0];
-                    document.getElementById('searchCountry').value = parts[parts.length - 1];
-                } else {
-                    document.getElementById('searchCountry').value = firstGeo;
-                }
-            }
-
-            // Fill business type from ICP if available
-            if (icp.companyCharacteristics?.industry) {
-                document.getElementById('searchProduct').value = icp.companyCharacteristics.industry;
-            }
-
-            // Fill Search Queries (combine suggested queries with geographies)
-            const queries = ss.suggestedQueries || [];
-            let combinedQueries = [];
-
-            if (queries.length && geos.length) {
-                queries.slice(0, 3).forEach(q => {
-                    geos.slice(0, 2).forEach(g => {
-                        combinedQueries.push(`${q} ${g}`);
-                    });
-                });
-            } else if (queries.length) {
-                combinedQueries = queries.slice(0, 6);
-            }
-
-            if (combinedQueries.length) {
-                document.getElementById('queries').value = combinedQueries.join('\n');
-            }
-
-            // Update generated queries from new structured fields
-            updateGeneratedQueries();
-
-            // Fill Positive Signals from ICP signals and differentiators
+            // Fill Positive Signals
             const positiveSignals = [];
             if (icp.companyCharacteristics?.signals) {
                 positiveSignals.push(...icp.companyCharacteristics.signals.slice(0, 3));
@@ -2627,20 +2790,13 @@
                 document.getElementById('positiveSignals').value = positiveSignals.join(', ');
             }
 
-            // Fill Negative Signals from disqualifiers
+            // Fill Negative Signals
             if (icp.disqualifiers && icp.disqualifiers.length) {
                 document.getElementById('negativeSignals').value = icp.disqualifiers.slice(0, 5).join(', ');
             }
 
-            // Also fill Smart Search fields
-            const firstQuery = queries[0] || icp.companyCharacteristics?.industry || '';
-            const firstGeoStr = geos[0] || '';
-            if (firstQuery) document.getElementById('smartQuery').value = firstQuery;
-            if (firstGeoStr) document.getElementById('smartLocation').value = firstGeoStr;
-
-            // Also fill Apollo Database fields
-            if (firstQuery) document.getElementById('apolloQuery').value = firstQuery;
-            if (firstGeoStr) document.getElementById('apolloLocation').value = firstGeoStr;
+            updateStrategyIndicator();
+            updateSearchSummary();
 
             // Switch to Prospecting tab
             document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
@@ -2840,151 +2996,313 @@
         }
 
         function useQuery(query) {
-            // Fill smart search query field
-            const smartQuery = document.getElementById('smartQuery');
-            if (smartQuery) smartQuery.value = query;
+            const el = document.getElementById('prospectWhat');
+            if (el) el.value = query;
+            updateStrategyIndicator();
+            updateSearchSummary();
         }
 
         function useLocation(location) {
-            // Fill smart search location field
-            const smartLocation = document.getElementById('smartLocation');
-            if (smartLocation) smartLocation.value = location;
+            const el = document.getElementById('prospectWhere');
+            if (el) el.value = location;
+            updateStrategyIndicator();
+            updateSearchSummary();
         }
 
         // ============================================
         // SEARCH METHOD SWITCHING & DISCOVERY
         // ============================================
 
-        let currentSearchMethod = 'google_places';
         let selectedProspectIds = new Set();
 
-        function setSearchMethod(method) {
-            currentSearchMethod = method;
+        // ============================================
+        // INTENT-DRIVEN STRATEGY ROUTING
+        // ============================================
 
-            // Update method buttons
-            document.querySelectorAll('.method-btn').forEach(b => b.classList.remove('active'));
-            const btnMap = {
-                'google_places': 'methodGooglePlaces',
-                'smart_search': 'methodSmartSearch',
-                'apollo_search': 'methodApolloSearch',
-                'maps_url': 'methodMapsUrl'
-            };
-            document.getElementById(btnMap[method])?.classList.add('active');
+        const B2B_KEYWORDS = /\b(saas|agency|agencies|software|distributor|consulting|fintech|tech|digital|b2b|startup|platform|coworking|enterprise|cloud|venture|investment|logistics)\b/i;
+        const PHYSICAL_KEYWORDS = /\b(store|stores|shop|shops|restaurant|restaurants|cafe|cafes|hotel|hotels|salon|salons|boutique|boutiques|retail|gym|gyms|clinic|clinics|bakery|bakeries|bar|bars|pharmacy|pharmacies|spa|dental|florist|salon)\b/i;
+        const MAPS_URL_PATTERN = /google\.com\/maps/i;
 
-            // Show/hide field panels
-            document.getElementById('googlePlacesFields').style.display = method === 'google_places' ? 'block' : 'none';
-            document.getElementById('smartSearchFields').style.display = (method === 'smart_search') ? 'block' : 'none';
-            document.getElementById('apolloSearchFields').style.display = method === 'apollo_search' ? 'block' : 'none';
-            document.getElementById('mapsUrlFields').style.display = method === 'maps_url' ? 'block' : 'none';
+        function determineStrategy() {
+            let what = (document.getElementById('prospectWhat')?.value || '').trim();
+            const where = (document.getElementById('prospectWhere')?.value || '').trim();
+            const country = (document.getElementById('prospectCountry')?.value || '').trim();
+            const companySize = (document.getElementById('companySize')?.value || '');
+            const industry = (document.getElementById('filterIndustry')?.value || '');
+            const mapsUrl = (document.getElementById('mapsUrlInput')?.value || '').trim();
+            const config = window.apiConfig || {};
+            if (!what && industry) what = industry;
 
-            // Update description
-            const desc = document.getElementById('methodDescription');
-            const descriptions = {
-                'google_places': 'Search Google Maps for businesses by location and type. Best for retail, restaurants, and local services.',
-                'smart_search': 'Combines web search (Firecrawl) and Apollo database for broader results. Falls back automatically if one source is unavailable.',
-                'apollo_search': 'Search Apollo.io\'s company database directly. Best for B2B companies with filters by size and industry.',
-                'maps_url': 'Paste a Google Maps search URL to extract all listed businesses. Great for scraping specific map searches.'
-            };
-            desc.textContent = descriptions[method];
+            const hasLocation = !!(where || country);
 
-            // Hide previous results when switching methods
-            resetResults();
-        }
-
-        function resetResults() {
-            // Hide both result types
-            document.getElementById('resultsTable').style.display = 'none';
-            document.getElementById('statsGrid').style.display = 'none';
-            document.getElementById('resultsActions').style.display = 'none';
-            document.getElementById('discoveryResultsSection').style.display = 'none';
-            document.getElementById('discoveryProgress').style.display = 'none';
-            document.getElementById('progressContainer').classList.remove('active');
-            document.getElementById('emptyState').style.display = 'block';
-            document.getElementById('emptyState').querySelector('h3').textContent = 'Ready to find leads';
-            document.getElementById('emptyState').querySelector('p').textContent = 'Define your target market above and click Search to start.';
-        }
-
-        async function runSmartSearch() {
-            const method = currentSearchMethod;
-            const progress = document.getElementById('discoveryProgress');
-            const step = document.getElementById('discoveryStep');
-
-            // Hide empty state, show progress
-            document.getElementById('emptyState').style.display = 'none';
-            document.getElementById('discoveryResultsSection').style.display = 'none';
-            progress.style.display = 'block';
-
-            // Build payload based on method
-            let payload = {};
-            let activeBtn;
-
-            if (method === 'maps_url') {
-                const mapsUrl = document.getElementById('mapsUrlInput').value.trim();
-                if (!mapsUrl || !mapsUrl.includes('google.com/maps')) {
-                    alert('Please enter a valid Google Maps URL');
-                    progress.style.display = 'none';
-                    document.getElementById('emptyState').style.display = 'block';
-                    return;
-                }
-                payload = { mode: 'maps_url', mapsUrl, location: document.getElementById('mapsUrlLocation').value.trim() };
-                activeBtn = document.getElementById('mapsUrlBtn');
-                step.textContent = 'Extracting businesses from Maps URL...';
-            } else if (method === 'apollo_search') {
-                const query = document.getElementById('apolloQuery').value.trim();
-                const location = document.getElementById('apolloLocation').value.trim();
-                if (!query) { alert('Please enter an industry or query'); progress.style.display = 'none'; document.getElementById('emptyState').style.display = 'block'; return; }
-                const companySize = document.getElementById('apolloCompanySize').value;
-                payload = { mode: 'apollo_search', query, queries: [query], location, category: query, industry: query };
-                if (companySize) payload.company_size = companySize;
-                activeBtn = document.getElementById('apolloSearchBtn');
-                step.textContent = `Searching Apollo for "${query}"...`;
-            } else {
-                // smart_search
-                const query = document.getElementById('smartQuery').value.trim();
-                const location = document.getElementById('smartLocation').value.trim();
-                if (!query) { alert('Please enter a search query'); progress.style.display = 'none'; document.getElementById('emptyState').style.display = 'block'; return; }
-                const maxResults = document.getElementById('smartMaxResults').value;
-                payload = { mode: 'smart_search', query, queries: [query], location, category: query.split(' ')[0], max_results: parseInt(maxResults) };
-                activeBtn = document.getElementById('smartSearchBtn');
-                step.textContent = `Smart searching for "${query}"...`;
+            // 1. Maps URL detected
+            if (MAPS_URL_PATTERN.test(what) || MAPS_URL_PATTERN.test(mapsUrl)) {
+                return 'maps_url';
             }
 
-            if (activeBtn) { activeBtn.disabled = true; }
-            selectedProspectIds.clear();
+            // 2. B2B keywords or company size filter → Apollo (if available)
+            if ((B2B_KEYWORDS.test(what) || companySize) && config.apollo) {
+                return 'apollo_search';
+            }
 
-            try {
-                const resp = await fetch('/api/discover', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+            // 3. Physical/local keywords + any location → Google Places
+            if (PHYSICAL_KEYWORDS.test(what) && hasLocation) {
+                return 'google_places';
+            }
+
+            // 4. Has any location (city or country) → Google Places
+            if (hasLocation) {
+                return 'google_places';
+            }
+
+            // 5. Broad/vague query, no location → Smart Search
+            if (what && !hasLocation) {
+                return 'smart_search';
+            }
+
+            // 6. Fallback → Google Places
+            return 'google_places';
+        }
+
+        function updateStrategyIndicator() {
+            const strategy = determineStrategy();
+            const enrichCheckbox = document.getElementById('enrichLeads');
+            const enrichLabel = document.getElementById('enrichLabel');
+            const isEnrichable = strategy === 'google_places';
+
+            // Update enrich toggle
+            if (enrichCheckbox) {
+                if (isEnrichable) {
+                    enrichCheckbox.disabled = false;
+                    if (enrichLabel) enrichLabel.textContent = 'Auto-enrich';
+                } else {
+                    enrichCheckbox.disabled = true;
+                    enrichCheckbox.checked = false;
+                    if (enrichLabel) enrichLabel.textContent = 'Search only';
+                }
+            }
+
+            updateGeneratedQueries();
+        }
+
+        // Build queries from intent fields (adapts generateQueries for the unified form)
+        function buildQueriesFromIntent() {
+            let what = (document.getElementById('prospectWhat')?.value || '').trim();
+            const where = (document.getElementById('prospectWhere')?.value || '').trim();
+            const country = (document.getElementById('prospectCountry')?.value || '').trim();
+            const industry = (document.getElementById('filterIndustry')?.value || '');
+
+            if (!what && industry) what = industry;
+            if (!what && !where && !country) return [];
+
+            // Build location string: prefer city+country, fall back to whichever is set
+            let location = '';
+            if (where && country) {
+                location = `${where}, ${country}`;
+            } else {
+                location = where || country;
+            }
+
+            const queries = [];
+
+            if (what && location) {
+                queries.push(`${what} ${location}`);
+                queries.push(`best ${what} ${location}`);
+                queries.push(`premium ${what} ${location}`);
+            } else if (what) {
+                queries.push(what);
+                queries.push(`best ${what}`);
+            }
+
+            // Try to match local language variants
+            const countryLower = country.toLowerCase();
+            const whereLower = where.toLowerCase();
+            let detectedCountry = null;
+
+            for (const c of Object.keys(localQueryVariants)) {
+                if (countryLower === c.toLowerCase() || countryLower.includes(c.toLowerCase())) {
+                    detectedCountry = c;
+                    break;
+                }
+            }
+            if (!detectedCountry) {
+                for (const c of Object.keys(localQueryVariants)) {
+                    if (whereLower.includes(c.toLowerCase())) {
+                        detectedCountry = c;
+                        break;
+                    }
+                }
+            }
+
+            if (detectedCountry && localQueryVariants[detectedCountry]) {
+                const city = where || country;
+                const localQueries = localQueryVariants[detectedCountry](what || 'store', '', city);
+                localQueries.forEach(q => {
+                    if (q && !queries.includes(q)) queries.push(q);
                 });
-                const data = await resp.json();
+            }
 
-                if (data.success && data.prospects?.length) {
-                    discoveredProspects = data.prospects;
-                    document.getElementById('discoveryResultsSection').style.display = 'block';
-                    displayDiscoveredProspects(data.prospects);
-                    document.getElementById('discoveryCount').textContent = `${data.prospects.length} prospects found`;
+            return [...new Set(queries)].filter(Boolean);
+        }
 
-                    if (data.fallbackReason) {
-                        step.textContent = `Note: ${data.fallbackReason}. Found ${data.prospects.length} via ${data.source}.`;
-                        setTimeout(() => { progress.style.display = 'none'; }, 3000);
+        // ============================================
+        // UNIFIED FIND PROSPECTS
+        // ============================================
+
+        async function findProspects() {
+            let what = (document.getElementById('prospectWhat')?.value || '').trim();
+            const where = (document.getElementById('prospectWhere')?.value || '').trim();
+            const country = (document.getElementById('prospectCountry')?.value || '').trim();
+            const industry = (document.getElementById('filterIndustry')?.value || '');
+            if (!what && industry) what = industry;
+            const strategy = determineStrategy();
+
+            let locationStr = '';
+            if (where && country) {
+                locationStr = `${where}, ${country}`;
+            } else {
+                locationStr = where || country;
+            }
+
+            if (!what && !where && !country) {
+                alert('Please describe what you\'re looking for or specify a location.');
+                return;
+            }
+
+            if (strategy === 'google_places') {
+                let queries;
+                if (advancedQueriesOpen) {
+                    queries = document.getElementById('queries').value.trim().split('\n').filter(q => q.trim());
+                } else {
+                    queries = buildQueriesFromIntent();
+                }
+
+                if (queries.length === 0) {
+                    alert('Could not generate search queries. Please describe what you\'re looking for.');
+                    return;
+                }
+
+                const titlesRaw = document.getElementById('targetTitles').value.trim();
+                const targetTitles = titlesRaw ? titlesRaw.split(',').map(s => s.trim()).filter(Boolean) : undefined;
+                const companySizeVal = document.getElementById('companySize').value;
+                const companySizeRanges = companySizeVal ? [companySizeVal] : undefined;
+
+                const config = {
+                    brand_name: document.getElementById('brandName').value,
+                    brand_website: document.getElementById('brandWebsite').value,
+                    segment: document.getElementById('segment').value,
+                    queries: queries,
+                    max_leads: parseInt(document.getElementById('maxLeads').value) || 50,
+                    min_rating: parseFloat(document.getElementById('minRating').value) || 4.0,
+                    positive_signals: document.getElementById('positiveSignals').value.split(',').map(s => s.trim()).filter(Boolean),
+                    negative_signals: document.getElementById('negativeSignals').value.split(',').map(s => s.trim()).filter(Boolean),
+                    exclude_brands: document.getElementById('excludeBrands').value.split(',').map(s => s.trim()).filter(Boolean),
+                    enrich: document.getElementById('enrichLeads').checked,
+                    country: country || undefined,
+                    ...(targetTitles && { target_titles: targetTitles }),
+                    ...(companySizeRanges && { company_size_ranges: companySizeRanges }),
+                };
+
+                document.getElementById('searchBtn').disabled = true;
+                document.getElementById('cancelBtn').style.display = 'block';
+                document.getElementById('progressContainer').classList.add('active');
+                document.getElementById('emptyState').style.display = 'none';
+
+                try {
+                    const resp = await fetch('/api/search', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(config)
+                    });
+                    const data = await resp.json();
+                    currentJobId = data.job_id;
+                    pollInterval = setInterval(pollStatus, 1000);
+                } catch (e) {
+                    console.error('Search failed:', e);
+                    alert('Search failed: ' + e.message);
+                    document.getElementById('searchBtn').disabled = false;
+                    document.getElementById('cancelBtn').style.display = 'none';
+                    document.getElementById('progressContainer').classList.remove('active');
+                }
+
+            } else {
+                // apollo_search, smart_search, maps_url → /api/discover
+                const progress = document.getElementById('discoveryProgress');
+                const step = document.getElementById('discoveryStep');
+
+                document.getElementById('emptyState').style.display = 'none';
+                document.getElementById('discoveryResultsSection').style.display = 'none';
+                progress.style.display = 'block';
+
+                let payload = {};
+
+                if (strategy === 'maps_url') {
+                    const mapsUrl = document.getElementById('mapsUrlInput').value.trim() ||
+                                    (MAPS_URL_PATTERN.test(what) ? what : '');
+                    if (!mapsUrl || !mapsUrl.includes('google.com/maps')) {
+                        alert('Please enter a valid Google Maps URL');
+                        progress.style.display = 'none';
+                        document.getElementById('emptyState').style.display = 'block';
+                        return;
+                    }
+                    payload = { mode: 'maps_url', mapsUrl, location: locationStr, country: country || undefined };
+                    step.textContent = 'Extracting businesses from Maps URL...';
+                } else if (strategy === 'apollo_search') {
+                    const companySize = document.getElementById('companySize').value;
+                    payload = {
+                        mode: 'apollo_search', query: what, queries: [what],
+                        location: locationStr, country: country || undefined,
+                        category: what, industry: what
+                    };
+                    if (companySize) payload.company_size = companySize;
+                    step.textContent = `Searching Apollo for "${what}"...`;
+                } else {
+                    const maxResults = parseInt(document.getElementById('maxLeads').value) || 50;
+                    payload = {
+                        mode: 'smart_search', query: what, queries: [what],
+                        location: locationStr, country: country || undefined,
+                        category: what.split(' ')[0], max_results: maxResults
+                    };
+                    step.textContent = `Smart searching for "${what}"...`;
+                }
+
+                document.getElementById('searchBtn').disabled = true;
+                selectedProspectIds.clear();
+
+                try {
+                    const resp = await fetch('/api/discover', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    const data = await resp.json();
+
+                    if (data.success && data.prospects?.length) {
+                        discoveredProspects = data.prospects;
+                        document.getElementById('discoveryResultsSection').style.display = 'block';
+                        displayDiscoveredProspects(data.prospects);
+                        document.getElementById('discoveryCount').textContent = `${data.prospects.length} prospects found`;
+
+                        if (data.fallbackReason) {
+                            step.textContent = `Note: ${data.fallbackReason}. Found ${data.prospects.length} via ${data.source}.`;
+                            setTimeout(() => { progress.style.display = 'none'; }, 3000);
+                        } else {
+                            progress.style.display = 'none';
+                        }
                     } else {
                         progress.style.display = 'none';
+                        document.getElementById('emptyState').style.display = 'block';
+                        document.getElementById('emptyState').querySelector('h3').textContent = 'No results found';
+                        document.getElementById('emptyState').querySelector('p').textContent = data.error || 'Try a different query.';
                     }
-                } else {
+                } catch (e) {
                     progress.style.display = 'none';
                     document.getElementById('emptyState').style.display = 'block';
-                    document.getElementById('emptyState').querySelector('h3').textContent = 'No results found';
-                    document.getElementById('emptyState').querySelector('p').textContent = data.error || 'Try a different query or search method.';
+                    document.getElementById('emptyState').querySelector('h3').textContent = 'Search failed';
+                    document.getElementById('emptyState').querySelector('p').textContent = e.message || 'Connection error.';
+                } finally {
+                    document.getElementById('searchBtn').disabled = false;
                 }
-            } catch (e) {
-                progress.style.display = 'none';
-                document.getElementById('emptyState').style.display = 'block';
-                document.getElementById('emptyState').querySelector('h3').textContent = 'Search failed';
-                document.getElementById('emptyState').querySelector('p').textContent = e.message || 'Connection error.';
-            } finally {
-                if (activeBtn) { activeBtn.disabled = false; }
             }
         }
 
@@ -3593,16 +3911,30 @@
         function loadPreset(name) {
             const preset = presets[name];
             if (preset) {
-                document.getElementById('searchCountry').value = preset.country;
-                document.getElementById('searchCity').value = preset.city;
-                document.getElementById('searchBusinessType').value = preset.businessType;
-                document.getElementById('searchProduct').value = preset.product;
+                // Fill unified intent fields
+                const whatParts = [preset.businessType, preset.product].filter(Boolean);
+                document.getElementById('prospectWhat').value = whatParts.join(', ');
+                document.getElementById('prospectWhere').value = preset.city || '';
+
+                // Fill country field
+                const countryEl = document.getElementById('prospectCountry');
+                if (countryEl) countryEl.value = preset.country || '';
+
+                // Fill filter bar
+                const industrySelect = document.getElementById('filterIndustry');
+                if (industrySelect) {
+                    industrySelect.value = preset.businessType || '';
+                }
                 document.getElementById('companySize').value = preset.companySize || '';
                 document.getElementById('targetTitles').value = preset.targetTitles || '';
+
+                // Fill advanced fields
                 document.getElementById('positiveSignals').value = preset.positiveSignals;
                 document.getElementById('negativeSignals').value = preset.negativeSignals;
                 document.getElementById('excludeBrands').value = preset.excludeBrands;
-                updateGeneratedQueries();
+
+                updateStrategyIndicator();
+                updateSearchSummary();
             }
         }
 
@@ -3656,42 +3988,8 @@
         };
 
         function generateQueries() {
-            const country = document.getElementById('searchCountry').value;
-            const city = document.getElementById('searchCity').value.trim();
-            const businessType = document.getElementById('searchBusinessType').value;
-            const product = document.getElementById('searchProduct').value.trim();
-
-            if (!city && !country) return [];
-
-            const location = city ? `${city}${country ? ' ' + country : ''}` : country;
-            const queries = [];
-
-            // Base queries in English
-            if (businessType) {
-                queries.push(`${businessType} ${location}`);
-                if (product) {
-                    queries.push(`${product} ${businessType} ${location}`);
-                }
-                queries.push(`best ${businessType} ${location}`);
-                queries.push(`premium ${businessType} ${location}`);
-            }
-
-            if (product && !businessType) {
-                queries.push(`${product} store ${location}`);
-                queries.push(`${product} ${location}`);
-                queries.push(`best ${product} ${location}`);
-            }
-
-            // Add local language variants if available
-            if (country && localQueryVariants[country] && city) {
-                const localQueries = localQueryVariants[country](businessType || 'store', product, city);
-                localQueries.forEach(q => {
-                    if (q && !queries.includes(q)) queries.push(q);
-                });
-            }
-
-            // Deduplicate
-            return [...new Set(queries)].filter(Boolean);
+            // Delegate to buildQueriesFromIntent for unified fields
+            return buildQueriesFromIntent();
         }
 
         function updateGeneratedQueries() {
@@ -3721,7 +4019,7 @@
             advancedQueriesOpen = !advancedQueriesOpen;
             const preview = document.getElementById('generatedQueriesPreview');
             const textarea = document.getElementById('queries');
-            const btn = document.getElementById('manualEditToggle');
+            const btn = document.getElementById('advancedQueriesToggle');
 
             if (advancedQueriesOpen) {
                 if (!textarea.value.trim()) {
@@ -3729,23 +4027,138 @@
                 }
                 preview.style.display = 'none';
                 textarea.style.display = 'block';
-                btn.textContent = 'Auto-generate';
+                if (btn) btn.textContent = 'Auto';
             } else {
                 preview.style.display = 'block';
                 textarea.style.display = 'none';
-                btn.textContent = 'Edit manually';
+                if (btn) btn.textContent = 'Edit';
                 updateGeneratedQueries();
             }
         }
 
         let queriesSectionOpen = false;
         function toggleQueriesSection() {
-            queriesSectionOpen = !queriesSectionOpen;
-            const content = document.getElementById('queriesContent');
-            const btn = document.getElementById('advancedQueriesToggle');
-            content.style.display = queriesSectionOpen ? 'block' : 'none';
-            btn.textContent = queriesSectionOpen ? 'Hide' : 'Show';
+            // Queries are now always visible inside the Advanced accordion — no-op
         }
+
+        // ============================================================
+        // SEARCH SUMMARY + SUGGESTION CHIPS + PLACEHOLDER ROTATION
+        // ============================================================
+
+        function updateSearchSummary() {
+            const container = document.getElementById('searchSummaryTags');
+            if (!container) return;
+
+            const filters = [];
+
+            const what = document.getElementById('prospectWhat')?.value?.trim();
+            if (what) filters.push({ icon: '\u{1F50D}', label: 'Search', value: what, field: 'prospectWhat' });
+
+            const industry = document.getElementById('filterIndustry')?.value;
+            if (industry) filters.push({ icon: '\u{1F3E2}', label: 'Industry', value: document.getElementById('filterIndustry').selectedOptions[0]?.text || industry, field: 'filterIndustry' });
+
+            const country = document.getElementById('prospectCountry')?.value?.trim();
+            if (country) filters.push({ icon: '\u{1F30D}', label: 'Country', value: country, field: 'prospectCountry' });
+
+            const where = document.getElementById('prospectWhere')?.value?.trim();
+            if (where) filters.push({ icon: '\u{1F4CD}', label: 'City', value: where, field: 'prospectWhere' });
+
+            const size = document.getElementById('companySize')?.value;
+            if (size) filters.push({ icon: '\u{1F465}', label: 'Size', value: document.getElementById('companySize').selectedOptions[0]?.text || size, field: 'companySize' });
+
+            const titles = document.getElementById('targetTitles')?.value?.trim();
+            if (titles) filters.push({ icon: '\u{1F3AF}', label: 'Titles', value: titles, field: 'targetTitles' });
+
+            const mapsUrl = document.getElementById('mapsUrlInput')?.value?.trim();
+            if (mapsUrl) filters.push({ icon: '\u{1F5FA}', label: 'Maps URL', value: 'Imported', field: 'mapsUrlInput' });
+
+            if (filters.length === 0) {
+                container.innerHTML = '<div class="search-summary__empty">Add filters to build your search</div>';
+                return;
+            }
+
+            container.innerHTML = filters.map(f => `
+                <div class="summary-tag">
+                    <span class="summary-tag__icon">${f.icon}</span>
+                    <span class="summary-tag__label">${f.label}</span>
+                    <span class="summary-tag__value">${f.value}</span>
+                    <span class="summary-tag__remove" onclick="removeFilter('${f.field}')">&times;</span>
+                </div>
+            `).join('');
+        }
+
+        function removeFilter(fieldId) {
+            const el = document.getElementById(fieldId);
+            if (!el) return;
+            if (el.tagName === 'SELECT') {
+                el.selectedIndex = 0;
+            } else {
+                el.value = '';
+            }
+            updateSearchSummary();
+            updateStrategyIndicator();
+        }
+
+        function addSuggestionChip(type, value) {
+            if (type === 'industry') {
+                const sel = document.getElementById('filterIndustry');
+                if (sel) {
+                    for (let opt of sel.options) {
+                        if (opt.text.toLowerCase().includes(value.toLowerCase()) || opt.value.toLowerCase().includes(value.toLowerCase())) {
+                            sel.value = opt.value;
+                            break;
+                        }
+                    }
+                    const section = sel.closest('details.filter-section');
+                    if (section) section.open = true;
+                }
+            } else if (type === 'title') {
+                const el = document.getElementById('targetTitles');
+                if (el) {
+                    el.value = el.value ? el.value + ', ' + value : value;
+                    const section = el.closest('details.filter-section');
+                    if (section) section.open = true;
+                }
+            } else if (type === 'size') {
+                const sel = document.getElementById('companySize');
+                if (sel) {
+                    for (let opt of sel.options) {
+                        if (opt.value === value) {
+                            sel.value = value;
+                            break;
+                        }
+                    }
+                    const section = sel.closest('details.filter-section');
+                    if (section) section.open = true;
+                }
+            }
+            updateSearchSummary();
+            updateStrategyIndicator();
+        }
+
+        const searchPlaceholders = [
+            "Find shoe stores in Madrid...",
+            "Search for SaaS companies in San Francisco...",
+            "Look for marketing agencies in London...",
+            "Find restaurants in Barcelona...",
+            "Search for fashion boutiques in Milan...",
+            "Look for tech startups in Berlin..."
+        ];
+        let currentPlaceholderIndex = 0;
+
+        function rotatePlaceholder() {
+            const input = document.getElementById('prospectWhat');
+            if (!input || input === document.activeElement || input.value) return;
+
+            input.classList.add('placeholder-fade');
+            setTimeout(() => {
+                currentPlaceholderIndex = (currentPlaceholderIndex + 1) % searchPlaceholders.length;
+                input.placeholder = searchPlaceholders[currentPlaceholderIndex];
+                input.classList.remove('placeholder-fade');
+            }, 300);
+        }
+
+        setInterval(rotatePlaceholder, 3000);
 
         // ============================================================
         // DEV PANEL
@@ -3914,6 +4327,7 @@
             try {
                 const resp = await fetch('/api/config');
                 const config = await resp.json();
+                window.apiConfig = config;
 
                 document.getElementById('googleStatus').className =
                     'status-dot ' + (config.google_places ? 'active' : 'inactive');
@@ -3927,75 +4341,15 @@
                     'status-dot ' + (config.openai ? 'active' : 'inactive');
                 document.getElementById('instantlyStatus').className =
                     'status-dot ' + (config.instantly ? 'active' : 'inactive');
+
+                updateStrategyIndicator();
             } catch (e) {
                 console.error('Config check failed:', e);
             }
         }
 
-        async function startSearch() {
-            // Use textarea if in manual mode, otherwise use generated queries
-            let queries;
-            if (advancedQueriesOpen) {
-                queries = document.getElementById('queries').value.trim().split('\n').filter(q => q.trim());
-            } else {
-                queries = generateQueries();
-            }
-
-            if (queries.length === 0) {
-                alert('Please fill in at least Country/City and Business Type to generate search queries, or switch to manual mode.');
-                return;
-            }
-
-            // Parse target titles
-            const titlesRaw = document.getElementById('targetTitles').value.trim();
-            const targetTitles = titlesRaw ? titlesRaw.split(',').map(s => s.trim()).filter(Boolean) : undefined;
-
-            // Parse company size
-            const companySizeVal = document.getElementById('companySize').value;
-            const companySizeRanges = companySizeVal ? [companySizeVal] : undefined;
-
-            const config = {
-                brand_name: document.getElementById('brandName').value,
-                brand_website: document.getElementById('brandWebsite').value,
-                segment: document.getElementById('segment').value,
-                queries: queries,
-                max_leads: parseInt(document.getElementById('maxLeads').value) || 50,
-                min_rating: parseFloat(document.getElementById('minRating').value) || 4.0,
-                positive_signals: document.getElementById('positiveSignals').value.split(',').map(s => s.trim()).filter(Boolean),
-                negative_signals: document.getElementById('negativeSignals').value.split(',').map(s => s.trim()).filter(Boolean),
-                exclude_brands: document.getElementById('excludeBrands').value.split(',').map(s => s.trim()).filter(Boolean),
-                enrich: document.getElementById('enrichLeads').checked,
-                ...(targetTitles && { target_titles: targetTitles }),
-                ...(companySizeRanges && { company_size_ranges: companySizeRanges }),
-            };
-
-            // Start search
-            document.getElementById('searchBtn').disabled = true;
-            document.getElementById('cancelBtn').style.display = 'block';
-            document.getElementById('progressContainer').classList.add('active');
-            document.getElementById('emptyState').style.display = 'none';
-
-            try {
-                const resp = await fetch('/api/search', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(config)
-                });
-
-                const data = await resp.json();
-                currentJobId = data.job_id;
-
-                // Start polling for status
-                pollInterval = setInterval(pollStatus, 1000);
-
-            } catch (e) {
-                console.error('Search failed:', e);
-                alert('Search failed: ' + e.message);
-                document.getElementById('searchBtn').disabled = false;
-                document.getElementById('cancelBtn').style.display = 'none';
-                document.getElementById('progressContainer').classList.remove('active');
-            }
-        }
+        // startSearch() is now replaced by findProspects() — kept as alias for backwards compat
+        function startSearch() { findProspects(); }
 
         async function pollStatus() {
             if (!currentJobId) return;
