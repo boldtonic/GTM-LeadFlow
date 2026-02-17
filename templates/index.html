@@ -307,7 +307,7 @@
             }
         }
 
-        /* Form Panel */
+        /* Form Panel (legacy - used by enrichment tab) */
         .form-panel {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -316,6 +316,259 @@
             height: fit-content;
             position: sticky;
             top: 2rem;
+        }
+
+        /* Finder Layout — full-width landscape */
+        .finder-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .finder-form {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .search-method-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .search-method-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-right: 0.25rem;
+        }
+
+        .method-btn {
+            padding: 0.35rem 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .method-btn:hover {
+            border-color: var(--accent);
+            color: var(--text);
+        }
+
+        .method-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .method-description {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+            padding: 0.5rem 0.75rem;
+            background: var(--surface-2);
+            border-radius: 6px;
+            line-height: 1.4;
+            border-left: 3px solid var(--accent);
+        }
+
+        .finder-form .section-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.5rem;
+        }
+
+        .search-setup-row {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .filters-action-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 140px auto;
+            gap: 0.75rem;
+            align-items: end;
+        }
+
+        .filters-action-row label {
+            margin-bottom: 0.25rem;
+        }
+
+        .filters-action-row input,
+        .filters-action-row select {
+            margin-bottom: 0;
+        }
+
+        .enrich-toggle {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .enrich-toggle > label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+
+        .enrich-toggle-inner {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        .enrich-toggle-inner input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+
+        .enrich-toggle-inner label {
+            margin: 0;
+            font-size: 0.8rem;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .find-leads-cell .btn {
+            width: auto;
+            white-space: nowrap;
+            padding: 0.75rem 1.5rem;
+            height: 42px;
+        }
+
+        .templates-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            padding: 0.5rem 0;
+            margin-bottom: 0.75rem;
+        }
+
+        .templates-bar .templates-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .client-brief-details {
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .client-brief-details summary {
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .client-brief-fields {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0.75rem;
+            margin-top: 0.75rem;
+        }
+
+        .advanced-filters-details {
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .advanced-filters-details summary {
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .advanced-filters-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0.75rem;
+            margin-top: 0.75rem;
+        }
+
+        .queries-row {
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .queries-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .finder-results {
+            min-height: 300px;
+        }
+
+        @media (max-width: 1200px) {
+            .search-setup-row {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .filters-action-row {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .find-leads-cell {
+                grid-column: 1 / -1;
+            }
+            .find-leads-cell .btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .search-method-bar {
+                gap: 0.375rem;
+            }
+            .search-method-label {
+                width: 100%;
+                margin-bottom: 0.125rem;
+            }
+            .method-btn {
+                flex: 1 1 auto;
+                text-align: center;
+                min-width: 0;
+                font-size: 0.75rem;
+                padding: 0.35rem 0.5rem;
+            }
+            .search-setup-row {
+                grid-template-columns: 1fr;
+            }
+            .filters-action-row {
+                grid-template-columns: 1fr 1fr;
+            }
+            .client-brief-fields,
+            .advanced-filters-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         .form-section {
@@ -601,6 +854,18 @@
             font-size: 0.75rem;
             color: var(--text-muted);
             margin-top: 0.25rem;
+        }
+
+        .domain-badge {
+            display: inline-block;
+            background: rgba(59, 130, 246, 0.08);
+            border: 1px solid rgba(59, 130, 246, 0.25);
+            border-radius: 4px;
+            padding: 2px 8px;
+            font-size: 0.7rem;
+            color: var(--accent);
+            font-family: monospace;
+            margin-bottom: 0.25rem;
         }
 
         .contact-info a {
@@ -1437,96 +1702,356 @@
 
         <div class="nav-tabs">
             <button class="nav-tab active" onclick="switchTab('brief')">GTM Brief</button>
-            <button class="nav-tab" onclick="switchTab('finder')">GTM Outbound</button>
-            <button class="nav-tab" onclick="switchTab('discovery')">Prospect Discovery</button>
+            <button class="nav-tab" onclick="switchTab('finder')">Prospecting</button>
             <button class="nav-tab" onclick="switchTab('enrichment')">Enrichment</button>
         </div>
 
-        <!-- TAB: Lead Finder (Original) -->
+        <!-- TAB: Prospecting (merged Outbound + Discovery) -->
         <div id="tab-finder" class="tab-content">
-        <div class="main-grid">
-            <!-- Form Panel -->
-            <div class="form-panel">
-                <div class="form-section">
-                    <h3>Client Brief</h3>
-                    <label>Brand Name</label>
-                    <input type="text" id="brandName" placeholder="e.g., Andrés Machado">
+        <div class="finder-layout">
 
-                    <label>Brand Website</label>
-                    <input type="url" id="brandWebsite" placeholder="https://...">
+            <!-- FORM: Full-width horizontal card -->
+            <div class="finder-form">
 
-                    <label>Target Segment</label>
-                    <select id="segment">
-                        <option value="mid-premium">Mid-Premium</option>
-                        <option value="premium">Premium / Luxury</option>
-                        <option value="mass-market">Mass Market</option>
-                    </select>
+                <!-- Search Method Selector -->
+                <div class="search-method-bar">
+                    <span class="search-method-label">Search Method:</span>
+                    <button class="method-btn active" onclick="setSearchMethod('google_places')" id="methodGooglePlaces">Google Places</button>
+                    <button class="method-btn" onclick="setSearchMethod('smart_search')" id="methodSmartSearch">Smart Search</button>
+                    <button class="method-btn" onclick="setSearchMethod('apollo_search')" id="methodApolloSearch">Apollo Database</button>
+                    <button class="method-btn" onclick="setSearchMethod('maps_url')" id="methodMapsUrl">Maps URL</button>
                 </div>
 
-                <div class="form-section">
-                    <h3>Search Queries</h3>
-                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.75rem;">
-                        One query per line. Include location in query.
-                    </p>
-                    <div class="presets">
-                        <button class="preset-btn" onclick="loadPreset('warsaw-shoes')">Warsaw Shoes</button>
-                        <button class="preset-btn" onclick="loadPreset('krakow-fashion')">Krakow Fashion</button>
-                        <button class="preset-btn" onclick="loadPreset('madrid-boutiques')">Madrid Boutiques</button>
-                        <button class="preset-btn" onclick="loadPreset('indonesia-food')">Indonesia Food Mfg</button>
-                        <button class="preset-btn" onclick="loadPreset('usa-saas')">USA SaaS</button>
-                        <button class="preset-btn" onclick="loadPreset('barcelona-restaurants')">Barcelona Restaurants</button>
+                <!-- Method description -->
+                <div class="method-description" id="methodDescription">
+                    Search Google Maps for businesses by location and type. Best for retail, restaurants, and local services.
+                </div>
+
+                <!-- Collapsible Client Brief -->
+                <details class="client-brief-details">
+                    <summary>Client Brief (optional — auto-filled from GTM Brief tab)</summary>
+                    <div class="client-brief-fields">
+                        <div>
+                            <label>Brand Name</label>
+                            <input type="text" id="brandName" placeholder="e.g., Andrés Machado">
+                        </div>
+                        <div>
+                            <label>Brand Website</label>
+                            <input type="url" id="brandWebsite" placeholder="https://...">
+                        </div>
+                        <div>
+                            <label>Target Segment</label>
+                            <select id="segment">
+                                <option value="mid-premium">Mid-Premium</option>
+                                <option value="premium">Premium / Luxury</option>
+                                <option value="mass-market">Mass Market</option>
+                            </select>
+                        </div>
                     </div>
-                    <textarea id="queries" placeholder="multi-brand shoe store Warsaw&#10;women's footwear boutique Warsaw&#10;butik obuwniczy Warszawa"></textarea>
+                </details>
+
+                <!-- Google Places fields (shown by default) -->
+                <div id="googlePlacesFields">
+
+                <!-- Templates bar -->
+                <div class="templates-bar">
+                    <span class="templates-label">Templates:</span>
+                    <button class="preset-btn" onclick="loadPreset('warsaw-shoes')">Warsaw Shoes</button>
+                    <button class="preset-btn" onclick="loadPreset('krakow-fashion')">Krakow Fashion</button>
+                    <button class="preset-btn" onclick="loadPreset('madrid-boutiques')">Madrid Boutiques</button>
+                    <button class="preset-btn" onclick="loadPreset('indonesia-food')">Indonesia Food Mfg</button>
+                    <button class="preset-btn" onclick="loadPreset('usa-saas')">USA SaaS</button>
+                    <button class="preset-btn" onclick="loadPreset('barcelona-restaurants')">Barcelona Restaurants</button>
                 </div>
 
-                <div class="form-section">
-                    <h3>Filters</h3>
-                    <label>Min Rating</label>
-                    <input type="number" id="minRating" value="4.0" step="0.1" min="0" max="5">
-
-                    <label>Positive Signals (comma-separated)</label>
-                    <input type="text" id="positiveSignals" placeholder="boutique, premium, designer, leather">
-
-                    <label>Negative Signals (comma-separated)</label>
-                    <input type="text" id="negativeSignals" placeholder="discount, outlet, sports, children">
-
-                    <label>Exclude Brands (comma-separated)</label>
-                    <input type="text" id="excludeBrands" placeholder="CCC, Deichmann, Eobuwie">
-                </div>
-
-                <div class="form-section">
-                    <h3>Options</h3>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="enrichLeads" checked>
-                        <label for="enrichLeads" style="margin: 0;">Enrich leads (website + Apollo)</label>
+                <!-- Row 1: Target Definition (5 columns) -->
+                <div class="section-label">Target Definition</div>
+                <div class="search-setup-row">
+                    <div>
+                        <label>Country</label>
+                        <input type="text" id="searchCountry" list="countryList" placeholder="Type country..." oninput="updateGeneratedQueries()">
+                        <datalist id="countryList">
+                            <option value="Spain"><option value="USA"><option value="Poland">
+                            <option value="United Kingdom"><option value="Germany"><option value="France">
+                            <option value="Italy"><option value="Portugal"><option value="Netherlands">
+                            <option value="Indonesia"><option value="Mexico"><option value="Colombia">
+                            <option value="Argentina"><option value="Brazil"><option value="Japan">
+                            <option value="Australia"><option value="Canada"><option value="India">
+                            <option value="China"><option value="South Korea"><option value="Thailand">
+                            <option value="Vietnam"><option value="Turkey"><option value="UAE">
+                            <option value="Saudi Arabia"><option value="South Africa"><option value="Nigeria">
+                            <option value="Egypt"><option value="Chile"><option value="Peru">
+                            <option value="Sweden"><option value="Norway"><option value="Denmark">
+                            <option value="Finland"><option value="Ireland"><option value="Switzerland">
+                            <option value="Austria"><option value="Belgium"><option value="Czech Republic">
+                            <option value="Romania"><option value="Greece"><option value="Israel">
+                            <option value="Singapore"><option value="Malaysia"><option value="Philippines">
+                            <option value="New Zealand"><option value="Russia"><option value="Ukraine">
+                        </datalist>
+                    </div>
+                    <div>
+                        <label>City / Region</label>
+                        <input type="text" id="searchCity" placeholder="e.g., Madrid, Barcelona..." oninput="updateGeneratedQueries()">
+                    </div>
+                    <div>
+                        <label>Business Type</label>
+                        <select id="searchBusinessType" onchange="updateGeneratedQueries()">
+                            <option value="">Select type...</option>
+                            <optgroup label="Retail">
+                                <option value="shoe store">Shoe Store</option>
+                                <option value="fashion boutique">Fashion Boutique</option>
+                                <option value="clothing store">Clothing Store</option>
+                                <option value="jewelry store">Jewelry Store</option>
+                                <option value="beauty store">Beauty / Cosmetics</option>
+                                <option value="home decor store">Home Decor</option>
+                                <option value="sports store">Sports Store</option>
+                                <option value="electronics store">Electronics</option>
+                                <option value="pet store">Pet Store</option>
+                                <option value="pharmacy">Pharmacy</option>
+                            </optgroup>
+                            <optgroup label="Food & Hospitality">
+                                <option value="restaurant">Restaurant</option>
+                                <option value="cafe">Cafe / Coffee Shop</option>
+                                <option value="hotel">Hotel</option>
+                                <option value="bar">Bar / Lounge</option>
+                                <option value="bakery">Bakery / Pastry</option>
+                                <option value="catering">Catering Company</option>
+                            </optgroup>
+                            <optgroup label="Professional Services">
+                                <option value="law firm">Law Firm</option>
+                                <option value="accounting firm">Accounting Firm</option>
+                                <option value="consulting firm">Consulting Firm</option>
+                                <option value="real estate agency">Real Estate</option>
+                                <option value="insurance agency">Insurance Agency</option>
+                                <option value="architecture firm">Architecture Firm</option>
+                            </optgroup>
+                            <optgroup label="Health & Wellness">
+                                <option value="dental clinic">Dental Clinic</option>
+                                <option value="medical clinic">Medical Clinic</option>
+                                <option value="spa">Spa / Wellness</option>
+                                <option value="gym">Gym / Fitness</option>
+                                <option value="salon">Hair / Beauty Salon</option>
+                            </optgroup>
+                            <optgroup label="Tech & B2B">
+                                <option value="software company">Software / SaaS</option>
+                                <option value="marketing agency">Marketing Agency</option>
+                                <option value="IT services">IT Services</option>
+                                <option value="coworking space">Coworking Space</option>
+                                <option value="startup">Startup</option>
+                                <option value="fintech company">Fintech</option>
+                            </optgroup>
+                            <optgroup label="Manufacturing & Industry">
+                                <option value="food manufacturer">Food Manufacturer</option>
+                                <option value="textile manufacturer">Textile / Apparel</option>
+                                <option value="packaging company">Packaging</option>
+                                <option value="chemical manufacturer">Chemical / Pharma</option>
+                                <option value="construction company">Construction</option>
+                                <option value="logistics company">Logistics / Transport</option>
+                            </optgroup>
+                            <optgroup label="Education & Non-Profit">
+                                <option value="school">School / Academy</option>
+                                <option value="training center">Training Center</option>
+                                <option value="NGO">NGO / Non-Profit</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Product / Specialty</label>
+                        <input type="text" id="searchProduct" placeholder="e.g., leather shoes, organic..." oninput="updateGeneratedQueries()">
+                    </div>
+                    <div>
+                        <label>Company Size</label>
+                        <select id="companySize">
+                            <option value="">Any size</option>
+                            <option value="1,10">1-10 employees</option>
+                            <option value="11,50">11-50 employees</option>
+                            <option value="51,200">51-200 employees</option>
+                            <option value="201,1000">201-1,000 employees</option>
+                            <option value="1001,10000">1,000+ employees</option>
+                        </select>
                     </div>
                 </div>
 
-                <button class="btn btn-primary" id="searchBtn" onclick="startSearch()">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <path d="m21 21-4.35-4.35"></path>
-                    </svg>
-                    Find Leads
-                </button>
+                <!-- Row 2: Filters + Action -->
+                <div class="section-label">Filters & Action</div>
+                <div class="filters-action-row">
+                    <div>
+                        <label>Decision Maker Titles</label>
+                        <input type="text" id="targetTitles" placeholder="owner, founder, CEO, buyer...">
+                    </div>
+                    <div>
+                        <label>Min Rating</label>
+                        <input type="number" id="minRating" value="4.0" step="0.1" min="0" max="5">
+                    </div>
+                    <div>
+                        <label>Max Leads</label>
+                        <select id="maxLeads">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50" selected>50</option>
+                            <option value="100">100</option>
+                            <option value="200">200</option>
+                        </select>
+                    </div>
+                    <div class="enrich-toggle">
+                        <label>Enrich</label>
+                        <div class="enrich-toggle-inner">
+                            <input type="checkbox" id="enrichLeads" checked>
+                            <label for="enrichLeads">Auto-enrich leads</label>
+                        </div>
+                    </div>
+                    <div class="find-leads-cell">
+                        <button class="btn btn-primary" id="searchBtn" onclick="startSearch()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <path d="m21 21-4.35-4.35"></path>
+                            </svg>
+                            Find Leads
+                        </button>
+                        <button class="btn btn-secondary" id="cancelBtn" onclick="cancelSearch()" style="display: none;">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
 
-                <button class="btn btn-secondary" id="cancelBtn" onclick="cancelSearch()" style="display: none; margin-top: 0.5rem;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <path d="m15 9-6 6"></path>
-                        <path d="m9 9 6 6"></path>
-                    </svg>
-                    Cancel Search
-                </button>
+                <!-- Advanced Filters (collapsible) -->
+                <details class="advanced-filters-details">
+                    <summary>Scoring Signals & Exclusions</summary>
+                    <div class="advanced-filters-grid">
+                        <div>
+                            <label>Positive Signals <span style="font-size: 0.65rem; color: var(--text-muted);">(comma-separated)</span></label>
+                            <input type="text" id="positiveSignals" placeholder="boutique, premium, designer, leather">
+                        </div>
+                        <div>
+                            <label>Negative Signals <span style="font-size: 0.65rem; color: var(--text-muted);">(comma-separated)</span></label>
+                            <input type="text" id="negativeSignals" placeholder="discount, outlet, sports, children">
+                        </div>
+                        <div>
+                            <label>Exclude Brands <span style="font-size: 0.65rem; color: var(--text-muted);">(comma-separated)</span></label>
+                            <input type="text" id="excludeBrands" placeholder="CCC, Deichmann, Eobuwie">
+                        </div>
+                    </div>
+                </details>
+
+                <!-- Generated Queries (collapsible) -->
+                <div class="queries-row">
+                    <div class="queries-toggle" onclick="toggleQueriesSection()">
+                        <span>Generated Queries <span id="queryCount" style="color: var(--accent);"></span></span>
+                        <button class="preset-btn" style="font-size: 0.65rem; padding: 2px 6px;" id="advancedQueriesToggle">Show</button>
+                    </div>
+                    <div id="queriesContent" style="display: none; margin-top: 0.5rem;">
+                        <div id="generatedQueriesPreview" style="background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem; font-size: 0.75rem; color: var(--text-secondary); max-height: 120px; overflow-y: auto; line-height: 1.5;">
+                            <span style="color: var(--text-muted);">Fill in the fields above to generate search queries...</span>
+                        </div>
+                        <textarea id="queries" placeholder="Edit queries manually here..." style="display: none; margin-top: 0.5rem;"></textarea>
+                        <button class="preset-btn" onclick="toggleAdvancedQueries()" style="font-size: 0.65rem; padding: 2px 6px; margin-top: 0.25rem;" id="manualEditToggle">Edit manually</button>
+                    </div>
+                </div>
+
+                </div><!-- End googlePlacesFields -->
+
+                <!-- Smart Search / Web Search fields -->
+                <div id="smartSearchFields" style="display: none;">
+                    <div class="section-label">Smart Search</div>
+                    <div class="search-setup-row" style="grid-template-columns: 2fr 1fr 1fr auto;">
+                        <div>
+                            <label>Search Query</label>
+                            <input type="text" id="smartQuery" placeholder="e.g., footwear retailers, SaaS companies, organic food stores">
+                        </div>
+                        <div>
+                            <label>Location</label>
+                            <input type="text" id="smartLocation" list="countryList" placeholder="e.g., Spain, London...">
+                        </div>
+                        <div>
+                            <label>Max Results</label>
+                            <select id="smartMaxResults">
+                                <option value="10">10</option>
+                                <option value="25" selected>25</option>
+                                <option value="50">50</option>
+                            </select>
+                        </div>
+                        <div class="find-leads-cell">
+                            <button class="btn btn-primary" id="smartSearchBtn" onclick="runSmartSearch()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <path d="m21 21-4.35-4.35"></path>
+                                </svg>
+                                Search
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Apollo Database fields -->
+                <div id="apolloSearchFields" style="display: none;">
+                    <div class="section-label">Apollo Company Search</div>
+                    <div class="search-setup-row" style="grid-template-columns: 2fr 1fr 1fr auto;">
+                        <div>
+                            <label>Industry / Query</label>
+                            <input type="text" id="apolloQuery" placeholder="e.g., retail, software, manufacturing">
+                        </div>
+                        <div>
+                            <label>Location</label>
+                            <input type="text" id="apolloLocation" list="countryList" placeholder="e.g., Spain, London...">
+                        </div>
+                        <div>
+                            <label>Company Size</label>
+                            <select id="apolloCompanySize">
+                                <option value="">Any size</option>
+                                <option value="1,10">1-10</option>
+                                <option value="11,50">11-50</option>
+                                <option value="51,200">51-200</option>
+                                <option value="201,1000">201-1K</option>
+                                <option value="1001,10000">1K+</option>
+                            </select>
+                        </div>
+                        <div class="find-leads-cell">
+                            <button class="btn btn-primary" id="apolloSearchBtn" onclick="runSmartSearch()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <path d="m21 21-4.35-4.35"></path>
+                                </svg>
+                                Search
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Maps URL fields -->
+                <div id="mapsUrlFields" style="display: none;">
+                    <div class="section-label">Google Maps URL</div>
+                    <div style="margin-bottom: 0.5rem;">
+                        <label>Paste a Google Maps search URL</label>
+                        <textarea id="mapsUrlInput" rows="2" placeholder="https://www.google.com/maps/search/fashion+shoes+warsaw/..." style="font-family: monospace; font-size: 0.8rem;"></textarea>
+                        <p style="color: var(--text-muted); font-size: 0.7rem; margin-top: 0.25rem;">
+                            Search for businesses on Google Maps, then copy the URL from your browser.
+                        </p>
+                    </div>
+                    <div class="search-setup-row" style="grid-template-columns: 1fr auto;">
+                        <div>
+                            <label>Location label (for results)</label>
+                            <input type="text" id="mapsUrlLocation" placeholder="e.g., Warsaw, Poland">
+                        </div>
+                        <div class="find-leads-cell">
+                            <button class="btn btn-primary" id="mapsUrlBtn" onclick="runSmartSearch()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <path d="m21 21-4.35-4.35"></path>
+                                </svg>
+                                Extract
+                            </button>
+                        </div>
+                    </div>
+                </div>
 
             </div>
 
-            <!-- Results Panel -->
-            <div class="results-panel">
+            <!-- RESULTS: Full-width below -->
+            <div class="finder-results">
                 <div class="results-header">
                     <h2>Results</h2>
                     <div class="results-actions" id="resultsActions" style="display: none;">
-                        <button class="btn btn-secondary" onclick="exportCSV()">
+                        <button class="btn btn-secondary" onclick="exportCSV()" style="width: auto; padding: 0.5rem 1rem;">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                                 <polyline points="7 10 12 15 17 10"></polyline>
@@ -1534,10 +2059,18 @@
                             </svg>
                             Export CSV
                         </button>
+                        <button class="btn btn-secondary" onclick="sendResultsToEnrichment()" style="width: auto; padding: 0.5rem 1rem;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="16"></line>
+                                <line x1="8" y1="12" x2="16" y2="12"></line>
+                            </svg>
+                            Send to Enrichment
+                        </button>
                     </div>
                 </div>
 
-                <!-- Progress indicator (shown during search) -->
+                <!-- Progress indicator -->
                 <div class="progress-container" id="progressContainer">
                     <div class="progress-bar">
                         <div class="progress-fill" id="progressFill"></div>
@@ -1564,6 +2097,7 @@
                     </div>
                 </div>
 
+                <!-- Google Places results table -->
                 <div class="table-container" id="resultsTable" style="display: none;">
                     <table>
                         <thead>
@@ -1582,12 +2116,36 @@
                     </table>
                 </div>
 
+                <!-- Discovery results (Smart Search / Apollo / Maps URL) -->
+                <div id="discoveryResultsSection" style="display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                        <p id="discoveryCount" style="color: var(--text-muted); font-size: 0.875rem;">0 prospects found</p>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="btn btn-secondary" onclick="exportDiscovered()" style="width: auto; padding: 0.4rem 0.75rem; font-size: 0.8rem;">Export CSV</button>
+                            <button class="btn btn-primary" onclick="sendDiscoveredToEnrichment()" style="width: auto; padding: 0.4rem 0.75rem; font-size: 0.8rem;" id="enrichDiscoveredBtn">Enrich Selected</button>
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="checkbox" id="selectAllProspects" onchange="toggleSelectAllProspects()">
+                        <label for="selectAllProspects" style="font-size: 0.8rem; cursor: pointer;">Select All</label>
+                    </div>
+                    <div id="discoveryResults" class="prospects-table-container"></div>
+                </div>
+
+                <!-- Discovery progress -->
+                <div id="discoveryProgress" style="display: none;">
+                    <div class="progress-indicator" style="display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: var(--surface-2); border-radius: 8px;">
+                        <div class="spinner"></div>
+                        <span id="discoveryStep" style="color: var(--text-muted);">Searching...</span>
+                    </div>
+                </div>
+
                 <div class="empty-state" id="emptyState">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                         <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                     </svg>
-                    <h3>No leads yet</h3>
-                    <p>Configure your search and click "Find Leads" to get started.</p>
+                    <h3>Ready to find leads</h3>
+                    <p>Define your target market above and click "Find Leads" to start.</p>
                 </div>
             </div>
         </div>
@@ -1656,180 +2214,13 @@
                             Download PDF
                         </button>
                         <button class="btn btn-primary" onclick="sendToOutbound()">
-                            Send to Outbound →
+                            Start Prospecting →
                         </button>
                     </div>
                 </div>
                 <div id="briefResults"></div>
             </div>
         </div><!-- End tab-brief -->
-
-        <!-- TAB: Prospect Discovery -->
-        <div id="tab-discovery" class="tab-content">
-            <!-- Brief Context Panel (shown when brief exists) -->
-            <div id="briefContextPanel" class="brief-context-panel" style="display: none;">
-                <div class="brief-context-header">
-                    <span>🎯 From Your GTM Brief</span>
-                    <span id="briefCompanyName" style="color: var(--text-muted);"></span>
-                </div>
-                <div id="briefIcpSummary" style="margin-top: 0.5rem; font-size: 0.875rem; color: var(--text-muted);"></div>
-                <div id="briefSuggestedQueries" style="margin-top: 0.75rem;">
-                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;">Suggested Queries (click to use):</p>
-                    <div id="suggestedQueriesChips" class="chips-container"></div>
-                </div>
-                <div id="briefGeographies" style="margin-top: 0.75rem;">
-                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;">Target Geographies:</p>
-                    <div id="geographiesChips" class="chips-container"></div>
-                </div>
-            </div>
-
-            <!-- Step 1: Objective Selection -->
-            <div class="form-section" style="margin-bottom: 1.5rem;">
-                <h3>Step 1: What's Your Objective?</h3>
-                <div class="objective-grid">
-                    <label class="objective-option active" onclick="setDiscoveryObjective('csv_export')" id="objCsvExport">
-                        <input type="radio" name="objective" value="csv_export" checked style="display: none;">
-                        <div class="objective-icon">📥</div>
-                        <div class="objective-text">
-                            <strong>Generate CSV</strong>
-                            <span>Export prospects to CSV for later use</span>
-                        </div>
-                    </label>
-                    <label class="objective-option" onclick="setDiscoveryObjective('enrich_now')" id="objEnrichNow">
-                        <input type="radio" name="objective" value="enrich_now" style="display: none;">
-                        <div class="objective-icon">✨</div>
-                        <div class="objective-text">
-                            <strong>Enrich Immediately</strong>
-                            <span>Find + enrich with emails & data</span>
-                        </div>
-                    </label>
-                    <label class="objective-option" onclick="setDiscoveryObjective('outreach_queue')" id="objOutreach">
-                        <input type="radio" name="objective" value="outreach_queue" style="display: none;">
-                        <div class="objective-icon">📤</div>
-                        <div class="objective-text">
-                            <strong>Queue for Outreach</strong>
-                            <span>Add directly to outreach campaigns</span>
-                        </div>
-                    </label>
-                </div>
-            </div>
-
-            <!-- Step 2: Discovery Method -->
-            <div class="form-section" style="margin-bottom: 1.5rem;">
-                <h3>Step 2: How Do You Want to Discover?</h3>
-
-                <!-- Mode Tabs -->
-                <div class="discovery-mode-tabs">
-                    <button class="mode-tab active" onclick="setDiscoveryMode('smart_search')" id="modeSmartSearch">
-                        ⚡ Smart Search
-                    </button>
-                    <button class="mode-tab" onclick="setDiscoveryMode('web_search')" id="modeWebSearch">
-                        🌐 Web Search
-                    </button>
-                    <button class="mode-tab" onclick="setDiscoveryMode('apollo_search')" id="modeApolloSearch">
-                        🏢 Apollo Database
-                    </button>
-                    <button class="mode-tab" onclick="setDiscoveryMode('maps_url')" id="modeMapsUrl">
-                        📍 Maps URL
-                    </button>
-                </div>
-
-                <!-- Mode Description -->
-                <div id="modeInfo" class="mode-info">
-                    <p id="modeDescription">
-                        ⚡ <strong>Smart Search</strong> combines web search and Apollo database for best results. It automatically falls back if one source is unavailable.
-                    </p>
-                </div>
-
-                <!-- Search Input Section -->
-                <div id="searchInputSection" style="margin-top: 1rem;">
-                    <div class="search-grid">
-                        <div>
-                            <label>Search Query</label>
-                            <input type="text" id="discoveryQuery" placeholder="e.g., footwear retailers, SaaS companies">
-                        </div>
-                        <div>
-                            <label>Location</label>
-                            <select id="discoveryLocationSelect">
-                                <option value="">Select location...</option>
-                                <optgroup label="From Your Brief" id="briefLocationsGroup"></optgroup>
-                                <optgroup label="Common Locations">
-                                    <option value="United States">United States</option>
-                                    <option value="United Kingdom">United Kingdom</option>
-                                    <option value="Germany">Germany</option>
-                                    <option value="France">France</option>
-                                    <option value="Spain">Spain</option>
-                                    <option value="Netherlands">Netherlands</option>
-                                    <option value="Canada">Canada</option>
-                                    <option value="Australia">Australia</option>
-                                </optgroup>
-                                <option value="custom">Custom location...</option>
-                            </select>
-                            <input type="text" id="discoveryLocationCustom" placeholder="Enter custom location..." style="display: none; margin-top: 0.5rem;">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Apollo Warning -->
-                <div id="apolloWarning" class="mode-warning" style="display: none;">
-                    ⚠️ If Apollo API fails, we'll automatically fall back to web search.
-                </div>
-
-                <!-- Maps URL Section -->
-                <div id="mapsUrlSection" style="display: none; margin-top: 1rem;">
-                    <label>Google Maps Search URL</label>
-                    <textarea id="mapsUrl" rows="3" placeholder="Paste a Google Maps search URL like: https://www.google.com/maps/search/fashion+shoes+warsaw/..." style="font-family: monospace; font-size: 0.8rem;"></textarea>
-                    <p style="color: var(--text-muted); font-size: 0.75rem; margin-top: 0.5rem;">
-                        Search for businesses on Google Maps, then copy the URL from your browser and paste it here.
-                    </p>
-                </div>
-
-                <button class="btn btn-primary" onclick="discoverProspects()" id="discoverBtn" style="width: 100%; margin-top: 1rem;">
-                    🔍 Discover Prospects
-                </button>
-
-                <div id="discoveryProgress" style="display: none; margin-top: 1rem;">
-                    <div class="progress-indicator">
-                        <div class="spinner"></div>
-                        <span id="discoveryStep">Searching...</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Results Section -->
-            <div class="form-section" id="discoveryResultsSection" style="display: none;">
-                <div class="results-header" style="margin-bottom: 1rem;">
-                    <div>
-                        <h3>Discovery Results</h3>
-                        <p id="discoveryCount" style="color: var(--text-muted); font-size: 0.875rem;">0 prospects found • 0 selected</p>
-                    </div>
-                    <div style="display: flex; gap: 0.5rem;">
-                        <button class="btn btn-secondary" onclick="exportDiscovered()" id="exportDiscoveredBtn">📥 Export CSV</button>
-                        <button class="btn btn-primary" onclick="executePrimaryAction()" id="primaryActionBtn">📥 Download CSV</button>
-                    </div>
-                </div>
-
-                <!-- Select All -->
-                <div style="margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
-                    <input type="checkbox" id="selectAllProspects" onchange="toggleSelectAllProspects()">
-                    <label for="selectAllProspects" style="font-size: 0.875rem; cursor: pointer;">Select All</label>
-                </div>
-
-                <!-- Results Table -->
-                <div id="discoveryResults" class="prospects-table-container">
-                    <!-- Will be populated by JS -->
-                </div>
-            </div>
-
-            <!-- Empty State -->
-            <div id="discoveryEmptyState" class="empty-state">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width: 48px; height: 48px;">
-                    <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                </svg>
-                <h3>Ready to discover prospects</h3>
-                <p id="discoveryEmptyText">Generate a GTM Brief first to get AI-powered search suggestions, or enter a search query manually.</p>
-            </div>
-        </div><!-- End tab-discovery -->
 
         <!-- TAB: Enrichment -->
         <div id="tab-enrichment" class="tab-content">
@@ -1951,31 +2342,6 @@
             // Update brief context panel visibility
             updateBriefContextPanel();
         }
-
-        // Discovery mode toggle
-        document.addEventListener('DOMContentLoaded', function() {
-            const modeSelect = document.getElementById('discoveryMode');
-            if (modeSelect) {
-                modeSelect.addEventListener('change', function() {
-                    const searchSection = document.getElementById('searchQuerySection');
-                    const mapsSection = document.getElementById('mapsUrlSection');
-                    const modeDesc = document.getElementById('modeDescription');
-                    if (this.value === 'maps') {
-                        searchSection.style.display = 'none';
-                        mapsSection.style.display = 'block';
-                        modeDesc.textContent = 'Extract businesses directly from a Google Maps search URL';
-                    } else if (this.value === 'web') {
-                        searchSection.style.display = 'block';
-                        mapsSection.style.display = 'none';
-                        modeDesc.textContent = 'Search the web using Firecrawl';
-                    } else {
-                        searchSection.style.display = 'block';
-                        mapsSection.style.display = 'none';
-                        modeDesc.textContent = 'Combines web search and Apollo database for best results';
-                    }
-                });
-            }
-        });
 
         // Update step status
         function updateStep(stepId, status) {
@@ -2189,22 +2555,6 @@
             updateBriefContextPanel();
         }
 
-        function useBriefForDiscovery() {
-            document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.nav-tab')[2].classList.add('active');
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.getElementById('tab-discovery').classList.add('active');
-            updateBriefContextPanel();
-
-            // Pre-fill first query and geography
-            if (currentBrief?.searchStrategy?.suggestedQueries?.[0]) {
-                document.getElementById('discoveryQuery').value = currentBrief.searchStrategy.suggestedQueries[0];
-            }
-            if (currentBrief?.searchStrategy?.geographies?.[0]) {
-                document.getElementById('discoveryLocation').value = currentBrief.searchStrategy.geographies[0];
-            }
-        }
-
         function sendToOutbound() {
             if (!currentBrief) {
                 alert('No brief available. Please generate a brief first.');
@@ -2216,25 +2566,39 @@
             const icp = currentBrief.icp || {};
             const pos = currentBrief.positioning || {};
 
-            // Fill Brand Name
+            // Fill Brand Name & Website
             if (cs.name) {
                 document.getElementById('brandName').value = cs.name;
             }
-
-            // Fill Brand Website
             if (cs.website) {
                 document.getElementById('brandWebsite').value = cs.website;
             } else if (document.getElementById('briefUrl').value) {
                 document.getElementById('brandWebsite').value = document.getElementById('briefUrl').value;
             }
 
+            // Fill structured search fields from brief geographies
+            const geos = ss.geographies || [];
+            if (geos.length > 0) {
+                const firstGeo = geos[0];
+                const parts = firstGeo.split(',').map(s => s.trim());
+                if (parts.length >= 2) {
+                    document.getElementById('searchCity').value = parts[0];
+                    document.getElementById('searchCountry').value = parts[parts.length - 1];
+                } else {
+                    document.getElementById('searchCountry').value = firstGeo;
+                }
+            }
+
+            // Fill business type from ICP if available
+            if (icp.companyCharacteristics?.industry) {
+                document.getElementById('searchProduct').value = icp.companyCharacteristics.industry;
+            }
+
             // Fill Search Queries (combine suggested queries with geographies)
             const queries = ss.suggestedQueries || [];
-            const geos = ss.geographies || [];
             let combinedQueries = [];
 
             if (queries.length && geos.length) {
-                // Combine first 3 queries with first 2 geographies
                 queries.slice(0, 3).forEach(q => {
                     geos.slice(0, 2).forEach(g => {
                         combinedQueries.push(`${q} ${g}`);
@@ -2247,6 +2611,9 @@
             if (combinedQueries.length) {
                 document.getElementById('queries').value = combinedQueries.join('\n');
             }
+
+            // Update generated queries from new structured fields
+            updateGeneratedQueries();
 
             // Fill Positive Signals from ICP signals and differentiators
             const positiveSignals = [];
@@ -2265,9 +2632,19 @@
                 document.getElementById('negativeSignals').value = icp.disqualifiers.slice(0, 5).join(', ');
             }
 
-            // Switch to Outbound tab
+            // Also fill Smart Search fields
+            const firstQuery = queries[0] || icp.companyCharacteristics?.industry || '';
+            const firstGeoStr = geos[0] || '';
+            if (firstQuery) document.getElementById('smartQuery').value = firstQuery;
+            if (firstGeoStr) document.getElementById('smartLocation').value = firstGeoStr;
+
+            // Also fill Apollo Database fields
+            if (firstQuery) document.getElementById('apolloQuery').value = firstQuery;
+            if (firstGeoStr) document.getElementById('apolloLocation').value = firstGeoStr;
+
+            // Switch to Prospecting tab
             document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.nav-tab')[1].classList.add('active'); // GTM Outbound is now index 1
+            document.querySelectorAll('.nav-tab')[1].classList.add('active');
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.getElementById('tab-finder').classList.add('active');
         }
@@ -2463,274 +2840,116 @@
         }
 
         function useQuery(query) {
-            document.getElementById('discoveryQuery').value = query;
-            document.querySelectorAll('#suggestedQueriesChips .chip').forEach(c => c.classList.remove('active'));
-            event.target.classList.add('active');
+            // Fill smart search query field
+            const smartQuery = document.getElementById('smartQuery');
+            if (smartQuery) smartQuery.value = query;
         }
 
         function useLocation(location) {
-            // Try to select in dropdown first
-            const select = document.getElementById('discoveryLocationSelect');
-            const customInput = document.getElementById('discoveryLocationCustom');
-
-            // Check if location is in the dropdown options
-            let found = false;
-            for (const option of select.options) {
-                if (option.value === location) {
-                    select.value = location;
-                    customInput.style.display = 'none';
-                    found = true;
-                    break;
-                }
-            }
-
-            // If not found, use custom input
-            if (!found) {
-                select.value = 'custom';
-                customInput.value = location;
-                customInput.style.display = 'block';
-            }
-
-            // Update chip styles
-            document.querySelectorAll('#geographiesChips .chip').forEach(c => c.classList.remove('active'));
-            if (event && event.target) event.target.classList.add('active');
+            // Fill smart search location field
+            const smartLocation = document.getElementById('smartLocation');
+            if (smartLocation) smartLocation.value = location;
         }
 
-        // Prospect Discovery
         // ============================================
-        // PROSPECT DISCOVERY - NEW COMPREHENSIVE VERSION
+        // SEARCH METHOD SWITCHING & DISCOVERY
         // ============================================
 
-        let discoveryObjective = 'csv_export';
-        let discoveryMode = 'smart_search';
+        let currentSearchMethod = 'google_places';
         let selectedProspectIds = new Set();
 
-        function setDiscoveryObjective(objective) {
-            discoveryObjective = objective;
-            document.querySelectorAll('.objective-option').forEach(o => o.classList.remove('active'));
-            document.getElementById('obj' + objective.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('')).classList.add('active');
-            updatePrimaryActionButton();
+        function setSearchMethod(method) {
+            currentSearchMethod = method;
 
-            // Auto-select all if objective is enrich_now
-            if (objective === 'enrich_now' && discoveredProspects.length > 0) {
-                selectedProspectIds = new Set(discoveredProspects.map(p => p.id));
-                document.getElementById('selectAllProspects').checked = true;
-                displayDiscoveredProspects(discoveredProspects);
-            }
-        }
-
-        function setDiscoveryMode(mode) {
-            discoveryMode = mode;
-            document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
-
-            const modeButtons = {
-                'smart_search': 'modeSmartSearch',
-                'web_search': 'modeWebSearch',
-                'apollo_search': 'modeApolloSearch',
-                'maps_url': 'modeMapsUrl'
+            // Update method buttons
+            document.querySelectorAll('.method-btn').forEach(b => b.classList.remove('active'));
+            const btnMap = {
+                'google_places': 'methodGooglePlaces',
+                'smart_search': 'methodSmartSearch',
+                'apollo_search': 'methodApolloSearch',
+                'maps_url': 'methodMapsUrl'
             };
-            document.getElementById(modeButtons[mode])?.classList.add('active');
+            document.getElementById(btnMap[method])?.classList.add('active');
 
-            // Show/hide relevant sections
-            const searchSection = document.getElementById('searchInputSection');
-            const mapsSection = document.getElementById('mapsUrlSection');
-            const apolloWarning = document.getElementById('apolloWarning');
-            const modeDesc = document.getElementById('modeDescription');
+            // Show/hide field panels
+            document.getElementById('googlePlacesFields').style.display = method === 'google_places' ? 'block' : 'none';
+            document.getElementById('smartSearchFields').style.display = (method === 'smart_search') ? 'block' : 'none';
+            document.getElementById('apolloSearchFields').style.display = method === 'apollo_search' ? 'block' : 'none';
+            document.getElementById('mapsUrlFields').style.display = method === 'maps_url' ? 'block' : 'none';
 
-            if (mode === 'maps_url') {
-                searchSection.style.display = 'none';
-                mapsSection.style.display = 'block';
-                apolloWarning.style.display = 'none';
-                modeDesc.innerHTML = '📍 <strong>Maps URL</strong> extracts businesses directly from a Google Maps search results page.';
-            } else {
-                searchSection.style.display = 'block';
-                mapsSection.style.display = 'none';
+            // Update description
+            const desc = document.getElementById('methodDescription');
+            const descriptions = {
+                'google_places': 'Search Google Maps for businesses by location and type. Best for retail, restaurants, and local services.',
+                'smart_search': 'Combines web search (Firecrawl) and Apollo database for broader results. Falls back automatically if one source is unavailable.',
+                'apollo_search': 'Search Apollo.io\'s company database directly. Best for B2B companies with filters by size and industry.',
+                'maps_url': 'Paste a Google Maps search URL to extract all listed businesses. Great for scraping specific map searches.'
+            };
+            desc.textContent = descriptions[method];
 
-                if (mode === 'smart_search') {
-                    apolloWarning.style.display = 'none';
-                    modeDesc.innerHTML = '⚡ <strong>Smart Search</strong> combines web search and Apollo database for best results. It automatically falls back if one source is unavailable.';
-                } else if (mode === 'web_search') {
-                    apolloWarning.style.display = 'none';
-                    modeDesc.innerHTML = '🌐 <strong>Web Search</strong> uses Firecrawl to search the web for businesses matching your query.';
-                } else if (mode === 'apollo_search') {
-                    apolloWarning.style.display = 'block';
-                    modeDesc.innerHTML = '🏢 <strong>Apollo Database</strong> searches Apollo.io\'s company database for prospects.';
-                }
-            }
+            // Hide previous results when switching methods
+            resetResults();
         }
 
-        // Location dropdown handler
-        document.addEventListener('DOMContentLoaded', function() {
-            const locationSelect = document.getElementById('discoveryLocationSelect');
-            const customInput = document.getElementById('discoveryLocationCustom');
-
-            if (locationSelect) {
-                locationSelect.addEventListener('change', function() {
-                    if (this.value === 'custom') {
-                        customInput.style.display = 'block';
-                        customInput.focus();
-                    } else {
-                        customInput.style.display = 'none';
-                    }
-                });
-            }
-        });
-
-        function getEffectiveLocation() {
-            const select = document.getElementById('discoveryLocationSelect');
-            const custom = document.getElementById('discoveryLocationCustom');
-            return select.value === 'custom' ? custom.value.trim() : select.value;
+        function resetResults() {
+            // Hide both result types
+            document.getElementById('resultsTable').style.display = 'none';
+            document.getElementById('statsGrid').style.display = 'none';
+            document.getElementById('resultsActions').style.display = 'none';
+            document.getElementById('discoveryResultsSection').style.display = 'none';
+            document.getElementById('discoveryProgress').style.display = 'none';
+            document.getElementById('progressContainer').classList.remove('active');
+            document.getElementById('emptyState').style.display = 'block';
+            document.getElementById('emptyState').querySelector('h3').textContent = 'Ready to find leads';
+            document.getElementById('emptyState').querySelector('p').textContent = 'Define your target market above and click Search to start.';
         }
 
-        function updatePrimaryActionButton() {
-            const btn = document.getElementById('primaryActionBtn');
-            const count = selectedProspectIds.size || discoveredProspects.length;
-
-            switch (discoveryObjective) {
-                case 'csv_export':
-                    btn.textContent = `📥 Download CSV (${count})`;
-                    break;
-                case 'enrich_now':
-                    btn.textContent = `✨ Enrich Selected (${selectedProspectIds.size})`;
-                    break;
-                case 'outreach_queue':
-                    btn.textContent = `📤 Add to Outreach (${selectedProspectIds.size})`;
-                    break;
-            }
-        }
-
-        function toggleProspectSelection(id) {
-            if (selectedProspectIds.has(id)) {
-                selectedProspectIds.delete(id);
-            } else {
-                selectedProspectIds.add(id);
-            }
-
-            // Update checkbox UI
-            const checkbox = document.getElementById('prospect-check-' + id);
-            if (checkbox) checkbox.checked = selectedProspectIds.has(id);
-
-            // Update select all checkbox
-            const selectAll = document.getElementById('selectAllProspects');
-            selectAll.checked = selectedProspectIds.size === discoveredProspects.length;
-
-            // Update count display
-            document.getElementById('discoveryCount').textContent =
-                `${discoveredProspects.length} prospects found • ${selectedProspectIds.size} selected`;
-            updatePrimaryActionButton();
-        }
-
-        function toggleSelectAllProspects() {
-            const selectAll = document.getElementById('selectAllProspects');
-            if (selectAll.checked) {
-                selectedProspectIds = new Set(discoveredProspects.map(p => p.id));
-            } else {
-                selectedProspectIds.clear();
-            }
-
-            // Update all checkboxes
-            discoveredProspects.forEach(p => {
-                const checkbox = document.getElementById('prospect-check-' + p.id);
-                if (checkbox) checkbox.checked = selectAll.checked;
-            });
-
-            document.getElementById('discoveryCount').textContent =
-                `${discoveredProspects.length} prospects found • ${selectedProspectIds.size} selected`;
-            updatePrimaryActionButton();
-        }
-
-        function executePrimaryAction() {
-            const selected = discoveredProspects.filter(p => selectedProspectIds.has(p.id));
-
-            switch (discoveryObjective) {
-                case 'csv_export':
-                    exportDiscovered();
-                    break;
-                case 'enrich_now':
-                    if (selected.length === 0) {
-                        alert('Please select prospects to enrich');
-                        return;
-                    }
-                    sendSelectedToEnrichment(selected);
-                    break;
-                case 'outreach_queue':
-                    if (selected.length === 0) {
-                        alert('Please select prospects for outreach');
-                        return;
-                    }
-                    alert(`Added ${selected.length} prospects to outreach queue (Outreach feature coming soon)`);
-                    break;
-            }
-        }
-
-        function sendSelectedToEnrichment(prospects) {
-            // Get domains from prospects
-            const domains = prospects
-                .filter(p => p.website)
-                .map(p => {
-                    let domain = p.website;
-                    domain = domain.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0];
-                    return domain;
-                })
-                .filter(d => d);
-
-            if (domains.length === 0) {
-                alert('No valid domains found in selected prospects');
-                return;
-            }
-
-            // Switch to enrichment tab
-            switchTab('enrichment');
-
-            // Fill in the bulk input
-            document.getElementById('bulkDomains').value = domains.join('\n');
-            document.getElementById('bulkCount').textContent = domains.length;
-            switchEnrichMode('bulk');
-
-            alert(`Added ${domains.length} domains to enrichment. Click "Enrich All" to start.`);
-        }
-
-        async function discoverProspects() {
-            const btn = document.getElementById('discoverBtn');
+        async function runSmartSearch() {
+            const method = currentSearchMethod;
             const progress = document.getElementById('discoveryProgress');
             const step = document.getElementById('discoveryStep');
 
-            let payload = { mode: discoveryMode };
+            // Hide empty state, show progress
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('discoveryResultsSection').style.display = 'none';
+            progress.style.display = 'block';
 
-            if (discoveryMode === 'maps_url') {
-                const mapsUrl = document.getElementById('mapsUrl').value.trim();
-                if (!mapsUrl) {
-                    alert('Please enter a Google Maps URL');
-                    return;
-                }
-                if (!mapsUrl.includes('google.com/maps')) {
+            // Build payload based on method
+            let payload = {};
+            let activeBtn;
+
+            if (method === 'maps_url') {
+                const mapsUrl = document.getElementById('mapsUrlInput').value.trim();
+                if (!mapsUrl || !mapsUrl.includes('google.com/maps')) {
                     alert('Please enter a valid Google Maps URL');
+                    progress.style.display = 'none';
+                    document.getElementById('emptyState').style.display = 'block';
                     return;
                 }
-                payload.mapsUrl = mapsUrl;
-                payload.location = getEffectiveLocation();
+                payload = { mode: 'maps_url', mapsUrl, location: document.getElementById('mapsUrlLocation').value.trim() };
+                activeBtn = document.getElementById('mapsUrlBtn');
+                step.textContent = 'Extracting businesses from Maps URL...';
+            } else if (method === 'apollo_search') {
+                const query = document.getElementById('apolloQuery').value.trim();
+                const location = document.getElementById('apolloLocation').value.trim();
+                if (!query) { alert('Please enter an industry or query'); progress.style.display = 'none'; document.getElementById('emptyState').style.display = 'block'; return; }
+                const companySize = document.getElementById('apolloCompanySize').value;
+                payload = { mode: 'apollo_search', query, queries: [query], location, category: query, industry: query };
+                if (companySize) payload.company_size = companySize;
+                activeBtn = document.getElementById('apolloSearchBtn');
+                step.textContent = `Searching Apollo for "${query}"...`;
             } else {
-                const query = document.getElementById('discoveryQuery').value.trim();
-                const location = getEffectiveLocation();
-
-                if (!query && !currentBrief?.searchStrategy?.suggestedQueries?.length) {
-                    alert('Please enter a search query or select from suggested queries');
-                    return;
-                }
-
-                payload.query = query || currentBrief?.searchStrategy?.suggestedQueries?.[0];
-                payload.queries = query ? [query] : currentBrief?.searchStrategy?.suggestedQueries?.slice(0, 3);
-                payload.location = location;
-                payload.category = query?.split(' ')[0] || '';
-                payload.industry = currentBrief?.icp?.companyCharacteristics?.industries?.[0] || '';
+                // smart_search
+                const query = document.getElementById('smartQuery').value.trim();
+                const location = document.getElementById('smartLocation').value.trim();
+                if (!query) { alert('Please enter a search query'); progress.style.display = 'none'; document.getElementById('emptyState').style.display = 'block'; return; }
+                const maxResults = document.getElementById('smartMaxResults').value;
+                payload = { mode: 'smart_search', query, queries: [query], location, category: query.split(' ')[0], max_results: parseInt(maxResults) };
+                activeBtn = document.getElementById('smartSearchBtn');
+                step.textContent = `Smart searching for "${query}"...`;
             }
 
-            btn.disabled = true;
-            btn.textContent = '🔍 Searching...';
-            progress.style.display = 'block';
-            step.textContent = `Searching for "${payload.query || payload.mapsUrl || 'businesses'}"...`;
-
-            // Reset selection
+            if (activeBtn) { activeBtn.disabled = true; }
             selectedProspectIds.clear();
 
             try {
@@ -2741,43 +2960,89 @@
                 });
                 const data = await resp.json();
 
-                if (data.success) {
+                if (data.success && data.prospects?.length) {
                     discoveredProspects = data.prospects;
-
-                    // Show results section, hide empty state
                     document.getElementById('discoveryResultsSection').style.display = 'block';
-                    document.getElementById('discoveryEmptyState').style.display = 'none';
-
                     displayDiscoveredProspects(data.prospects);
+                    document.getElementById('discoveryCount').textContent = `${data.prospects.length} prospects found`;
 
-                    // Auto-select all if objective is enrich_now
-                    if (discoveryObjective === 'enrich_now') {
-                        selectedProspectIds = new Set(data.prospects.map(p => p.id));
-                        document.getElementById('selectAllProspects').checked = true;
-                    }
-
-                    document.getElementById('discoveryCount').textContent =
-                        `${data.prospects.length} prospects found • ${selectedProspectIds.size} selected`;
-                    updatePrimaryActionButton();
-
-                    // Show fallback warning if applicable
                     if (data.fallbackReason) {
-                        alert(`Note: ${data.fallbackReason}. Found ${data.prospects.length} prospects via ${data.source}.`);
+                        step.textContent = `Note: ${data.fallbackReason}. Found ${data.prospects.length} via ${data.source}.`;
+                        setTimeout(() => { progress.style.display = 'none'; }, 3000);
+                    } else {
+                        progress.style.display = 'none';
                     }
                 } else {
-                    document.getElementById('discoveryResultsSection').style.display = 'none';
-                    document.getElementById('discoveryEmptyState').style.display = 'block';
-                    document.getElementById('discoveryEmptyText').textContent = data.error || 'Search failed. Try a different query.';
+                    progress.style.display = 'none';
+                    document.getElementById('emptyState').style.display = 'block';
+                    document.getElementById('emptyState').querySelector('h3').textContent = 'No results found';
+                    document.getElementById('emptyState').querySelector('p').textContent = data.error || 'Try a different query or search method.';
                 }
             } catch (e) {
-                document.getElementById('discoveryResultsSection').style.display = 'none';
-                document.getElementById('discoveryEmptyState').style.display = 'block';
-                document.getElementById('discoveryEmptyText').textContent = e.message || 'Connection error.';
-            } finally {
-                btn.disabled = false;
-                btn.textContent = '🔍 Discover Prospects';
                 progress.style.display = 'none';
+                document.getElementById('emptyState').style.display = 'block';
+                document.getElementById('emptyState').querySelector('h3').textContent = 'Search failed';
+                document.getElementById('emptyState').querySelector('p').textContent = e.message || 'Connection error.';
+            } finally {
+                if (activeBtn) { activeBtn.disabled = false; }
             }
+        }
+
+        function toggleProspectSelection(id) {
+            if (selectedProspectIds.has(id)) {
+                selectedProspectIds.delete(id);
+            } else {
+                selectedProspectIds.add(id);
+            }
+            const checkbox = document.getElementById('prospect-check-' + id);
+            if (checkbox) checkbox.checked = selectedProspectIds.has(id);
+            const selectAll = document.getElementById('selectAllProspects');
+            if (selectAll) selectAll.checked = selectedProspectIds.size === discoveredProspects.length;
+            document.getElementById('discoveryCount').textContent =
+                `${discoveredProspects.length} prospects found · ${selectedProspectIds.size} selected`;
+        }
+
+        function toggleSelectAllProspects() {
+            const selectAll = document.getElementById('selectAllProspects');
+            if (selectAll.checked) {
+                selectedProspectIds = new Set(discoveredProspects.map(p => p.id));
+            } else {
+                selectedProspectIds.clear();
+            }
+            discoveredProspects.forEach(p => {
+                const checkbox = document.getElementById('prospect-check-' + p.id);
+                if (checkbox) checkbox.checked = selectAll.checked;
+            });
+            document.getElementById('discoveryCount').textContent =
+                `${discoveredProspects.length} prospects found · ${selectedProspectIds.size} selected`;
+        }
+
+        function sendDiscoveredToEnrichment() {
+            const prospects = selectedProspectIds.size > 0
+                ? discoveredProspects.filter(p => selectedProspectIds.has(p.id))
+                : discoveredProspects;
+
+            const domains = prospects
+                .filter(p => p.website)
+                .map(p => {
+                    try {
+                        const url = p.website.startsWith('http') ? p.website : 'https://' + p.website;
+                        return new URL(url).hostname.replace('www.', '');
+                    } catch { return null; }
+                })
+                .filter(d => d);
+
+            if (!domains.length) {
+                alert('No websites found in selected prospects to enrich');
+                return;
+            }
+
+            switchTab('enrichment');
+            const uniqueDomains = [...new Set(domains)];
+            document.getElementById('bulkDomains').value = uniqueDomains.join('\n');
+            document.getElementById('bulkCount').textContent = uniqueDomains.length;
+            switchEnrichMode('bulk');
+            alert(`Added ${uniqueDomains.length} domains to enrichment. Click "Enrich All" to start.`);
         }
 
         function displayDiscoveredProspects(prospects) {
@@ -2833,8 +3098,6 @@
                         </div>
                     </div>
                 `).join('')}
-                    </tbody>
-                </table>
             `;
         }
 
@@ -3281,71 +3544,46 @@
             URL.revokeObjectURL(url);
         }
 
-        // Presets
+        // Presets — fill structured fields
         const presets = {
             'warsaw-shoes': {
-                queries: `multi-brand shoe store Warsaw
-women's footwear boutique Warsaw
-sklep z obuwiem damskim Warszawa
-butik obuwniczy Warszawa
-buty damskie premium Warszawa
-obuwie komfortowe Warszawa
-shoe store Mokotow Warsaw
-women's shoes Srodmiescie Warsaw`,
-                positiveSignals: 'boutique, butik, premium, designer, comfortable, komfortowe, leather, skóra, elegant, damskie',
-                negativeSignals: 'discount, outlet, sports, sportowe, sneakers, children, dziecięce, second hand',
+                country: 'Poland', city: 'Warsaw', businessType: 'shoe store', product: 'women\'s footwear, leather shoes',
+                companySize: '', targetTitles: 'owner, buyer, category manager',
+                positiveSignals: 'boutique, butik, premium, designer, comfortable, leather, skóra, elegant',
+                negativeSignals: 'discount, outlet, sports, sneakers, children, second hand',
                 excludeBrands: 'CCC, Deichmann, Eobuwie, Ryłko, Wojas, Badura'
             },
             'krakow-fashion': {
-                queries: `fashion boutique Krakow
-women's clothing store Krakow old town
-butik damski Kraków
-sklep z modą Kraków Stare Miasto
-multi-brand boutique Kazimierz Krakow`,
+                country: 'Poland', city: 'Krakow', businessType: 'fashion boutique', product: 'women\'s clothing, multi-brand',
+                companySize: '', targetTitles: 'owner, buyer, store manager',
                 positiveSignals: 'boutique, butik, premium, designer, multi-brand, elegant',
                 negativeSignals: 'discount, outlet, vintage, second hand',
                 excludeBrands: 'H&M, Zara, Reserved, Mohito'
             },
             'madrid-boutiques': {
-                queries: `tienda de zapatos mujer Madrid
-boutique calzado Madrid Salamanca
-zapatería premium Madrid
-multi-marca zapatos Madrid
-tienda zapatos diseño Madrid`,
+                country: 'Spain', city: 'Madrid', businessType: 'shoe store', product: 'women\'s shoes, designer footwear',
+                companySize: '', targetTitles: 'owner, buyer, director',
                 positiveSignals: 'boutique, premium, diseño, lujo, elegante, piel',
                 negativeSignals: 'outlet, descuento, deportivo, niños',
                 excludeBrands: 'Marypaz, Merkal, Ulanka, Krack'
             },
             'indonesia-food': {
-                queries: `food manufacturing company Jakarta
-food processing factory Indonesia
-FMCG manufacturer Surabaya
-snack food producer Indonesia
-beverage manufacturing Jakarta
-frozen food manufacturer Indonesia
-food packaging company Bandung`,
-                positiveSignals: 'manufacturing, factory, export, BPOM certified, halal certified, ISO, established',
+                country: 'Indonesia', city: 'Jakarta', businessType: 'food manufacturer', product: 'FMCG, snack food, beverages',
+                companySize: '51,200', targetTitles: 'director, VP operations, procurement manager',
+                positiveSignals: 'manufacturing, factory, export, certified, ISO, established',
                 negativeSignals: 'home industry, small scale, restaurant, catering, retail',
                 excludeBrands: 'Indofood, Mayora, Wings, Garuda Food, Orang Tua'
             },
             'usa-saas': {
-                queries: `B2B software company San Francisco
-SaaS startup New York
-enterprise software company Austin
-cloud software company Boston
-tech startup Silicon Valley
-software development company Seattle`,
+                country: 'USA', city: 'San Francisco', businessType: 'software company', product: 'B2B SaaS, enterprise cloud',
+                companySize: '11,50', targetTitles: 'founder, CEO, CTO, VP engineering',
                 positiveSignals: 'SaaS, enterprise, B2B, cloud, funded, growing, series A, series B',
                 negativeSignals: 'consulting, agency, freelance, B2C, gaming, crypto',
                 excludeBrands: 'Salesforce, Microsoft, Google, Amazon, Oracle'
             },
             'barcelona-restaurants': {
-                queries: `restaurante premium Barcelona
-fine dining Barcelona Eixample
-restaurante gourmet Barcelona
-cocina mediterránea Barcelona
-restaurante con estrella Barcelona
-gastrobar Barcelona Gracia`,
+                country: 'Spain', city: 'Barcelona', businessType: 'restaurant', product: 'fine dining, gourmet, mediterranean',
+                companySize: '', targetTitles: 'owner, chef, general manager',
                 positiveSignals: 'gourmet, premium, chef, mediterráneo, terraza, reservas, wine',
                 negativeSignals: 'fast food, franquicia, buffet, turistico, cadena',
                 excludeBrands: 'McDonalds, Burger King, Telepizza, 100 Montaditos, Taco Bell'
@@ -3355,11 +3593,158 @@ gastrobar Barcelona Gracia`,
         function loadPreset(name) {
             const preset = presets[name];
             if (preset) {
-                document.getElementById('queries').value = preset.queries;
+                document.getElementById('searchCountry').value = preset.country;
+                document.getElementById('searchCity').value = preset.city;
+                document.getElementById('searchBusinessType').value = preset.businessType;
+                document.getElementById('searchProduct').value = preset.product;
+                document.getElementById('companySize').value = preset.companySize || '';
+                document.getElementById('targetTitles').value = preset.targetTitles || '';
                 document.getElementById('positiveSignals').value = preset.positiveSignals;
                 document.getElementById('negativeSignals').value = preset.negativeSignals;
                 document.getElementById('excludeBrands').value = preset.excludeBrands;
+                updateGeneratedQueries();
             }
+        }
+
+        // Local language query variants by country
+        const localQueryVariants = {
+            'Poland': (biz, product, city) => [
+                `${biz} ${city}`,
+                product ? `${product} ${city}` : null,
+                `sklep ${city}`,
+            ],
+            'Spain': (biz, product, city) => [
+                `${biz} ${city}`,
+                product ? `${product} ${city}` : null,
+                `tienda de ${product || biz} ${city}`,
+            ],
+            'France': (biz, product, city) => [
+                `${biz} ${city}`,
+                product ? `${product} ${city}` : null,
+                `magasin ${product || biz} ${city}`,
+            ],
+            'Germany': (biz, product, city) => [
+                `${biz} ${city}`,
+                product ? `${product} ${city}` : null,
+                `${product || biz} Geschäft ${city}`,
+            ],
+            'Italy': (biz, product, city) => [
+                `${biz} ${city}`,
+                product ? `${product} ${city}` : null,
+                `negozio ${product || biz} ${city}`,
+            ],
+            'Portugal': (biz, product, city) => [
+                `${biz} ${city}`,
+                product ? `${product} ${city}` : null,
+                `loja de ${product || biz} ${city}`,
+            ],
+            'Brazil': (biz, product, city) => [
+                `${biz} ${city}`,
+                product ? `${product} ${city}` : null,
+                `loja de ${product || biz} ${city}`,
+            ],
+            'Mexico': (biz, product, city) => [
+                `${biz} ${city}`,
+                product ? `${product} ${city}` : null,
+                `tienda de ${product || biz} ${city}`,
+            ],
+            'Indonesia': (biz, product, city) => [
+                `${biz} ${city}`,
+                product ? `${product} ${city}` : null,
+                `toko ${product || biz} ${city}`,
+            ],
+        };
+
+        function generateQueries() {
+            const country = document.getElementById('searchCountry').value;
+            const city = document.getElementById('searchCity').value.trim();
+            const businessType = document.getElementById('searchBusinessType').value;
+            const product = document.getElementById('searchProduct').value.trim();
+
+            if (!city && !country) return [];
+
+            const location = city ? `${city}${country ? ' ' + country : ''}` : country;
+            const queries = [];
+
+            // Base queries in English
+            if (businessType) {
+                queries.push(`${businessType} ${location}`);
+                if (product) {
+                    queries.push(`${product} ${businessType} ${location}`);
+                }
+                queries.push(`best ${businessType} ${location}`);
+                queries.push(`premium ${businessType} ${location}`);
+            }
+
+            if (product && !businessType) {
+                queries.push(`${product} store ${location}`);
+                queries.push(`${product} ${location}`);
+                queries.push(`best ${product} ${location}`);
+            }
+
+            // Add local language variants if available
+            if (country && localQueryVariants[country] && city) {
+                const localQueries = localQueryVariants[country](businessType || 'store', product, city);
+                localQueries.forEach(q => {
+                    if (q && !queries.includes(q)) queries.push(q);
+                });
+            }
+
+            // Deduplicate
+            return [...new Set(queries)].filter(Boolean);
+        }
+
+        function updateGeneratedQueries() {
+            const queries = generateQueries();
+            const preview = document.getElementById('generatedQueriesPreview');
+            const textarea = document.getElementById('queries');
+            const countEl = document.getElementById('queryCount');
+
+            if (queries.length === 0) {
+                preview.innerHTML = '<span style="color: var(--text-muted);">Fill in the fields above to generate search queries...</span>';
+                countEl.textContent = '';
+                return;
+            }
+
+            // Update preview
+            preview.innerHTML = queries.map(q => `<div style="padding: 1px 0;">${q}</div>`).join('');
+
+            // Update hidden textarea (used by startSearch)
+            textarea.value = queries.join('\n');
+
+            // Update query count badge
+            countEl.textContent = `(${queries.length})`;
+        }
+
+        let advancedQueriesOpen = false;
+        function toggleAdvancedQueries() {
+            advancedQueriesOpen = !advancedQueriesOpen;
+            const preview = document.getElementById('generatedQueriesPreview');
+            const textarea = document.getElementById('queries');
+            const btn = document.getElementById('manualEditToggle');
+
+            if (advancedQueriesOpen) {
+                if (!textarea.value.trim()) {
+                    textarea.value = generateQueries().join('\n');
+                }
+                preview.style.display = 'none';
+                textarea.style.display = 'block';
+                btn.textContent = 'Auto-generate';
+            } else {
+                preview.style.display = 'block';
+                textarea.style.display = 'none';
+                btn.textContent = 'Edit manually';
+                updateGeneratedQueries();
+            }
+        }
+
+        let queriesSectionOpen = false;
+        function toggleQueriesSection() {
+            queriesSectionOpen = !queriesSectionOpen;
+            const content = document.getElementById('queriesContent');
+            const btn = document.getElementById('advancedQueriesToggle');
+            content.style.display = queriesSectionOpen ? 'block' : 'none';
+            btn.textContent = queriesSectionOpen ? 'Hide' : 'Show';
         }
 
         // ============================================================
@@ -3548,23 +3933,40 @@ gastrobar Barcelona Gracia`,
         }
 
         async function startSearch() {
-            const queries = document.getElementById('queries').value.trim().split('\n').filter(q => q.trim());
+            // Use textarea if in manual mode, otherwise use generated queries
+            let queries;
+            if (advancedQueriesOpen) {
+                queries = document.getElementById('queries').value.trim().split('\n').filter(q => q.trim());
+            } else {
+                queries = generateQueries();
+            }
 
             if (queries.length === 0) {
-                alert('Please enter at least one search query');
+                alert('Please fill in at least Country/City and Business Type to generate search queries, or switch to manual mode.');
                 return;
             }
+
+            // Parse target titles
+            const titlesRaw = document.getElementById('targetTitles').value.trim();
+            const targetTitles = titlesRaw ? titlesRaw.split(',').map(s => s.trim()).filter(Boolean) : undefined;
+
+            // Parse company size
+            const companySizeVal = document.getElementById('companySize').value;
+            const companySizeRanges = companySizeVal ? [companySizeVal] : undefined;
 
             const config = {
                 brand_name: document.getElementById('brandName').value,
                 brand_website: document.getElementById('brandWebsite').value,
                 segment: document.getElementById('segment').value,
                 queries: queries,
+                max_leads: parseInt(document.getElementById('maxLeads').value) || 50,
                 min_rating: parseFloat(document.getElementById('minRating').value) || 4.0,
                 positive_signals: document.getElementById('positiveSignals').value.split(',').map(s => s.trim()).filter(Boolean),
                 negative_signals: document.getElementById('negativeSignals').value.split(',').map(s => s.trim()).filter(Boolean),
                 exclude_brands: document.getElementById('excludeBrands').value.split(',').map(s => s.trim()).filter(Boolean),
-                enrich: document.getElementById('enrichLeads').checked
+                enrich: document.getElementById('enrichLeads').checked,
+                ...(targetTitles && { target_titles: targetTitles }),
+                ...(companySizeRanges && { company_size_ranges: companySizeRanges }),
             };
 
             // Start search
@@ -3684,6 +4086,7 @@ gastrobar Barcelona Gracia`,
                     </td>
                     <td>
                         <div class="contact-info">
+                            ${lead.domain ? `<span class="domain-badge">@${escapeHtml(lead.domain)}</span>` : ''}
                             ${lead.phone ? `<a href="tel:${lead.phone}">${escapeHtml(lead.phone)}</a>` : ''}
                             ${lead.website ? `<a href="${lead.website}" target="_blank">Website</a>` : ''}
                             ${email ? `<a href="mailto:${email}">${escapeHtml(email)}</a>` : ''}
@@ -3733,6 +4136,32 @@ gastrobar Barcelona Gracia`,
             } catch (e) {
                 console.error('Cancel failed:', e);
             }
+        }
+
+        function sendResultsToEnrichment() {
+            if (!currentJobId) return;
+            // Collect domains from the displayed results
+            const rows = document.querySelectorAll('#leadsBody tr');
+            const domains = [];
+            rows.forEach(row => {
+                const badge = row.querySelector('.domain-badge');
+                if (badge) {
+                    const domain = badge.textContent.trim().replace(/^@/, '');
+                    if (domain) domains.push(domain);
+                }
+            });
+            if (!domains.length) {
+                alert('No domains found in results. Run a search with enrichment enabled first.');
+                return;
+            }
+            // Switch to Enrichment tab, bulk mode
+            document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.nav-tab')[2].classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.getElementById('tab-enrichment').classList.add('active');
+            switchEnrichMode('bulk');
+            document.getElementById('bulkDomains').value = domains.join('\n');
+            document.getElementById('bulkCount').textContent = domains.length;
         }
 
         function exportCSV() {

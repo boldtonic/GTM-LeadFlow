@@ -81,6 +81,7 @@ class Lead:
     lng: float = 0.0
     phone: str = ""
     website: str = ""
+    domain: str = ""
     rating: float = 0.0
     reviews_count: int = 0
     hours: dict = field(default_factory=dict)
@@ -169,14 +170,17 @@ class ApolloClient:
 
     def __init__(self, api_key: str):
         self.api_key = api_key
-        self.headers = {"Content-Type": "application/json"}
+        self.headers = {
+            "Content-Type": "application/json",
+            "X-Api-Key": api_key,
+        }
 
     def enrich_organization(self, domain: str) -> dict:
         if not self.api_key:
             return {}
 
         url = f"{self.BASE_URL}/organizations/enrich"
-        params = {"api_key": self.api_key, "domain": domain}
+        params = {"domain": domain}
 
         try:
             response = requests.get(url, headers=self.headers, params=params, timeout=10)
@@ -195,7 +199,6 @@ class ApolloClient:
 
         url = f"{self.BASE_URL}/mixed_people/search"
         data = {
-            "api_key": self.api_key,
             "q_organization_domains": domain,
             "page": 1,
             "per_page": 5,
@@ -212,6 +215,40 @@ class ApolloClient:
             return result.get("people", [])
         except Exception as e:
             log_dev("APOLLO", f"Contact search exception for {domain}: {str(e)[:50]}", "error")
+            return []
+
+    def search_organizations(self, query: str = "", location: str = "",
+                             employee_ranges: list = None, revenue_range: list = None,
+                             page: int = 1, per_page: int = 25) -> list[dict]:
+        """Search Apollo's organization database with filters"""
+        if not self.api_key:
+            return []
+
+        url = f"{self.BASE_URL}/mixed_companies/search"
+        data = {
+            "page": page,
+            "per_page": per_page,
+        }
+        if query:
+            data["q_organization_name"] = query
+        if location:
+            data["organization_locations"] = [location]
+        if employee_ranges:
+            data["organization_num_employees_ranges"] = employee_ranges
+        if revenue_range:
+            data["revenue_range"] = {"min": revenue_range[0], "max": revenue_range[1]} if len(revenue_range) == 2 else None
+
+        try:
+            response = requests.post(url, headers=self.headers, json=data, timeout=15)
+            result = response.json()
+            if not response.ok:
+                log_dev("APOLLO", f"Org search failed: {result.get('error', response.status_code)}", "error")
+                return []
+            orgs = result.get("organizations", [])
+            log_dev("APOLLO", f"Org search returned {len(orgs)} results", "info")
+            return orgs
+        except Exception as e:
+            log_dev("APOLLO", f"Org search exception: {str(e)[:50]}", "error")
             return []
 
 
@@ -561,7 +598,8 @@ def run_search(job_id: str, config: dict):
         "leads": [],
         "errors": [],
         "cancelled": False,
-        "enrichment_stats": {}
+        "enrichment_stats": {},
+        "max_leads": config.get("max_leads", 50)
     }
 
     def is_cancelled():
@@ -570,7 +608,12 @@ def run_search(job_id: str, config: dict):
     try:
         # Log search start
         queries = config.get("queries", [])
+        max_leads = config.get("max_leads", 50)
         log_dev("SEARCH", f"Starting search job {job_id} with {len(queries)} queries", "info")
+        target_titles = config.get("target_titles", ["owner", "founder", "director", "manager", "buyer"])
+        log_dev("SEARCH", f"Max leads: {max_leads}, Enrich: {config.get('enrich', True)}", "info")
+        if target_titles != ["owner", "founder", "director", "manager", "buyer"]:
+            log_dev("SEARCH", f"Custom target titles: {', '.join(target_titles)}", "info")
         log_dev("CONFIG", f"APIs: Google={'✓' if GOOGLE_PLACES_API_KEY else '✗'}, Apollo={'✓' if APOLLO_API_KEY else '✗'}, Firecrawl={'✓' if FIRECRAWL_API_KEY else '✗'}, Hunter={'✓' if HUNTER_API_KEY else '✗'}", "info")
 
         google = GooglePlacesClient(GOOGLE_PLACES_API_KEY)
@@ -624,7 +667,18 @@ def run_search(job_id: str, config: dict):
                     )
                     leads[place_id] = lead
 
+            # Check max_leads cap
+            if len(leads) >= max_leads:
+                log_dev("SEARCH", f"Reached max leads cap ({max_leads}), stopping search", "info")
+                break
+
             time.sleep(0.2)
+
+        # Enforce max_leads cap
+        if len(leads) > max_leads:
+            lead_keys = list(leads.keys())[:max_leads]
+            leads = {k: leads[k] for k in lead_keys}
+            log_dev("SEARCH", f"Truncated to {max_leads} leads", "info")
 
         if not leads:
             job_status[job_id]["status"] = "completed"
@@ -650,6 +704,8 @@ def run_search(job_id: str, config: dict):
             if details:
                 lead.phone = details.get("formatted_phone_number", "") or details.get("international_phone_number", "")
                 lead.website = details.get("website", "")
+                if lead.website:
+                    lead.domain = extract_domain(lead.website)
                 lead.google_maps_url = details.get("url", lead.google_maps_url)
                 lead.subcategories = details.get("types", [])
 
@@ -735,7 +791,7 @@ def run_search(job_id: str, config: dict):
                         log_dev("APOLLO", f"Org enrich failed for {domain}: {str(e)[:50]}", "error")
 
                     try:
-                        contacts = apollo.search_contacts(domain, ["owner", "founder", "director", "manager", "buyer"])
+                        contacts = apollo.search_contacts(domain, target_titles)
                         for contact in contacts[:2]:
                             lead.decision_makers.append({
                                 "name": contact.get("name", ""),
@@ -989,9 +1045,8 @@ def export_csv(job_id):
         social = lead.get("social_links", {})
         emails = lead.get("emails_found", [])
         website = lead.get("website", "")
-        # Extract domain from website
-        domain = ""
-        if website:
+        domain = lead.get("domain", "")
+        if not domain and website:
             domain = website.replace("https://", "").replace("http://", "").replace("www.", "").rstrip("/").split("/")[0]
 
         writer.writerow([
@@ -1376,7 +1431,7 @@ def run_web_search(search_queries: list, category: str, location: str) -> list:
     return prospects
 
 
-def run_apollo_search(category: str, location: str, industry: str = None) -> dict:
+def run_apollo_search(category: str, location: str, industry: str = None, company_size: str = None, per_page: int = 25) -> dict:
     """Run Apollo company search with error handling"""
     if not APOLLO_API_KEY:
         return {"prospects": [], "error": "Apollo API not configured"}
@@ -1384,14 +1439,20 @@ def run_apollo_search(category: str, location: str, industry: str = None) -> dic
     print(f"Searching Apollo for: {industry or category} in {location}")
 
     try:
+        search_params = {
+            "q_organization_name": category or industry,
+            "organization_locations": [location] if location else None,
+            "per_page": min(per_page, 100)
+        }
+        if company_size:
+            parts = company_size.split(",")
+            if len(parts) == 2:
+                search_params["organization_num_employees_ranges"] = [f"{parts[0]},{parts[1]}"]
+
         response = requests.post(
             "https://api.apollo.io/api/v1/mixed_companies/search",
             headers={"Content-Type": "application/json", "X-Api-Key": APOLLO_API_KEY},
-            json={
-                "q_organization_name": category or industry,
-                "organization_locations": [location] if location else None,
-                "per_page": 25
-            },
+            json=search_params,
             timeout=15
         )
 
@@ -1536,6 +1597,8 @@ def discover_prospects():
     location = data.get("location", "")
     industry = data.get("industry", "")
     maps_url = data.get("mapsUrl", "")
+    company_size = data.get("company_size", "")
+    max_results = data.get("max_results", 25)
 
     try:
         now = datetime.now().isoformat()
@@ -1673,14 +1736,14 @@ def discover_prospects():
 
             # Apollo search
             if APOLLO_API_KEY:
-                apollo_result = run_apollo_search(category, location, industry)
+                apollo_result = run_apollo_search(category, location, industry, per_page=max_results)
                 if apollo_result.get("prospects"):
                     all_prospects.extend(apollo_result["prospects"])
                     sources.append("apollo")
                 elif apollo_result.get("error"):
                     fallback_reason = apollo_result["error"]
 
-            unique_prospects = deduplicate_prospects(all_prospects)
+            unique_prospects = deduplicate_prospects(all_prospects)[:max_results]
             print(f"Smart search returning {len(unique_prospects)} unique prospects from: {', '.join(sources)}")
 
             return jsonify({
@@ -1694,7 +1757,7 @@ def discover_prospects():
 
         # Mode: Apollo Search (with fallback)
         if mode == "apollo_search":
-            apollo_result = run_apollo_search(category, location, industry)
+            apollo_result = run_apollo_search(category, location, industry, company_size=company_size, per_page=max_results)
 
             if apollo_result.get("prospects"):
                 return jsonify({
