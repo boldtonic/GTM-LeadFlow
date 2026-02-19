@@ -26,10 +26,10 @@ INSTANTLY_API_KEY = ""
 # Rate limiting (requests per second)
 RATE_LIMITS = {
     "google_places": 10,  # Google allows up to 100 QPS
-    "apollo": 5,          # Apollo is more restrictive
+    "apollo": 5,  # Apollo is more restrictive
     "hunter": 10,
     "instantly": 10,
-    "new_api": 10,        # Placeholder for new API integration
+    "new_api": 10,  # Placeholder for new API integration
 }
 
 # Output settings

@@ -718,19 +718,47 @@
             overflow-y: auto;
             line-height: 1.5;
         }
-        .filter-toggle {
+        .enrich-toggle {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.6rem;
+            padding: 0.55rem 0.9rem;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            background: var(--surface-2);
             cursor: pointer;
+            transition: all 0.25s ease;
+            user-select: none;
         }
-        .filter-toggle input[type="checkbox"] { width: auto; margin: 0; accent-color: var(--accent); }
-        .filter-toggle__label {
+        .enrich-toggle input[type="checkbox"] { display: none; }
+        .enrich-toggle:hover {
+            border-color: #ca8a04;
+            background: rgba(234, 179, 8, 0.06);
+        }
+        .enrich-toggle.active {
+            border-color: var(--warning);
+            background: rgba(234, 179, 8, 0.10);
+            box-shadow: 0 0 14px rgba(234, 179, 8, 0.12);
+        }
+        .enrich-toggle__icon {
+            font-size: 1.1rem;
+            line-height: 1;
+            filter: grayscale(1) brightness(0.5);
+            transition: filter 0.25s ease, transform 0.25s ease;
+        }
+        .enrich-toggle.active .enrich-toggle__icon {
+            filter: none;
+            transform: scale(1.15);
+        }
+        .enrich-toggle__text {
             font-size: 0.8rem;
-            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-muted);
+            transition: color 0.25s ease;
             white-space: nowrap;
-            color: var(--text);
-            margin: 0;
+        }
+        .enrich-toggle.active .enrich-toggle__text {
+            color: var(--warning);
         }
 
         /* --- Results area --- */
@@ -1022,6 +1050,24 @@
         .score-medium { background: rgba(234, 179, 8, 0.2); color: var(--warning); }
         .score-low { background: rgba(136, 136, 136, 0.2); color: var(--text-muted); }
 
+        .grade-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.75rem;
+        }
+        .grade-A { background: rgba(34, 197, 94, 0.2); color: var(--success); }
+        .grade-B { background: rgba(234, 179, 8, 0.2); color: var(--warning); }
+        .grade-C { background: rgba(136, 136, 136, 0.2); color: var(--text-muted); }
+        .email-count-badge {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
         .lead-name {
             font-weight: 500;
             margin-bottom: 0.25rem;
@@ -1309,22 +1355,6 @@
         @keyframes bounce {
             0%, 80%, 100% { transform: scale(0); }
             40% { transform: scale(1); }
-        }
-
-        /* Brief Context Panel */
-        .brief-context-panel {
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.05));
-            border: 1px solid rgba(59, 130, 246, 0.2);
-            border-radius: 12px;
-            padding: 1rem 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .brief-context-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-weight: 500;
         }
 
         /* Chips */
@@ -1911,7 +1941,7 @@
                         <span class="finder-search__icon">&#128269;</span>
                         <input type="text" id="prospectWhat" class="finder-search__input"
                                placeholder="Find shoe stores in Madrid..."
-                               oninput="updateStrategyIndicator(); updateSearchSummary()">
+                               oninput="debouncedUpdateStrategy(); debouncedUpdateSummary()">
                     </div>
 
                     <!-- Suggestion Chips -->
@@ -1939,7 +1969,7 @@
                                 <span class="filter-section__chevron">&#9660;</span>
                             </summary>
                             <div class="filter-section__body">
-                                <select id="filterIndustry" onchange="updateStrategyIndicator(); updateSearchSummary()">
+                                <select id="filterIndustry" onchange="debouncedUpdateStrategy(); debouncedUpdateSummary()">
                                     <option value="">Any industry</option>
                                     <optgroup label="Retail &amp; Consumer">
                                         <option value="shoe store">Shoe Store</option>
@@ -2014,7 +2044,7 @@
                                         <label for="prospectCountry">Country</label>
                                         <input type="text" id="prospectCountry" list="countryList"
                                                placeholder="e.g. Spain"
-                                               oninput="updateStrategyIndicator(); updateSearchSummary()">
+                                               oninput="debouncedUpdateStrategy(); debouncedUpdateSummary()">
                                         <datalist id="countryList">
                                             <option value="United States">
                                             <option value="United Kingdom">
@@ -2066,7 +2096,7 @@
                                     <div class="filter-field">
                                         <label for="prospectWhere">City / Region</label>
                                         <input type="text" id="prospectWhere" placeholder="e.g. Madrid"
-                                               oninput="updateStrategyIndicator(); updateSearchSummary()">
+                                               oninput="debouncedUpdateStrategy(); debouncedUpdateSummary()">
                                     </div>
                                 </div>
                             </div>
@@ -2080,7 +2110,7 @@
                                 <span class="filter-section__chevron">&#9660;</span>
                             </summary>
                             <div class="filter-section__body">
-                                <select id="companySize" onchange="updateStrategyIndicator(); updateSearchSummary()">
+                                <select id="companySize" onchange="debouncedUpdateStrategy(); debouncedUpdateSummary()">
                                     <option value="">Any size</option>
                                     <option value="1,10">1-10</option>
                                     <option value="11,50">11-50</option>
@@ -2102,7 +2132,7 @@
                                 <div class="filter-field">
                                     <label for="targetTitles">Job Titles</label>
                                     <input type="text" id="targetTitles" placeholder="CEO, Founder, Marketing Director"
-                                           oninput="updateSearchSummary()">
+                                           oninput="debouncedUpdateSummary()">
                                     <span class="field-hint">Comma-separated titles</span>
                                 </div>
                             </div>
@@ -2178,7 +2208,7 @@
                                     <div class="filter-field">
                                         <label for="mapsUrlInput">Google Maps URL</label>
                                         <textarea id="mapsUrlInput" rows="2" placeholder="Paste a Google Maps search URL..."
-                                                  oninput="updateStrategyIndicator(); updateSearchSummary()"></textarea>
+                                                  oninput="debouncedUpdateStrategy(); debouncedUpdateSummary()"></textarea>
                                     </div>
                                     <div class="filter-field" style="margin-top: 0.75rem;">
                                         <div style="display: flex; align-items: center; justify-content: space-between;">
@@ -2209,7 +2239,7 @@
                     <div class="search-controls">
                         <div class="filter-field">
                             <label for="maxLeads">Max Results</label>
-                            <select id="maxLeads" onchange="updateSearchSummary()">
+                            <select id="maxLeads" onchange="debouncedUpdateSummary()">
                                 <option value="10">10</option>
                                 <option value="25" selected>25</option>
                                 <option value="50">50</option>
@@ -2218,10 +2248,11 @@
                             </select>
                         </div>
 
-                        <label class="filter-toggle" style="margin: 0.75rem 0; display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                            <input type="checkbox" id="enrichLeads" checked>
-                            <span class="filter-toggle__label" id="enrichLabel">Auto-enrich leads</span>
-                        </label>
+                        <div class="enrich-toggle" id="enrichToggle" style="margin: 0.75rem 0;" onclick="toggleEnrich()">
+                            <input type="checkbox" id="enrichLeads">
+                            <span class="enrich-toggle__icon">&#11088;</span>
+                            <span class="enrich-toggle__text" id="enrichLabel">Auto-enrich leads</span>
+                        </div>
 
                         <button id="searchBtn" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem; padding: 0.75rem;"
                                 onclick="findProspects()">
@@ -2285,6 +2316,14 @@
                         <div class="stat-value" id="lowFit">0</div>
                         <div class="stat-label">Low (&lt;50)</div>
                     </div>
+                    <div class="stat-card high">
+                        <div class="stat-value" id="gradeACount">0</div>
+                        <div class="stat-label">Grade A</div>
+                    </div>
+                    <div class="stat-card medium">
+                        <div class="stat-value" id="gradeBCount">0</div>
+                        <div class="stat-label">Grade B</div>
+                    </div>
                 </div>
 
                 <!-- Google Places results table -->
@@ -2293,6 +2332,7 @@
                         <thead>
                             <tr>
                                 <th>Score</th>
+                                <th>Grade</th>
                                 <th>Business</th>
                                 <th>Location</th>
                                 <th>Contact</th>
@@ -2518,10 +2558,20 @@
 
     <script>
         let currentJobId = null;
+        let currentJobEnriched = false;
         let pollInterval = null;
         let discoveredProspects = [];
         let enrichedCompanies = [];
         let currentBrief = null;
+        let placeholderInterval = null;
+
+        // Debounce utility — delays fn execution until input settles
+        function debounce(fn, delay = 200) {
+            let timer;
+            return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), delay); };
+        }
+        const debouncedUpdateStrategy = debounce(updateStrategyIndicator, 200);
+        const debouncedUpdateSummary = debounce(updateSearchSummary, 200);
 
         // Tab switching
         function switchTab(tabName) {
@@ -2531,6 +2581,12 @@
             if (event && event.target) event.target.classList.add('active');
             // Update brief context panel visibility
             updateBriefContextPanel();
+            // Start/stop placeholder rotation based on active tab
+            if (tabName === 'finder') {
+                if (!placeholderInterval) placeholderInterval = setInterval(rotatePlaceholder, 3000);
+            } else {
+                if (placeholderInterval) { clearInterval(placeholderInterval); placeholderInterval = null; }
+            }
         }
 
         // Update step status
@@ -2625,12 +2681,12 @@
                 <div class="brief-section">
                     <h3>🏢 Company Snapshot</h3>
                     <div class="brief-grid">
-                        <div class="brief-field"><div class="brief-field-label">Company</div><strong>${cs.name || 'N/A'}</strong></div>
-                        <div class="brief-field"><div class="brief-field-label">Industry</div>${cs.industry || 'N/A'}</div>
-                        <div class="brief-field"><div class="brief-field-label">Location</div>${cs.location || 'N/A'}</div>
-                        <div class="brief-field"><div class="brief-field-label">Employees</div>${cs.employees || 'N/A'}</div>
+                        <div class="brief-field"><div class="brief-field-label">Company</div><strong>${escapeHtml(cs.name || 'N/A')}</strong></div>
+                        <div class="brief-field"><div class="brief-field-label">Industry</div>${escapeHtml(cs.industry || 'N/A')}</div>
+                        <div class="brief-field"><div class="brief-field-label">Location</div>${escapeHtml(cs.location || 'N/A')}</div>
+                        <div class="brief-field"><div class="brief-field-label">Employees</div>${escapeHtml(cs.employees || 'N/A')}</div>
                     </div>
-                    <p style="margin-top: 1rem; color: var(--text-muted);">${cs.tagline || ''}</p>
+                    <p style="margin-top: 1rem; color: var(--text-muted);">${escapeHtml(cs.tagline || '')}</p>
                 </div>
 
                 <!-- Product Intelligence -->
@@ -2641,35 +2697,35 @@
                             <div class="brief-field-label">Products & Services</div>
                             ${(pi.products || []).map(p => `
                                 <div style="background: var(--surface-2); padding: 0.75rem; border-radius: 6px; margin-top: 0.5rem;">
-                                    <strong>${p.name || p}</strong>
-                                    ${p.category ? `<span class="tag">${p.category}</span>` : ''}
-                                    ${p.description ? `<p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">${p.description}</p>` : ''}
+                                    <strong>${escapeHtml(p.name || String(p))}</strong>
+                                    ${p.category ? `<span class="tag">${escapeHtml(p.category)}</span>` : ''}
+                                    ${p.description ? `<p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">${escapeHtml(p.description)}</p>` : ''}
                                 </div>
                             `).join('')}
                         </div>
                     ` : ''}
                     ${(pi.keyFeatures || []).length ? `
                         <div class="brief-field-label">Key Features</div>
-                        <div>${(pi.keyFeatures || []).map(f => `<span class="tag">${f}</span>`).join('')}</div>
+                        <div>${(pi.keyFeatures || []).map(f => `<span class="tag">${escapeHtml(f)}</span>`).join('')}</div>
                     ` : ''}
                     ${(pi.techStack || []).length ? `
                         <div class="brief-field-label" style="margin-top: 0.75rem;">Tech Stack</div>
-                        <div>${(pi.techStack || []).map(t => `<span class="tag">${t}</span>`).join('')}</div>
+                        <div>${(pi.techStack || []).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}</div>
                     ` : ''}
                 </div>
 
                 <!-- Positioning -->
                 <div class="brief-section">
                     <h3>🎯 Market Positioning</h3>
-                    ${pos.marketTension ? `<div style="margin-bottom: 1rem;"><div class="brief-field-label">Market Tension</div><p>${pos.marketTension}</p></div>` : ''}
-                    ${pos.valueProposition ? `<div style="margin-bottom: 1rem;"><div class="brief-field-label">Value Proposition</div><p style="font-weight: 500;">${pos.valueProposition}</p></div>` : ''}
+                    ${pos.marketTension ? `<div style="margin-bottom: 1rem;"><div class="brief-field-label">Market Tension</div><p>${escapeHtml(pos.marketTension)}</p></div>` : ''}
+                    ${pos.valueProposition ? `<div style="margin-bottom: 1rem;"><div class="brief-field-label">Value Proposition</div><p style="font-weight: 500;">${escapeHtml(pos.valueProposition)}</p></div>` : ''}
                     ${(pos.differentiators || []).length ? `
                         <div class="brief-field-label">Differentiators</div>
-                        <ul style="margin-left: 1rem; margin-bottom: 1rem;">${(pos.differentiators || []).map(d => `<li>${d}</li>`).join('')}</ul>
+                        <ul style="margin-left: 1rem; margin-bottom: 1rem;">${(pos.differentiators || []).map(d => `<li>${escapeHtml(d)}</li>`).join('')}</ul>
                     ` : ''}
                     ${(pos.proofPoints || []).length ? `
                         <div class="brief-field-label">Proof Points</div>
-                        <ul style="margin-left: 1rem;">${(pos.proofPoints || []).map(p => `<li>${p}</li>`).join('')}</ul>
+                        <ul style="margin-left: 1rem;">${(pos.proofPoints || []).map(p => `<li>${escapeHtml(p)}</li>`).join('')}</ul>
                     ` : ''}
                 </div>
 
@@ -2680,17 +2736,17 @@
                         <div class="brief-field-label">Target Personas</div>
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-top: 0.5rem;">
                             ${(icp.primaryProfiles || []).map(p => `
-                                <div class="persona-card ${p.role || 'worker'}">
-                                    <span class="persona-badge ${p.role || 'worker'}">${
+                                <div class="persona-card ${escapeHtml(p.role || 'worker')}">
+                                    <span class="persona-badge ${escapeHtml(p.role || 'worker')}">${
                                         p.role === 'decision_maker' ? '👑 Decision Maker' :
                                         p.role === 'influencer' ? '💡 Influencer' : '🔧 Worker/User'
                                     }</span>
-                                    <div style="font-weight: 500;">${p.title || 'Unknown'}</div>
-                                    <div style="font-size: 0.8rem; color: var(--text-muted);">${p.seniority || ''} • ${p.department || ''}</div>
+                                    <div style="font-weight: 500;">${escapeHtml(p.title || 'Unknown')}</div>
+                                    <div style="font-size: 0.8rem; color: var(--text-muted);">${escapeHtml(p.seniority || '')} • ${escapeHtml(p.department || '')}</div>
                                     ${(p.painPoints || []).length ? `
                                         <div style="margin-top: 0.5rem; font-size: 0.75rem;">
                                             <strong>Pain Points:</strong>
-                                            <ul style="margin: 0.25rem 0 0 1rem;">${(p.painPoints || []).slice(0, 3).map(pp => `<li>${pp}</li>`).join('')}</ul>
+                                            <ul style="margin: 0.25rem 0 0 1rem;">${(p.painPoints || []).slice(0, 3).map(pp => `<li>${escapeHtml(pp)}</li>`).join('')}</ul>
                                         </div>
                                     ` : ''}
                                 </div>
@@ -2700,8 +2756,8 @@
                     ${icp.companyCharacteristics ? `
                         <div style="margin-top: 1rem;">
                             <div class="brief-field-label">Company Characteristics</div>
-                            <span class="tag">${icp.companyCharacteristics.size || 'Various'}</span>
-                            ${(icp.companyCharacteristics.industries || []).map(i => `<span class="tag">${i}</span>`).join('')}
+                            <span class="tag">${escapeHtml(icp.companyCharacteristics.size || 'Various')}</span>
+                            ${(icp.companyCharacteristics.industries || []).map(i => `<span class="tag">${escapeHtml(i)}</span>`).join('')}
                         </div>
                     ` : ''}
                 </div>
@@ -2712,22 +2768,22 @@
                     ${(ss.suggestedQueries || []).length ? `
                         <div class="brief-field-label">Suggested Search Queries</div>
                         <div class="chips-container" style="margin-bottom: 1rem;">
-                            ${(ss.suggestedQueries || []).map(q => `<span class="chip" onclick="useQuery('${q.replace(/'/g, "\\'")}')">${q}</span>`).join('')}
+                            ${(ss.suggestedQueries || []).map(q => `<span class="chip" onclick="useQuery('${escapeHtml(q).replace(/'/g, "\\'")}')">${escapeHtml(q)}</span>`).join('')}
                         </div>
                     ` : ''}
                     ${(ss.geographies || []).length ? `
                         <div class="brief-field-label">Target Geographies</div>
                         <div class="chips-container" style="margin-bottom: 1rem;">
-                            ${(ss.geographies || []).map(g => `<span class="chip" onclick="useLocation('${g.replace(/'/g, "\\'")}')">${g}</span>`).join('')}
+                            ${(ss.geographies || []).map(g => `<span class="chip" onclick="useLocation('${escapeHtml(g).replace(/'/g, "\\'")}')">${escapeHtml(g)}</span>`).join('')}
                         </div>
                     ` : ''}
                     ${(ss.outreachAngles || []).length ? `
                         <div class="brief-field-label">Outreach Angles</div>
                         ${(ss.outreachAngles || []).map(a => `
                             <div class="outreach-angle">
-                                <h4>${a.angle || a}</h4>
-                                ${a.targetPersona ? `<span class="tag">${a.targetPersona}</span>` : ''}
-                                ${a.keyMessage ? `<p>${a.keyMessage}</p>` : ''}
+                                <h4>${escapeHtml(a.angle || String(a))}</h4>
+                                ${a.targetPersona ? `<span class="tag">${escapeHtml(a.targetPersona)}</span>` : ''}
+                                ${a.keyMessage ? `<p>${escapeHtml(a.keyMessage)}</p>` : ''}
                             </div>
                         `).join('')}
                     ` : ''}
@@ -3064,24 +3120,14 @@
             return 'google_places';
         }
 
+        function toggleEnrich() {
+            const checkbox = document.getElementById('enrichLeads');
+            const toggle = document.getElementById('enrichToggle');
+            checkbox.checked = !checkbox.checked;
+            toggle.classList.toggle('active', checkbox.checked);
+        }
+
         function updateStrategyIndicator() {
-            const strategy = determineStrategy();
-            const enrichCheckbox = document.getElementById('enrichLeads');
-            const enrichLabel = document.getElementById('enrichLabel');
-            const isEnrichable = strategy === 'google_places';
-
-            // Update enrich toggle
-            if (enrichCheckbox) {
-                if (isEnrichable) {
-                    enrichCheckbox.disabled = false;
-                    if (enrichLabel) enrichLabel.textContent = 'Auto-enrich';
-                } else {
-                    enrichCheckbox.disabled = true;
-                    enrichCheckbox.checked = false;
-                    if (enrichLabel) enrichLabel.textContent = 'Search only';
-                }
-            }
-
             updateGeneratedQueries();
         }
 
@@ -3150,6 +3196,12 @@
         // ============================================
 
         async function findProspects() {
+            // Clear any existing poll from a previous search
+            if (pollInterval) {
+                clearInterval(pollInterval);
+                pollInterval = null;
+            }
+
             let what = (document.getElementById('prospectWhat')?.value || '').trim();
             const where = (document.getElementById('prospectWhere')?.value || '').trim();
             const country = (document.getElementById('prospectCountry')?.value || '').trim();
@@ -3216,6 +3268,7 @@
                     });
                     const data = await resp.json();
                     currentJobId = data.job_id;
+                    currentJobEnriched = config.enrich;
                     pollInterval = setInterval(pollStatus, 1000);
                 } catch (e) {
                     console.error('Search failed:', e);
@@ -3225,8 +3278,8 @@
                     document.getElementById('progressContainer').classList.remove('active');
                 }
 
-            } else {
-                // apollo_search, smart_search, maps_url → /api/discover
+            } else if (strategy === 'maps_url') {
+                // Maps URL → /api/discover (synchronous, thin results)
                 const progress = document.getElementById('discoveryProgress');
                 const step = document.getElementById('discoveryStep');
 
@@ -3234,37 +3287,16 @@
                 document.getElementById('discoveryResultsSection').style.display = 'none';
                 progress.style.display = 'block';
 
-                let payload = {};
-
-                if (strategy === 'maps_url') {
-                    const mapsUrl = document.getElementById('mapsUrlInput').value.trim() ||
-                                    (MAPS_URL_PATTERN.test(what) ? what : '');
-                    if (!mapsUrl || !mapsUrl.includes('google.com/maps')) {
-                        alert('Please enter a valid Google Maps URL');
-                        progress.style.display = 'none';
-                        document.getElementById('emptyState').style.display = 'block';
-                        return;
-                    }
-                    payload = { mode: 'maps_url', mapsUrl, location: locationStr, country: country || undefined };
-                    step.textContent = 'Extracting businesses from Maps URL...';
-                } else if (strategy === 'apollo_search') {
-                    const companySize = document.getElementById('companySize').value;
-                    payload = {
-                        mode: 'apollo_search', query: what, queries: [what],
-                        location: locationStr, country: country || undefined,
-                        category: what, industry: what
-                    };
-                    if (companySize) payload.company_size = companySize;
-                    step.textContent = `Searching Apollo for "${what}"...`;
-                } else {
-                    const maxResults = parseInt(document.getElementById('maxLeads').value) || 50;
-                    payload = {
-                        mode: 'smart_search', query: what, queries: [what],
-                        location: locationStr, country: country || undefined,
-                        category: what.split(' ')[0], max_results: maxResults
-                    };
-                    step.textContent = `Smart searching for "${what}"...`;
+                const mapsUrl = document.getElementById('mapsUrlInput').value.trim() ||
+                                (MAPS_URL_PATTERN.test(what) ? what : '');
+                if (!mapsUrl || !mapsUrl.includes('google.com/maps')) {
+                    alert('Please enter a valid Google Maps URL');
+                    progress.style.display = 'none';
+                    document.getElementById('emptyState').style.display = 'block';
+                    return;
                 }
+                const payload = { mode: 'maps_url', mapsUrl, location: locationStr, country: country || undefined };
+                step.textContent = 'Extracting businesses from Maps URL...';
 
                 document.getElementById('searchBtn').disabled = true;
                 selectedProspectIds.clear();
@@ -3282,13 +3314,7 @@
                         document.getElementById('discoveryResultsSection').style.display = 'block';
                         displayDiscoveredProspects(data.prospects);
                         document.getElementById('discoveryCount').textContent = `${data.prospects.length} prospects found`;
-
-                        if (data.fallbackReason) {
-                            step.textContent = `Note: ${data.fallbackReason}. Found ${data.prospects.length} via ${data.source}.`;
-                            setTimeout(() => { progress.style.display = 'none'; }, 3000);
-                        } else {
-                            progress.style.display = 'none';
-                        }
+                        progress.style.display = 'none';
                     } else {
                         progress.style.display = 'none';
                         document.getElementById('emptyState').style.display = 'block';
@@ -3302,6 +3328,60 @@
                     document.getElementById('emptyState').querySelector('p').textContent = e.message || 'Connection error.';
                 } finally {
                     document.getElementById('searchBtn').disabled = false;
+                }
+
+            } else {
+                // apollo_search, smart_search → /api/discover-and-enrich (background job, full enrichment)
+                const titlesRaw = document.getElementById('targetTitles').value.trim();
+                const targetTitles = titlesRaw ? titlesRaw.split(',').map(s => s.trim()).filter(Boolean) : undefined;
+                const companySizeVal = document.getElementById('companySize').value;
+
+                let payload = {
+                    query: what,
+                    queries: buildQueriesFromIntent(),
+                    location: locationStr,
+                    country: country || undefined,
+                    category: what,
+                    industry: what,
+                    max_leads: parseInt(document.getElementById('maxLeads').value) || 50,
+                    max_results: parseInt(document.getElementById('maxLeads').value) || 50,
+                    min_rating: parseFloat(document.getElementById('minRating').value) || 4.0,
+                    positive_signals: document.getElementById('positiveSignals').value.split(',').map(s => s.trim()).filter(Boolean),
+                    negative_signals: document.getElementById('negativeSignals').value.split(',').map(s => s.trim()).filter(Boolean),
+                    exclude_brands: document.getElementById('excludeBrands').value.split(',').map(s => s.trim()).filter(Boolean),
+                    segment: document.getElementById('segment').value,
+                    ...(targetTitles && { target_titles: targetTitles }),
+                };
+
+                if (strategy === 'apollo_search') {
+                    payload.mode = 'apollo_search';
+                    if (companySizeVal) payload.company_size = companySizeVal;
+                } else {
+                    payload.mode = 'smart_search';
+                }
+
+                document.getElementById('searchBtn').disabled = true;
+                document.getElementById('cancelBtn').style.display = 'block';
+                document.getElementById('progressContainer').classList.add('active');
+                document.getElementById('emptyState').style.display = 'none';
+                document.getElementById('discoveryResultsSection').style.display = 'none';
+
+                try {
+                    const resp = await fetch('/api/discover-and-enrich', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    const data = await resp.json();
+                    currentJobId = data.job_id;
+                    currentJobEnriched = true;
+                    pollInterval = setInterval(pollStatus, 1000);
+                } catch (e) {
+                    console.error('Search failed:', e);
+                    alert('Search failed: ' + e.message);
+                    document.getElementById('searchBtn').disabled = false;
+                    document.getElementById('cancelBtn').style.display = 'none';
+                    document.getElementById('progressContainer').classList.remove('active');
                 }
             }
         }
@@ -3454,39 +3534,6 @@
             URL.revokeObjectURL(url);
 
             alert(`Exported ${prospectsToExport.length} prospects to CSV`);
-        }
-
-        function sendToEnrichment() {
-            // Use selected or all prospects
-            const prospects = selectedProspectIds.size > 0
-                ? discoveredProspects.filter(p => selectedProspectIds.has(p.id))
-                : discoveredProspects;
-
-            const domains = prospects
-                .filter(p => p.website)
-                .map(p => {
-                    try {
-                        const url = p.website.startsWith('http') ? p.website : 'https://' + p.website;
-                        return new URL(url).hostname.replace('www.', '');
-                    } catch { return null; }
-                })
-                .filter(d => d);
-
-            if (!domains.length) {
-                alert('No websites found in selected prospects to enrich');
-                return;
-            }
-
-            // Switch to enrichment tab
-            switchTab('enrichment');
-
-            // Fill in the bulk input
-            const uniqueDomains = [...new Set(domains)];
-            document.getElementById('bulkDomains').value = uniqueDomains.join('\n');
-            document.getElementById('bulkCount').textContent = uniqueDomains.length;
-            switchEnrichMode('bulk');
-
-            alert(`Added ${uniqueDomains.length} domains to enrichment. Click "Enrich All" to start.`);
         }
 
         // ============================================
@@ -4036,11 +4083,6 @@
             }
         }
 
-        let queriesSectionOpen = false;
-        function toggleQueriesSection() {
-            // Queries are now always visible inside the Advanced accordion — no-op
-        }
-
         // ============================================================
         // SEARCH SUMMARY + SUGGESTION CHIPS + PLACEHOLDER ROTATION
         // ============================================================
@@ -4137,12 +4179,18 @@
         }
 
         const searchPlaceholders = [
-            "Find shoe stores in Madrid...",
-            "Search for SaaS companies in San Francisco...",
-            "Look for marketing agencies in London...",
-            "Find restaurants in Barcelona...",
-            "Search for fashion boutiques in Milan...",
-            "Look for tech startups in Berlin..."
+            "SaaS startups in Berlin under 50 employees",
+            "Premium yoga studios in Barcelona",
+            "Artisan bakeries in Tokyo with 4.5+ rating",
+            "Marketing agencies in London 11-50 people",
+            "Boutique hotels in Bali",
+            "Dental clinics in Miami with 4+ rating",
+            "Consulting firms in New York 201-1K employees",
+            "Organic food manufacturers in Portland",
+            "Architecture firms in Dubai 51-200 employees",
+            "High-end jewelry stores in Paris",
+            "Fintech companies in Mexico City 11-50 people",
+            "Law firms in Bogota with 5+ reviews",
         ];
         let currentPlaceholderIndex = 0;
 
@@ -4158,7 +4206,8 @@
             }, 300);
         }
 
-        setInterval(rotatePlaceholder, 3000);
+        // Start placeholder rotation (will be managed by switchTab)
+        placeholderInterval = setInterval(rotatePlaceholder, 3000);
 
         // ============================================================
         // DEV PANEL
@@ -4302,10 +4351,10 @@
                 }
 
                 container.innerHTML = data.logs.reverse().map(log => `
-                    <div class="log-entry ${log.level}">
-                        <span class="timestamp">${log.timestamp.split('T')[1].split('.')[0]}</span>
-                        <span class="category">${log.category}</span>
-                        <span class="message">${log.message}</span>
+                    <div class="log-entry ${escapeHtml(log.level)}">
+                        <span class="timestamp">${escapeHtml(log.timestamp.split('T')[1].split('.')[0])}</span>
+                        <span class="category">${escapeHtml(log.category)}</span>
+                        <span class="message">${escapeHtml(log.message)}</span>
                     </div>
                 `).join('');
             } catch (e) {
@@ -4348,9 +4397,6 @@
             }
         }
 
-        // startSearch() is now replaced by findProspects() — kept as alias for backwards compat
-        function startSearch() { findProspects(); }
-
         async function pollStatus() {
             if (!currentJobId) return;
 
@@ -4364,6 +4410,8 @@
 
                 if (status.status === 'completed' || status.status === 'error' || status.status === 'cancelled') {
                     clearInterval(pollInterval);
+                    pollInterval = null;
+                    currentJobId = null;
                     document.getElementById('searchBtn').disabled = false;
                     document.getElementById('cancelBtn').style.display = 'none';
 
@@ -4403,10 +4451,15 @@
             const mediumFit = leads.filter(l => l.fit_score >= 50 && l.fit_score < 70).length;
             const lowFit = leads.filter(l => l.fit_score < 50).length;
 
+            const gradeA = leads.filter(l => l.enrichment_grade === 'A').length;
+            const gradeB = leads.filter(l => l.enrichment_grade === 'B').length;
+
             document.getElementById('totalLeads').textContent = leads.length;
             document.getElementById('highFit').textContent = highFit;
             document.getElementById('mediumFit').textContent = mediumFit;
             document.getElementById('lowFit').textContent = lowFit;
+            document.getElementById('gradeACount').textContent = gradeA;
+            document.getElementById('gradeBCount').textContent = gradeB;
 
             // Build table
             const tbody = document.getElementById('leadsBody');
@@ -4420,10 +4473,17 @@
                 const email = lead.emails_found && lead.emails_found[0];
                 const instagram = lead.social_links && lead.social_links.instagram;
 
+                const grade = lead.enrichment_grade || '-';
+                const gradeClass = grade === 'A' ? 'grade-A' : grade === 'B' ? 'grade-B' : 'grade-C';
+
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>
                         <div class="score-badge ${scoreClass}">${lead.fit_score}</div>
+                    </td>
+                    <td>
+                        <div class="grade-badge ${gradeClass}">${grade}</div>
+                        ${lead.email_count ? `<div class="email-count-badge">${lead.email_count} emails</div>` : ''}
                     </td>
                     <td>
                         <div class="lead-name">${escapeHtml(lead.name)}</div>
@@ -4520,7 +4580,8 @@
 
         function exportCSV() {
             if (currentJobId) {
-                window.location.href = `/api/export/${currentJobId}`;
+                const mode = currentJobEnriched ? 'enriched' : 'prospect';
+                window.location.href = `/api/export/${currentJobId}?mode=${mode}`;
             }
         }
 

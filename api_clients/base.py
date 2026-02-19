@@ -4,8 +4,6 @@ All new API clients should inherit from this class.
 """
 
 import requests
-import time
-from datetime import datetime
 
 
 class BaseAPIClient:

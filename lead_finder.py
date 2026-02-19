@@ -3,20 +3,20 @@ GTM Lead Finder - Main Tool
 Finds and enriches retail partner leads from Google Maps for fashion brands.
 """
 
-import json
-import time
-import re
 import csv
+import json
+import re
+import time
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from pathlib import Path
-from dataclasses import dataclass, field, asdict
-from typing import Optional
-import yaml
+
 import requests
+import yaml
 
 from config import (
-    GOOGLE_PLACES_API_KEY,
     APOLLO_API_KEY,
+    GOOGLE_PLACES_API_KEY,
     HUNTER_API_KEY,
     OUTPUT_DIR,
 )
@@ -25,6 +25,7 @@ from config import (
 @dataclass
 class Lead:
     """Structured lead data"""
+
     # Identifiers
     place_id: str
     google_maps_url: str
@@ -128,22 +129,24 @@ class GooglePlacesClient:
         params = {
             "place_id": place_id,
             "key": self.api_key,
-            "fields": ",".join([
-                "place_id",
-                "name",
-                "formatted_address",
-                "formatted_phone_number",
-                "international_phone_number",
-                "website",
-                "url",
-                "rating",
-                "user_ratings_total",
-                "price_level",
-                "opening_hours",
-                "types",
-                "address_components",
-                "geometry",
-            ])
+            "fields": ",".join(
+                [
+                    "place_id",
+                    "name",
+                    "formatted_address",
+                    "formatted_phone_number",
+                    "international_phone_number",
+                    "website",
+                    "url",
+                    "rating",
+                    "user_ratings_total",
+                    "price_level",
+                    "opening_hours",
+                    "types",
+                    "address_components",
+                    "geometry",
+                ]
+            ),
         }
 
         response = requests.get(url, params=params)
@@ -153,8 +156,9 @@ class GooglePlacesClient:
             return data.get("result", {})
         return {}
 
-    def nearby_search(self, lat: float, lng: float, radius: int = 5000,
-                      keyword: str = None, place_type: str = "store") -> list[dict]:
+    def nearby_search(
+        self, lat: float, lng: float, radius: int = 5000, keyword: str = None, place_type: str = "store"
+    ) -> list[dict]:
         """Search for places near a location"""
         url = f"{self.BASE_URL}/nearbysearch/json"
         params = {
@@ -234,21 +238,19 @@ class ApolloClient:
 class WebsiteScraper:
     """Simple website scraper for contact info and brand lists"""
 
-    EMAIL_PATTERN = re.compile(
-        r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
-    )
+    EMAIL_PATTERN = re.compile(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}")
 
     SOCIAL_PATTERNS = {
-        "instagram": re.compile(r'instagram\.com/([a-zA-Z0-9_.]+)'),
-        "facebook": re.compile(r'facebook\.com/([a-zA-Z0-9_.]+)'),
-        "linkedin": re.compile(r'linkedin\.com/company/([a-zA-Z0-9_-]+)'),
+        "instagram": re.compile(r"instagram\.com/([a-zA-Z0-9_.]+)"),
+        "facebook": re.compile(r"facebook\.com/([a-zA-Z0-9_.]+)"),
+        "linkedin": re.compile(r"linkedin\.com/company/([a-zA-Z0-9_-]+)"),
     }
 
     def __init__(self):
         self.session = requests.Session()
-        self.session.headers.update({
-            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
-        })
+        self.session.headers.update(
+            {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"}
+        )
 
     def scrape(self, url: str) -> dict:
         """
@@ -269,9 +271,9 @@ class WebsiteScraper:
                 f"{url.rstrip('/')}/contact",
                 f"{url.rstrip('/')}/kontakt",  # Polish
                 f"{url.rstrip('/')}/about",
-                f"{url.rstrip('/')}/o-nas",    # Polish: about us
+                f"{url.rstrip('/')}/o-nas",  # Polish: about us
                 f"{url.rstrip('/')}/brands",
-                f"{url.rstrip('/')}/marki",    # Polish: brands
+                f"{url.rstrip('/')}/marki",  # Polish: brands
             ]
 
             all_text = ""
@@ -288,8 +290,7 @@ class WebsiteScraper:
             emails = list(set(self.EMAIL_PATTERN.findall(all_text)))
             # Filter out common non-contact emails
             result["emails"] = [
-                e for e in emails
-                if not any(x in e.lower() for x in ['example', 'test', 'noreply', 'wordpress', 'wix'])
+                e for e in emails if not any(x in e.lower() for x in ["example", "test", "noreply", "wordpress", "wix"])
             ]
 
             # Extract social links
@@ -444,7 +445,7 @@ class GTMLeadFinder:
     """Main orchestrator for the GTM Lead Finding process"""
 
     def __init__(self, brief_path: str):
-        with open(brief_path, 'r') as f:
+        with open(brief_path) as f:
             self.brief = yaml.safe_load(f)
 
         self.google = GooglePlacesClient(GOOGLE_PLACES_API_KEY)
@@ -466,9 +467,9 @@ class GTMLeadFinder:
             enrich: Whether to enrich leads (adds API calls)
             limit: Max leads to process (for testing)
         """
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print(f"GTM Lead Finder - {self.brief['client']['brand_name']}")
-        print(f"{'='*60}\n")
+        print(f"{'=' * 60}\n")
 
         # Step 1: Search Google Maps
         print("STEP 1: Searching Google Maps")
@@ -616,16 +617,17 @@ class GTMLeadFinder:
 
                 # Find decision makers
                 contacts = self.apollo.search_contacts(
-                    domain,
-                    titles=["owner", "founder", "director", "manager", "buyer", "purchasing"]
+                    domain, titles=["owner", "founder", "director", "manager", "buyer", "purchasing"]
                 )
                 for contact in contacts[:3]:  # Top 3
-                    lead.decision_makers.append({
-                        "name": contact.get("name", ""),
-                        "title": contact.get("title", ""),
-                        "email": contact.get("email", ""),
-                        "linkedin": contact.get("linkedin_url", ""),
-                    })
+                    lead.decision_makers.append(
+                        {
+                            "name": contact.get("name", ""),
+                            "title": contact.get("title", ""),
+                            "email": contact.get("email", ""),
+                            "linkedin": contact.get("linkedin_url", ""),
+                        }
+                    )
 
             lead.enriched_at = datetime.now().isoformat()
             time.sleep(0.2)  # Rate limiting
@@ -641,96 +643,100 @@ class GTMLeadFinder:
     def _export_results(self):
         """Export results to CSV and JSON"""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        brand_slug = self.brief['client']['brand_name'].lower().replace(" ", "_")
+        brand_slug = self.brief["client"]["brand_name"].lower().replace(" ", "_")
 
         # Sort by score
-        sorted_leads = sorted(
-            self.leads.values(),
-            key=lambda x: x.fit_score,
-            reverse=True
-        )
+        sorted_leads = sorted(self.leads.values(), key=lambda x: x.fit_score, reverse=True)
 
         # CSV Export (for easy use in spreadsheets)
         csv_path = Path(OUTPUT_DIR) / f"{brand_slug}_leads_{timestamp}.csv"
 
-        with open(csv_path, 'w', newline='', encoding='utf-8') as f:
+        with open(csv_path, "w", newline="", encoding="utf-8") as f:
             writer = csv.writer(f)
-            writer.writerow([
-                "Score", "Name", "City", "Address", "Phone", "Website",
-                "Email", "Rating", "Reviews", "Instagram", "LinkedIn",
-                "Decision Maker", "DM Email", "Fit Reasons", "Google Maps URL"
-            ])
+            writer.writerow(
+                [
+                    "Score",
+                    "Name",
+                    "City",
+                    "Address",
+                    "Phone",
+                    "Website",
+                    "Email",
+                    "Rating",
+                    "Reviews",
+                    "Instagram",
+                    "LinkedIn",
+                    "Decision Maker",
+                    "DM Email",
+                    "Fit Reasons",
+                    "Google Maps URL",
+                ]
+            )
 
             for lead in sorted_leads:
                 dm = lead.decision_makers[0] if lead.decision_makers else {}
-                writer.writerow([
-                    lead.fit_score,
-                    lead.name,
-                    lead.city,
-                    lead.address_full,
-                    lead.phone,
-                    lead.website,
-                    lead.emails_found[0] if lead.emails_found else "",
-                    lead.rating,
-                    lead.reviews_count,
-                    lead.social_links.get("instagram", ""),
-                    lead.linkedin_url,
-                    dm.get("name", ""),
-                    dm.get("email", ""),
-                    "; ".join(lead.fit_reasons),
-                    lead.google_maps_url,
-                ])
+                writer.writerow(
+                    [
+                        lead.fit_score,
+                        lead.name,
+                        lead.city,
+                        lead.address_full,
+                        lead.phone,
+                        lead.website,
+                        lead.emails_found[0] if lead.emails_found else "",
+                        lead.rating,
+                        lead.reviews_count,
+                        lead.social_links.get("instagram", ""),
+                        lead.linkedin_url,
+                        dm.get("name", ""),
+                        dm.get("email", ""),
+                        "; ".join(lead.fit_reasons),
+                        lead.google_maps_url,
+                    ]
+                )
 
         print(f"  CSV: {csv_path}")
 
         # JSON Export (full data)
         json_path = Path(OUTPUT_DIR) / f"{brand_slug}_leads_{timestamp}.json"
 
-        with open(json_path, 'w', encoding='utf-8') as f:
-            json.dump(
-                [asdict(lead) for lead in sorted_leads],
-                f,
-                indent=2,
-                ensure_ascii=False
-            )
+        with open(json_path, "w", encoding="utf-8") as f:
+            json.dump([asdict(lead) for lead in sorted_leads], f, indent=2, ensure_ascii=False)
 
         print(f"  JSON: {json_path}")
 
     def _print_summary(self):
         """Print summary of results"""
-        sorted_leads = sorted(
-            self.leads.values(),
-            key=lambda x: x.fit_score,
-            reverse=True
-        )
+        sorted_leads = sorted(self.leads.values(), key=lambda x: x.fit_score, reverse=True)
 
         high_fit = [l for l in sorted_leads if l.fit_score >= 70]
         medium_fit = [l for l in sorted_leads if 50 <= l.fit_score < 70]
         low_fit = [l for l in sorted_leads if l.fit_score < 50]
 
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print("SUMMARY")
-        print(f"{'='*60}")
+        print(f"{'=' * 60}")
         print(f"Total leads found: {len(self.leads)}")
         print(f"  High fit (70+):   {len(high_fit)}")
         print(f"  Medium fit (50-69): {len(medium_fit)}")
         print(f"  Low fit (<50):    {len(low_fit)}")
 
         if high_fit:
-            print(f"\nTOP 10 LEADS:")
+            print("\nTOP 10 LEADS:")
             print("-" * 60)
             for i, lead in enumerate(high_fit[:10], 1):
                 email = lead.emails_found[0] if lead.emails_found else "No email"
                 print(f"  {i}. [{lead.fit_score}] {lead.name}")
                 print(f"      {lead.city} | {lead.phone} | {email}")
 
-        print(f"\n{'='*60}\n")
+        print(f"\n{'=' * 60}\n")
 
     @staticmethod
     def _extract_domain(url: str) -> str:
         """Extract domain from URL"""
         try:
             from urllib.parse import urlparse
+
             parsed = urlparse(url)
             domain = parsed.netloc or parsed.path
             domain = domain.replace("www.", "")

@@ -16,7 +16,22 @@ python3 app.py
 # Open http://localhost:5001
 ```
 
-There are no tests. No linter is configured. No build step for the frontend.
+No build step for the frontend.
+
+## Linting & Testing
+
+```bash
+# Lint (ruff)
+python3 -m ruff check .          # check for issues
+python3 -m ruff check --fix .    # auto-fix safe issues
+python3 -m ruff format .         # format all Python files
+
+# Tests (pytest, 20 smoke tests)
+python3 -m pytest tests/ -v      # run all tests
+python3 -m pytest tests/test_smoke.py::test_config -v  # run single test
+```
+
+Config lives in `pyproject.toml`. Legacy files (`lead_finder.py`, `config.py`) are excluded from linting.
 
 **Legacy CLI mode** (lead_finder.py via run.py):
 ```bash
@@ -27,24 +42,36 @@ python run.py briefs/client.yaml --no-enrich     # skip enrichment
 
 ## Architecture
 
-### Backend: app.py (monolithic, ~2300 lines)
+### Backend (modular)
 
-Single Flask file organized in sections:
+```
+app.py              (376 lines) — thin Flask route handlers, API key loading
+utils.py            — log_dev (thread-safe), dev_logs, extract_domain, clean_domain, is_business_domain, SKIP_DOMAINS
+models.py           — Lead dataclass (30+ fields)
+scoring.py          — LeadScorer class (0-100 fit_score)
+jobs.py             — JobManager class (thread-safe with Lock, TTL cleanup)
 
-1. **Config & globals** — API key loading from `.env`, `job_status` dict, `dev_logs` list, `log_dev()` function
-2. **Lead dataclass** — 30+ fields covering identity, location, contact, reputation, enrichment, scoring
-3. **API clients** — `GooglePlacesClient`, `ApolloClient`, `FirecrawlClient`, `HunterClient` (all inline)
-4. **Utilities** — `WebsiteScraper`, `LeadScorer`, `extract_domain()`, `is_business_domain()`
-5. **Background jobs** — `run_search()` orchestrates the full pipeline via `threading.Thread`
-6. **Flask routes** — all endpoints
+api_clients/
+  base.py           — BaseAPIClient with _get(), _post(), is_configured, _log()
+  google_places.py  — GooglePlacesClient (query-param auth override)
+  apollo.py         — ApolloClient (search_contacts, search_organizations, enrich_organization)
+  firecrawl.py      — FirecrawlClient (scrape, search)
+  hunter.py         — HunterClient (domain_search, email_finder, email_verifier, email_count)
+  scraper.py        — WebsiteScraper (requests-based, extracts social links + emails)
+  __init__.py       — re-exports all client classes
 
-### Frontend: templates/index.html (~3700 lines)
+services/
+  search.py         — run_search() pipeline: _step_search → _step_details → _step_enrich → _step_score
+  discovery.py      — discover_prospects(), run_web_search(), run_apollo_search(), parse_maps_markdown()
+  enrichment.py     — enrich_company(), enrich_batch(), enrich_contacts(), extract_company_data()
+  brief.py          — generate_brief() via Firecrawl + OpenAI
+  export.py         — export_leads_csv() → BytesIO
+  __init__.py
+```
 
-Single-page vanilla JS app with 4 tabs: **Brief** (AI GTM generation), **Discovery** (prospect search), **Enrichment** (domain enrichment), **Finder** (legacy Places search). Dark theme, no framework, no build step.
+### Frontend: templates/index.html (~4500 lines)
 
-### api_clients/ module (in progress)
-
-`BaseAPIClient` in `api_clients/base.py` — reusable base with `_get()`, `_post()`, `is_configured`, `_log()`. New API integrations should inherit from this instead of being added inline to app.py.
+Single-page vanilla JS app with tabbed UI: **Prospecting** (unified search with auto-routing), **Enrichment** (domain enrichment), **Brief** (AI GTM generation). Dark theme, no framework, no build step.
 
 ## Enrichment Pipeline
 
@@ -52,7 +79,7 @@ Single-page vanilla JS app with 4 tabs: **Brief** (AI GTM generation), **Discove
 Google Places search → Place details → Firecrawl scrape → Apollo org+contacts → Hunter emails → Score → CSV export
 ```
 
-Background jobs use threading with polling (`/api/status/<job_id>` at 1s intervals). Job state lives in the `job_status` global dict.
+Background jobs use `threading.Thread` (daemon=True) with polling (`/api/status/<job_id>` at 1s intervals). Job state managed by `JobManager` in `jobs.py` (thread-safe, auto-expires completed jobs after 1 hour).
 
 ## Key Endpoints
 
@@ -76,9 +103,8 @@ Background jobs use threading with polling (`/api/status/<job_id>` at 1s interva
 
 ## API Client Pattern
 
-Existing clients in app.py all follow this pattern — return `{}` on failure, log via `log_dev(CATEGORY, msg, level)`, guard with `if not self.api_key: return {}`.
+All clients inherit from `BaseAPIClient` (`api_clients/base.py`). Return `{}` on failure, log via `log_dev()`, guard with `if not self.api_key: return {}`.
 
-New clients should use BaseAPIClient:
 ```python
 from api_clients import BaseAPIClient
 
@@ -93,12 +119,34 @@ class NewClient(BaseAPIClient):
         return self._get("/search", params={"q": query})
 ```
 
+Note: GooglePlacesClient and HunterClient override `_get()` to pass API key as a query parameter instead of header.
+
+## Service Layer Pattern
+
+Route handlers in `app.py` are thin — they parse request data, call service functions, and return jsonify'd results. Business logic lives in `services/`.
+
+```python
+# app.py route
+@app.route("/api/search", methods=["POST"])
+def start_search():
+    config = request.json
+    job_id = datetime.now().strftime("%Y%m%d_%H%M%S")
+    thread = threading.Thread(
+        target=search_service.run_search,
+        args=(job_id, config, _api_keys(), job_mgr),
+        daemon=True
+    )
+    thread.start()
+    return jsonify({"job_id": job_id})
+```
+
 ## Dev Logging
 
 ```python
+from utils import log_dev
 log_dev("CATEGORY", "message", "info|success|warning|error")
 ```
-Categories: SEARCH, GOOGLE, APOLLO, FIRECRAWL, HUNTER, ENRICH, CONFIG. Rolling buffer of 500 entries, visible in the UI dev panel.
+Thread-safe (uses `threading.Lock`). Categories: SEARCH, GOOGLE, APOLLO, FIRECRAWL, HUNTER, ENRICH, CONFIG, DISCOVER, BRIEF. Rolling buffer of 500 entries, visible in the UI dev panel.
 
 ## Important Conventions
 
@@ -106,4 +154,6 @@ Categories: SEARCH, GOOGLE, APOLLO, FIRECRAWL, HUNTER, ENRICH, CONFIG. Rolling b
 - **Domain filtering** — `extract_domain()` normalizes URLs; `is_business_domain()` + `SKIP_DOMAINS` set filters out social/platform domains before enrichment.
 - **Scoring** — `LeadScorer` produces 0-100 `fit_score` based on rating, reviews, website presence, emails found, decision makers, and signal keywords. Excluded brands get score 0.
 - **No auth on endpoints** — designed for local/internal use. CORS open to all origins.
-- **API keys** — loaded from `.env` (gitignored). `.env.example` has placeholders. Keys: `GOOGLE_PLACES_API_KEY` (required), `APOLLO_API_KEY`, `HUNTER_API_KEY`, `FIRECRAWL_API_KEY`, `OPENAI_API_KEY`, `INSTANTLY_API_KEY` (all optional). `config.py` is legacy and not used at runtime.
+- **API keys** — loaded from `.env` (gitignored). `.env.example` has placeholders. Keys: `GOOGLE_PLACES_API_KEY` (required), `APOLLO_API_KEY`, `HUNTER_API_KEY`, `FIRECRAWL_API_KEY`, `OPENAI_API_KEY`, `INSTANTLY_API_KEY` (all optional).
+- **XSS prevention** — all dynamic values in `displayFullBrief()` and `refreshDevLogs()` are wrapped with `escapeHtml()`.
+- **Input debouncing** — strategy indicator and search summary updates use `debounce()` (200ms) to avoid excessive DOM updates.

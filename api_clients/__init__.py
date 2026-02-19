@@ -3,4 +3,9 @@ API Clients module for GTM LeadFlow.
 Modular API integrations for lead enrichment and discovery.
 """
 
-from .base import BaseAPIClient
+from .apollo import ApolloClient as ApolloClient
+from .base import BaseAPIClient as BaseAPIClient
+from .firecrawl import FirecrawlClient as FirecrawlClient
+from .google_places import GooglePlacesClient as GooglePlacesClient
+from .hunter import HunterClient as HunterClient
+from .scraper import WebsiteScraper as WebsiteScraper

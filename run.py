@@ -10,33 +10,16 @@ Usage:
 """
 
 import argparse
+
 from lead_finder import GTMLeadFinder
 
 
 def main():
     parser = argparse.ArgumentParser(description="GTM Lead Finder")
-    parser.add_argument(
-        "brief",
-        nargs="?",
-        default="brief_template.yaml",
-        help="Path to client brief YAML file"
-    )
-    parser.add_argument(
-        "--test",
-        action="store_true",
-        help="Test mode - process only 5 leads"
-    )
-    parser.add_argument(
-        "--no-enrich",
-        action="store_true",
-        help="Skip enrichment (faster, less API calls)"
-    )
-    parser.add_argument(
-        "--limit",
-        type=int,
-        default=None,
-        help="Limit number of leads to process"
-    )
+    parser.add_argument("brief", nargs="?", default="brief_template.yaml", help="Path to client brief YAML file")
+    parser.add_argument("--test", action="store_true", help="Test mode - process only 5 leads")
+    parser.add_argument("--no-enrich", action="store_true", help="Skip enrichment (faster, less API calls)")
+    parser.add_argument("--limit", type=int, default=None, help="Limit number of leads to process")
 
     args = parser.parse_args()
 
