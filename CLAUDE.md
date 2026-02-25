@@ -45,8 +45,8 @@ python run.py briefs/client.yaml --no-enrich     # skip enrichment
 ### Backend (modular)
 
 ```
-app.py              (376 lines) — thin Flask route handlers, API key loading
-utils.py            — log_dev (thread-safe), dev_logs, extract_domain, clean_domain, is_business_domain, SKIP_DOMAINS
+app.py              (~418 lines) — thin Flask route handlers, API key loading
+utils.py            — log_dev (thread-safe), dev_logs, extract_domain, clean_domain, clean_markdown_text, is_business_domain, SKIP_DOMAINS
 models.py           — Lead dataclass (30+ fields)
 scoring.py          — LeadScorer class (0-100 fit_score)
 jobs.py             — JobManager class (thread-safe with Lock, TTL cleanup)
@@ -54,7 +54,7 @@ jobs.py             — JobManager class (thread-safe with Lock, TTL cleanup)
 api_clients/
   base.py           — BaseAPIClient with _get(), _post(), is_configured, _log()
   google_places.py  — GooglePlacesClient (query-param auth override)
-  apollo.py         — ApolloClient (search_contacts, search_organizations, enrich_organization)
+  apollo.py         — ApolloClient (search_contacts, search_organizations, enrich_organization, find_person)
   firecrawl.py      — FirecrawlClient (scrape, search)
   hunter.py         — HunterClient (domain_search, email_finder, email_verifier, email_count)
   scraper.py        — WebsiteScraper (requests-based, extracts social links + emails)
@@ -63,7 +63,7 @@ api_clients/
 services/
   search.py         — run_search() pipeline: _step_search → _step_details → _step_enrich → _step_score
   discovery.py      — discover_prospects(), run_web_search(), run_apollo_search(), parse_maps_markdown()
-  enrichment.py     — enrich_company(), enrich_batch(), enrich_contacts(), extract_company_data()
+  enrichment.py     — run_discover_and_enrich() (universal background pipeline), get_socials() (LinkedIn/Twitter lookup), compute_enrichment_signals(), enrich_company(), enrich_batch(), enrich_contacts(), extract_company_data()
   brief.py          — generate_brief() via Firecrawl + OpenAI
   export.py         — export_leads_csv() → BytesIO
   __init__.py
@@ -92,6 +92,8 @@ Background jobs use `threading.Thread` (daemon=True) with polling (`/api/status/
 | `/api/export/<job_id>` | Download CSV |
 | `/api/brief` | AI brief generation (OpenAI + Firecrawl) |
 | `/api/discover` | Smart search / Apollo search / Maps URL scraping |
+| `/api/discover-and-enrich` | Background job: discover + enrich (same output as `/api/search`) |
+| `/api/get-socials` | Find LinkedIn/Twitter URLs for up to 200 people (CSV upload flow) |
 | `/api/enrich` | Single domain enrichment |
 | `/api/enrich-batch` | Batch domain enrichment |
 | `/api/enrich-contacts` | Find decision makers |
@@ -99,6 +101,7 @@ Background jobs use `threading.Thread` (daemon=True) with polling (`/api/status/
 | `/api/hunter/email-finder` | Hunter email finder |
 | `/api/hunter/verify` | Hunter email verification |
 | `/api/dev/logs` | Dev panel log stream |
+| `/api/dev/logs/clear` | Clear dev logs (POST) |
 | `/api/dev/stats` | Enrichment statistics |
 
 ## API Client Pattern
@@ -146,7 +149,7 @@ def start_search():
 from utils import log_dev
 log_dev("CATEGORY", "message", "info|success|warning|error")
 ```
-Thread-safe (uses `threading.Lock`). Categories: SEARCH, GOOGLE, APOLLO, FIRECRAWL, HUNTER, ENRICH, CONFIG, DISCOVER, BRIEF. Rolling buffer of 500 entries, visible in the UI dev panel.
+Thread-safe (uses `threading.Lock`). Categories: SEARCH, GOOGLE, APOLLO, FIRECRAWL, HUNTER, ENRICH, CONFIG, DISCOVER, BRIEF, SOCIALS, SCRAPER. Rolling buffer of 500 entries, visible in the UI dev panel.
 
 ## Important Conventions
 
