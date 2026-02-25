@@ -227,18 +227,22 @@ def _step_enrich(job_id, leads, clients, target_titles, job_mgr):
 
         job_mgr.update(job_id, progress=60 + int((i / total) * 30), step=f"Enriching: {lead.name[:30]}...")
 
-        # If no website from Google Places, try Apollo to find the domain
-        if not lead.website and apollo.is_configured:
+        # If no website from Google Places, use Firecrawl search to find it
+        if not lead.website and scraper.firecrawl and scraper.firecrawl.is_configured:
             try:
-                orgs = apollo.search_organizations(
-                    name=lead.name,
-                    location=lead.city or lead.country or None,
-                    per_page=1,
-                )
-                if orgs and orgs[0].get("website_url"):
-                    lead.website = orgs[0]["website_url"]
-                    lead.domain = extract_domain(lead.website)
-                    log_dev("ENRICH", f"Apollo found website for {lead.name}: {lead.website}", "success")
+                location_hint = lead.city or lead.country or ""
+                query = f'"{lead.name}" {location_hint} official website'.strip()
+                results = scraper.firecrawl.search(query, limit=3)
+                for r in results:
+                    url = r.get("url", "")
+                    if url and not any(
+                        d in url
+                        for d in ["facebook.com", "yelp.com", "tripadvisor.com", "linkedin.com", "google.com"]
+                    ):
+                        lead.website = url
+                        lead.domain = extract_domain(url)
+                        log_dev("ENRICH", f"Firecrawl found website for {lead.name}: {url}", "success")
+                        break
             except Exception:
                 pass
 
