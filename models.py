@@ -17,6 +17,7 @@ class Lead:
     address_full: str = ""
     street: str = ""
     city: str = ""
+    municipality: str = ""
     country: str = ""
     postal_code: str = ""
     lat: float = 0.0

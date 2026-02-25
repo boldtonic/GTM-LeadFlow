@@ -165,12 +165,30 @@ def _step_details(job_id, leads, google, job_mgr):
             lead.google_maps_url = details.get("url", lead.google_maps_url)
             lead.subcategories = details.get("types", [])
 
+            street_number = ""
+            street_name = ""
             for comp in details.get("address_components", []):
                 types = comp.get("types", [])
-                if "locality" in types:
-                    lead.city = comp.get("long_name", "")
+                long = comp.get("long_name", "")
+                if "street_number" in types:
+                    street_number = long
+                elif "route" in types:
+                    street_name = long
+                elif "locality" in types or "postal_town" in types:
+                    if not lead.city:
+                        lead.city = long
+                elif "sublocality" in types or "sublocality_level_1" in types:
+                    if not lead.municipality:
+                        lead.municipality = long
+                elif "administrative_area_level_2" in types:
+                    if not lead.municipality:
+                        lead.municipality = long
+                elif "postal_code" in types:
+                    lead.postal_code = long
                 elif "country" in types:
-                    lead.country = comp.get("long_name", "")
+                    lead.country = long
+            if street_number or street_name:
+                lead.street = f"{street_number} {street_name}".strip()
 
         time.sleep(0.05)
 
@@ -207,11 +225,26 @@ def _step_enrich(job_id, leads, clients, target_titles, job_mgr):
             log_dev("ENRICH", "Enrichment cancelled by user", "warning")
             return
 
+        job_mgr.update(job_id, progress=60 + int((i / total) * 30), step=f"Enriching: {lead.name[:30]}...")
+
+        # If no website from Google Places, try Apollo to find the domain
+        if not lead.website and apollo.is_configured:
+            try:
+                orgs = apollo.search_organizations(
+                    name=lead.name,
+                    location=lead.city or lead.country or None,
+                    per_page=1,
+                )
+                if orgs and orgs[0].get("website_url"):
+                    lead.website = orgs[0]["website_url"]
+                    lead.domain = extract_domain(lead.website)
+                    log_dev("ENRICH", f"Apollo found website for {lead.name}: {lead.website}", "success")
+            except Exception:
+                pass
+
         if not lead.website:
             stats["no_website"] += 1
             continue
-
-        job_mgr.update(job_id, progress=60 + int((i / total) * 30), step=f"Enriching: {lead.name[:30]}...")
 
         domain = extract_domain(lead.website)
         if not domain:
