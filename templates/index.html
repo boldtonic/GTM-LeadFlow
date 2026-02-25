@@ -2022,8 +2022,6 @@
                         <button class="suggestion-chip" onclick="addSuggestionChip('industry', 'Retail')">Retail</button>
                         <button class="suggestion-chip" onclick="addSuggestionChip('industry', 'Restaurant')">Restaurant</button>
                         <button class="suggestion-chip" onclick="addSuggestionChip('industry', 'SaaS')">SaaS</button>
-                        <button class="suggestion-chip" onclick="addSuggestionChip('title', 'Marketing Director')">Marketing Director</button>
-                        <button class="suggestion-chip" onclick="addSuggestionChip('title', 'CEO')">CEO</button>
                         <button class="suggestion-chip" onclick="addSuggestionChip('industry', 'Premium / Luxury')">Premium</button>
                         <button class="suggestion-chip" onclick="addSuggestionChip('industry', 'Hospitality')">Hospitality</button>
                         <button class="suggestion-chip" onclick="addSuggestionChip('size', '51-200')">50-200 employees</button>
@@ -2193,24 +2191,7 @@
                             </div>
                         </details>
 
-                        <!-- 4. Decision Makers -->
-                        <details class="filter-section">
-                            <summary>
-                                <span class="filter-section__icon">&#127919;</span>
-                                Decision Makers
-                                <span class="filter-section__chevron">&#9660;</span>
-                            </summary>
-                            <div class="filter-section__body">
-                                <div class="filter-field">
-                                    <label for="targetTitles">Job Titles</label>
-                                    <input type="text" id="targetTitles" placeholder="CEO, Founder, Marketing Director"
-                                           oninput="debouncedUpdateSummary()">
-                                    <span class="field-hint">Comma-separated titles</span>
-                                </div>
-                            </div>
-                        </details>
-
-                        <!-- 5. Advanced Options -->
+                        <!-- 4. Advanced Options -->
                         <details class="filter-section">
                             <summary>
                                 <span class="filter-section__icon">&#9881;&#65039;</span>
@@ -3432,8 +3413,6 @@
                     return;
                 }
 
-                const titlesRaw = document.getElementById('targetTitles').value.trim();
-                const targetTitles = titlesRaw ? titlesRaw.split(',').map(s => s.trim()).filter(Boolean) : undefined;
                 const companySizeVal = document.getElementById('companySize').value;
                 const companySizeRanges = companySizeVal ? [companySizeVal] : undefined;
 
@@ -3449,7 +3428,6 @@
                     exclude_brands: document.getElementById('excludeBrands').value.split(',').map(s => s.trim()).filter(Boolean),
                     enrich: document.getElementById('enrichLeads').checked,
                     country: country || undefined,
-                    ...(targetTitles && { target_titles: targetTitles }),
                     ...(companySizeRanges && { company_size_ranges: companySizeRanges }),
                 };
 
@@ -3532,8 +3510,6 @@
 
             } else {
                 // apollo_search, smart_search → /api/discover-and-enrich (background job, full enrichment)
-                const titlesRaw = document.getElementById('targetTitles').value.trim();
-                const targetTitles = titlesRaw ? titlesRaw.split(',').map(s => s.trim()).filter(Boolean) : undefined;
                 const companySizeVal = document.getElementById('companySize').value;
 
                 let payload = {
@@ -3550,7 +3526,6 @@
                     negative_signals: document.getElementById('negativeSignals').value.split(',').map(s => s.trim()).filter(Boolean),
                     exclude_brands: document.getElementById('excludeBrands').value.split(',').map(s => s.trim()).filter(Boolean),
                     segment: document.getElementById('segment').value,
-                    ...(targetTitles && { target_titles: targetTitles }),
                 };
 
                 if (strategy === 'apollo_search') {
@@ -4318,42 +4293,42 @@
         const presets = {
             'warsaw-shoes': {
                 country: 'Poland', city: 'Warsaw', businessType: 'shoe store', product: 'women\'s footwear, leather shoes',
-                companySize: '', targetTitles: 'owner, buyer, category manager',
+                companySize: '',
                 positiveSignals: 'boutique, butik, premium, designer, comfortable, leather, skóra, elegant',
                 negativeSignals: 'discount, outlet, sports, sneakers, children, second hand',
                 excludeBrands: 'CCC, Deichmann, Eobuwie, Ryłko, Wojas, Badura'
             },
             'krakow-fashion': {
                 country: 'Poland', city: 'Krakow', businessType: 'fashion boutique', product: 'women\'s clothing, multi-brand',
-                companySize: '', targetTitles: 'owner, buyer, store manager',
+                companySize: '',
                 positiveSignals: 'boutique, butik, premium, designer, multi-brand, elegant',
                 negativeSignals: 'discount, outlet, vintage, second hand',
                 excludeBrands: 'H&M, Zara, Reserved, Mohito'
             },
             'madrid-boutiques': {
                 country: 'Spain', city: 'Madrid', businessType: 'shoe store', product: 'women\'s shoes, designer footwear',
-                companySize: '', targetTitles: 'owner, buyer, director',
+                companySize: '',
                 positiveSignals: 'boutique, premium, diseño, lujo, elegante, piel',
                 negativeSignals: 'outlet, descuento, deportivo, niños',
                 excludeBrands: 'Marypaz, Merkal, Ulanka, Krack'
             },
             'indonesia-food': {
                 country: 'Indonesia', city: 'Jakarta', businessType: 'food manufacturer', product: 'FMCG, snack food, beverages',
-                companySize: '51,200', targetTitles: 'director, VP operations, procurement manager',
+                companySize: '51,200',
                 positiveSignals: 'manufacturing, factory, export, certified, ISO, established',
                 negativeSignals: 'home industry, small scale, restaurant, catering, retail',
                 excludeBrands: 'Indofood, Mayora, Wings, Garuda Food, Orang Tua'
             },
             'usa-saas': {
                 country: 'USA', city: 'San Francisco', businessType: 'software company', product: 'B2B SaaS, enterprise cloud',
-                companySize: '11,50', targetTitles: 'founder, CEO, CTO, VP engineering',
+                companySize: '11,50',
                 positiveSignals: 'SaaS, enterprise, B2B, cloud, funded, growing, series A, series B',
                 negativeSignals: 'consulting, agency, freelance, B2C, gaming, crypto',
                 excludeBrands: 'Salesforce, Microsoft, Google, Amazon, Oracle'
             },
             'barcelona-restaurants': {
                 country: 'Spain', city: 'Barcelona', businessType: 'restaurant', product: 'fine dining, gourmet, mediterranean',
-                companySize: '', targetTitles: 'owner, chef, general manager',
+                companySize: '',
                 positiveSignals: 'gourmet, premium, chef, mediterráneo, terraza, reservas, wine',
                 negativeSignals: 'fast food, franquicia, buffet, turistico, cadena',
                 excludeBrands: 'McDonalds, Burger King, Telepizza, 100 Montaditos, Taco Bell'
@@ -4378,7 +4353,6 @@
                     industrySelect.value = preset.businessType || '';
                 }
                 document.getElementById('companySize').value = preset.companySize || '';
-                document.getElementById('targetTitles').value = preset.targetTitles || '';
 
                 // Fill advanced fields
                 document.getElementById('positiveSignals').value = preset.positiveSignals;
@@ -4513,9 +4487,6 @@
             const size = document.getElementById('companySize')?.value;
             if (size) filters.push({ icon: '\u{1F465}', label: 'Size', value: document.getElementById('companySize').selectedOptions[0]?.text || size, field: 'companySize' });
 
-            const titles = document.getElementById('targetTitles')?.value?.trim();
-            if (titles) filters.push({ icon: '\u{1F3AF}', label: 'Titles', value: titles, field: 'targetTitles' });
-
             const mapsUrl = document.getElementById('mapsUrlInput')?.value?.trim();
             if (mapsUrl) filters.push({ icon: '\u{1F5FA}', label: 'Maps URL', value: 'Imported', field: 'mapsUrlInput' });
 
@@ -4557,13 +4528,6 @@
                         }
                     }
                     const section = sel.closest('details.filter-section');
-                    if (section) section.open = true;
-                }
-            } else if (type === 'title') {
-                const el = document.getElementById('targetTitles');
-                if (el) {
-                    el.value = el.value ? el.value + ', ' + value : value;
-                    const section = el.closest('details.filter-section');
                     if (section) section.open = true;
                 }
             } else if (type === 'size') {
