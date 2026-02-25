@@ -23,7 +23,6 @@ from utils import clean_domain, dev_logs, log_dev
 
 # Load environment variables from .env file
 load_dotenv()
-
 app = Flask(__name__)
 CORS(app)
 
@@ -187,7 +186,7 @@ def export_csv(job_id):
     if not leads:
         return "Not found", 404
 
-    mode = request.args.get("mode", "enriched")
+    mode = request.args.get("mode", "prospect")
     prefix = "prospects" if mode == "prospect" else "leads"
     csv_data = export_service.export_leads_csv(leads, mode=mode)
     return send_file(csv_data, mimetype="text/csv", as_attachment=True, download_name=f"{prefix}_{job_id}.csv")
@@ -234,6 +233,21 @@ def discover_and_enrich():
 
 
 # --- Enrichment ---
+
+
+@app.route("/api/get-socials", methods=["POST"])
+def get_socials():
+    """Find LinkedIn/Twitter URLs for a list of people from a CSV upload.
+    Expects JSON: {people: [{first_name, last_name, title, company}, ...]}
+    """
+    data = request.json
+    people = data.get("people", [])
+    if not people or not isinstance(people, list):
+        return jsonify({"success": False, "error": "people array is required"})
+    if len(people) > 200:
+        return jsonify({"success": False, "error": "Maximum 200 people per request"})
+    result = enrichment_service.get_socials(people, _api_keys())
+    return jsonify(result)
 
 
 @app.route("/api/enrich-contacts", methods=["POST"])

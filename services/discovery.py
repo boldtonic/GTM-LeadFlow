@@ -9,6 +9,45 @@ from datetime import datetime
 from api_clients import ApolloClient, FirecrawlClient
 from utils import log_dev
 
+# ---------------------------------------------------------------------------
+# Junk-result filtering for web search
+# ---------------------------------------------------------------------------
+_JUNK_TITLE_RE = re.compile(
+    r"^\s*(\d+\s+(?:best|top|mejores?)|"
+    r"(?:top|best|las?\s+\d+|los?\s+\d+)\s+\d*|"
+    r"(?:how\s+to|guide|what\s+is|why\s+|when\s+|lista\s+de|ranking\s+|"
+    r"comparison|alternatives?|vs\.?\s|review\s+of|roundup))",
+    re.I,
+)
+_JUNK_URL_RE = re.compile(
+    r"/(blog|article|articles|news|post|posts|guide|guides|ranking|"
+    r"top-\d|best-\d|directory|directories|listicle|resources?|magazine)/",
+    re.I,
+)
+_JUNK_DOMAINS = {
+    "yelp.com", "tripadvisor.com", "yellowpages.com", "facebook.com",
+    "linkedin.com", "wikipedia.org", "indeed.com", "glassdoor.com",
+    "clutch.co", "bark.com", "thumbtack.com", "sortlist.com", "goodfirms.io",
+    "g2.com", "capterra.com", "trustpilot.com", "forbes.com",
+    "entrepreneur.com", "businessinsider.com", "hubspot.com",
+    "hootsuite.com", "semrush.com", "searchenginejournal.com",
+    "moz.com", "ahrefs.com", "themanifest.com", "upcity.com",
+    "designrush.com",
+}
+
+
+def _is_junk_result(title: str, url: str) -> bool:
+    """Return True if this search result is a listicle/aggregator, not a real business page."""
+    url_lower = url.lower()
+    for d in _JUNK_DOMAINS:
+        if d in url_lower:
+            return True
+    if _JUNK_URL_RE.search(url_lower):
+        return True
+    if _JUNK_TITLE_RE.search(title):
+        return True
+    return False
+
 
 def discover_prospects(data: dict, api_keys: dict) -> dict:
     """Discover prospects using various methods. Returns dict for jsonify."""
@@ -26,11 +65,11 @@ def discover_prospects(data: dict, api_keys: dict) -> dict:
     if not queries and query:
         queries = [query]
     elif not queries and category and location:
+        # Use direct company-page queries — avoid "best/top" phrasing which returns listicles
         queries = [
-            f"{category} companies {location}",
-            f"{category} stores {location}",
-            f"best {category} businesses {location}",
-            f"{category} retailers {location} contact",
+            f"{category} {location} official site",
+            f"{category} company {location} contact",
+            f"{category} {location}",
         ]
 
     firecrawl_key = api_keys.get("firecrawl", "")
@@ -215,7 +254,7 @@ def _discover_smart(queries, category, location, industry, max_results, firecraw
 
 
 def _discover_apollo(queries, category, location, industry, company_size, max_results, firecrawl_key, apollo_key):
-    """Apollo Search with web search fallback."""
+    """Apollo Search. No web-search fallback — avoids returning blog posts/listicles."""
     apollo_result = run_apollo_search(
         category, location, industry, apollo_key, company_size=company_size, per_page=max_results
     )
@@ -228,21 +267,9 @@ def _discover_apollo(queries, category, location, industry, company_size, max_re
             "source": "apollo",
         }
 
-    # Fallback to web search
-    if firecrawl_key and queries:
-        log_dev("DISCOVER", f"Apollo failed: {apollo_result.get('error')}. Falling back to web search.", "info")
-        web_prospects = run_web_search(queries, category, location, firecrawl_key)
-        unique_prospects = deduplicate_prospects(web_prospects)
-        return {
-            "success": True,
-            "prospects": unique_prospects,
-            "totalFound": len(unique_prospects),
-            "queriesUsed": queries[:3],
-            "source": "web_search_fallback",
-            "fallbackReason": apollo_result.get("error"),
-        }
-
-    return {"success": False, "error": apollo_result.get("error", "Apollo search failed")}
+    error = apollo_result.get("error", "Apollo returned no results")
+    log_dev("DISCOVER", f"Apollo search returned nothing: {error}", "warning")
+    return {"success": True, "prospects": [], "totalFound": 0, "source": "apollo", "fallbackReason": error}
 
 
 def run_web_search(search_queries: list, category: str, location: str, firecrawl_key: str) -> list:
@@ -264,21 +291,15 @@ def run_web_search(search_queries: list, category: str, location: str, firecrawl
                 url = result.get("url", "")
                 markdown = result.get("markdown", "")
 
-                name_match = re.match(r"^([^-–|]+)", title)
+                # Skip blog posts, aggregator lists, directories
+                if _is_junk_result(title, url):
+                    log_dev("DISCOVER", f"Skipping junk: {title[:50]}", "info")
+                    continue
+
+                name_match = re.match(r"^([^-–|·•]+)", title)
                 name = name_match.group(1).strip() if name_match else title.split(" - ")[0]
 
                 if not name or len(name) < 2 or len(name) > 100:
-                    continue
-
-                skip_domains = [
-                    "wikipedia.org",
-                    "facebook.com",
-                    "linkedin.com/company",
-                    "yelp.com",
-                    "tripadvisor.com",
-                    "yellowpages.com",
-                ]
-                if any(d in url for d in skip_domains):
                     continue
 
                 rating_match = re.search(r"(\d\.?\d?)\s*(?:stars?|rating|★)", markdown, re.I)

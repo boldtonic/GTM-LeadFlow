@@ -36,63 +36,82 @@ def export_leads_csv(leads: list, mode: str = "enriched") -> io.BytesIO:
 
 
 def _write_prospect_csv(writer, leads):
-    """Company-level CSV for review. One row per company."""
+    """Company-level CSV. One row per company, includes primary email + first decision maker."""
     writer.writerow(
         [
-            "enrichment_grade",
+            "fit_score",
             "company_name",
-            "domain",
-            "website",
-            "category",
-            "industry",
             "city",
             "country",
             "address",
             "phone",
+            "website",
+            "email",
             "rating",
             "reviews",
-            "company_size",
-            "estimated_revenue",
+            "instagram",
             "linkedin_url",
-            "founded_year",
-            "email_count",
-            "has_website",
-            "fit_score",
+            "decision_maker",
+            "dm_email",
             "fit_reasons",
             "google_maps_url",
-            "source",
+            # Extended fields
+            "domain",
+            "category",
+            "industry",
+            "company_size",
+            "estimated_revenue",
+            "founded_year",
+            "facebook",
+            "twitter",
+            "enrichment_grade",
             "source_query",
-            "discovered_at",
         ]
     )
 
     for lead in leads:
+        social = lead.get("social_links", {})
+        dms = lead.get("decision_makers", [])
+        emails = lead.get("emails_found", [])
+
+        # Primary email: prefer one from a decision maker
+        dm_emails = {dm.get("email", "").lower() for dm in dms if dm.get("email")}
+        primary_email = next((e for e in emails if e.lower() in dm_emails), emails[0] if emails else "")
+
+        # First decision maker
+        dm = dms[0] if dms else {}
+        dm_name = dm.get("name", "")
+        dm_email = dm.get("email", "") or primary_email
+
         writer.writerow(
             [
-                lead.get("enrichment_grade", ""),
+                lead.get("fit_score", 0),
                 lead.get("name", ""),
-                _resolve_domain(lead),
-                lead.get("website", ""),
-                lead.get("category", ""),
-                lead.get("industry", ""),
                 lead.get("city", ""),
                 lead.get("country", ""),
                 lead.get("address_full", ""),
                 lead.get("phone", ""),
+                lead.get("website", ""),
+                primary_email,
                 lead.get("rating", 0),
                 lead.get("reviews_count", 0),
-                lead.get("company_size", ""),
-                lead.get("estimated_revenue", ""),
-                lead.get("linkedin_url", ""),
-                lead.get("founded_year", ""),
-                lead.get("email_count", 0),
-                lead.get("has_website", False),
-                lead.get("fit_score", 0),
+                social.get("instagram", ""),
+                lead.get("linkedin_url", "") or social.get("linkedin", ""),
+                dm_name,
+                dm_email,
                 "; ".join(lead.get("fit_reasons", [])),
                 lead.get("google_maps_url", ""),
-                lead.get("source", ""),
+                # Extended
+                _resolve_domain(lead),
+                lead.get("category", ""),
+                lead.get("industry", ""),
+                lead.get("company_size", ""),
+                lead.get("estimated_revenue", ""),
+                lead.get("founded_year", ""),
+                social.get("facebook", ""),
+                social.get("twitter", ""),
+                lead.get("enrichment_grade", ""),
                 lead.get("source_query", ""),
-                lead.get("scraped_at", ""),
             ]
         )
 

@@ -338,9 +338,18 @@
             padding: 0;
         }
 
+        /* --- Left column wrapper (filter card + progress stacked) --- */
+        .finder-left-col {
+            flex: 3;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            min-width: 0;
+            align-self: flex-start;
+        }
+
         /* --- Left column (search + chips + accordion) --- */
         .finder-left {
-            flex: 3;
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: 12px;
@@ -769,6 +778,9 @@
             .finder-form {
                 flex-direction: column;
             }
+            .finder-left-col {
+                align-self: auto;
+            }
             .finder-right {
                 position: static;
                 align-self: auto;
@@ -885,9 +897,8 @@
 
         /* Progress */
         .progress-container {
-            margin: 1.5rem 0;
-            padding: 1.25rem;
-            background: var(--surface-2);
+            padding: 1rem 1.25rem;
+            background: var(--surface);
             border-radius: 12px;
             border: 1px solid var(--border);
             display: none;
@@ -898,37 +909,73 @@
         }
 
         .progress-bar {
-            height: 6px;
-            background: var(--surface);
-            border-radius: 3px;
+            height: 4px;
+            background: var(--surface-2);
+            border-radius: 2px;
             overflow: hidden;
             margin-bottom: 0.75rem;
         }
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, var(--accent), #818cf8);
-            transition: width 0.3s ease;
+            background: linear-gradient(90deg, #f97316, #fb923c, #fbbf24);
+            transition: width 0.4s ease;
             width: 0%;
-            border-radius: 3px;
+            border-radius: 2px;
         }
 
-        .progress-text {
-            font-size: 0.875rem;
-            color: var(--text);
+        .progress-content {
             display: flex;
             align-items: center;
             gap: 0.5rem;
         }
 
-        .progress-text::before {
-            content: '';
-            width: 14px;
-            height: 14px;
-            border: 2px solid var(--border);
-            border-top-color: var(--accent);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+        .flame-icon {
+            font-size: 1.1rem;
+            display: inline-block;
+            animation: flame-pulse 0.7s ease-in-out infinite alternate;
+            flex-shrink: 0;
+        }
+
+        .progress-message {
+            font-size: 0.825rem;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+            color: #f97316;
+            letter-spacing: 0.02em;
+            flex: 1;
+        }
+
+        .progress-message.flame-type-in {
+            animation: flame-type-in 0.25s ease forwards;
+        }
+
+        .progress-pct {
+            font-size: 0.75rem;
+            font-family: monospace;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        .progress-detail {
+            margin-top: 0.35rem;
+            padding-left: 1.7rem;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-family: monospace;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        @keyframes flame-pulse {
+            from { transform: scale(1) rotate(-6deg); }
+            to   { transform: scale(1.25) rotate(6deg); }
+        }
+
+        @keyframes flame-type-in {
+            from { opacity: 0; transform: translateY(-3px); }
+            to   { opacity: 1; transform: none; }
         }
 
         /* Results Panel */
@@ -1089,7 +1136,31 @@
         .lead-address {
             font-size: 0.75rem;
             color: var(--text-muted);
-            margin-top: 0.25rem;
+        }
+
+        .cell-link {
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.8rem;
+            word-break: break-all;
+            display: block;
+        }
+
+        .cell-link:hover {
+            text-decoration: underline;
+        }
+
+        .cell-social {
+            color: var(--text-muted);
+        }
+
+        .cell-social:hover {
+            color: var(--text);
+        }
+
+        .cell-empty {
+            color: var(--text-muted);
+            font-size: 0.85rem;
         }
 
         .domain-badge {
@@ -1934,6 +2005,7 @@
             <div class="finder-form">
 
                 <!-- LEFT COLUMN -->
+                <div class="finder-left-col">
                 <div class="finder-left">
 
                     <!-- Compact search input -->
@@ -2227,6 +2299,21 @@
                     </div><!-- end filter-accordion -->
                 </div><!-- end finder-left -->
 
+                <!-- Progress indicator (below filter card) -->
+                <div class="progress-container" id="progressContainer">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="progress-content">
+                        <span class="flame-icon">🔥</span>
+                        <span class="progress-message" id="progressMessage">Catching addresses</span>
+                        <span class="progress-pct" id="progressPct">0%</span>
+                    </div>
+                    <div class="progress-detail" id="progressText"></div>
+                </div>
+
+                </div><!-- end finder-left-col -->
+
                 <!-- RIGHT COLUMN -->
                 <div class="finder-right">
                     <div class="search-summary">
@@ -2291,14 +2378,6 @@
                     </div>
                 </div>
 
-                <!-- Progress indicator -->
-                <div class="progress-container" id="progressContainer">
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progressFill"></div>
-                    </div>
-                    <div class="progress-text" id="progressText">Initializing...</div>
-                </div>
-
                 <div class="stats-grid" id="statsGrid" style="display: none;">
                     <div class="stat-card">
                         <div class="stat-value" id="totalLeads">0</div>
@@ -2332,13 +2411,14 @@
                         <thead>
                             <tr>
                                 <th>Score</th>
-                                <th>Grade</th>
                                 <th>Business</th>
-                                <th>Location</th>
-                                <th>Contact</th>
-                                <th>Rating</th>
-                                <th>Decision Maker</th>
-                                <th>Actions</th>
+                                <th>Address</th>
+                                <th>City</th>
+                                <th>Phone</th>
+                                <th>Email</th>
+                                <th>Website</th>
+                                <th>Facebook</th>
+                                <th>Instagram</th>
                             </tr>
                         </thead>
                         <tbody id="leadsBody">
@@ -2477,49 +2557,94 @@
             <div class="main-grid">
                 <div class="form-panel">
                     <div class="form-section">
-                        <h3>✨ Enrich Leads</h3>
-                        <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">
-                            Enter company domains to enrich with data from the web
-                        </p>
+                        <h3>✨ Enrich</h3>
 
-                        <!-- Input Mode Tabs -->
-                        <div class="enrich-tabs" style="display: flex; gap: 0.25rem; margin-bottom: 1rem;">
-                            <button class="enrich-tab active" onclick="switchEnrichMode('single')" id="enrichTabSingle">
-                                🌐 Single
+                        <!-- Two intent-based tabs -->
+                        <div class="enrich-tabs" style="display: flex; gap: 0.25rem; margin-bottom: 1.25rem;">
+                            <button class="enrich-tab active" onclick="switchEnrichMode('company')" id="enrichTabCompany">
+                                🏢 Company Enrichment
                             </button>
-                            <button class="enrich-tab" onclick="switchEnrichMode('bulk')" id="enrichTabBulk">
-                                📄 Bulk
-                            </button>
-                            <button class="enrich-tab" onclick="switchEnrichMode('csv')" id="enrichTabCsv">
-                                📁 CSV
+                            <button class="enrich-tab" onclick="switchEnrichMode('contacts')" id="enrichTabContacts">
+                                👤 Contact Finder
                             </button>
                         </div>
 
-                        <!-- Single Domain Input -->
-                        <div id="enrichModeSingle">
+                        <!-- Company Enrichment -->
+                        <div id="enrichModeCompany">
+                            <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 0.75rem;">
+                                Enter one or more company domains — we'll surface the company profile, key decision makers, and their verified contact information.
+                            </p>
                             <div style="display: flex; gap: 0.5rem;">
-                                <input type="text" id="singleDomain" placeholder="example.com" style="flex: 1;">
-                                <button class="btn btn-primary" onclick="enrichSingle()" id="enrichSingleBtn" style="width: auto; padding: 0.75rem 1.25rem;">
-                                    Enrich
+                                <input type="text" id="companyDomains" placeholder="acme.com, stripe.com, hubspot.com…" style="flex: 1;">
+                                <button class="btn btn-primary" onclick="enrichCompany()" id="enrichCompanyBtn" style="width: auto; padding: 0.75rem 1.25rem;">
+                                    Enrich →
                                 </button>
+                            </div>
+                            <p style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.4rem;">
+                                Separate multiple domains with commas &nbsp;·&nbsp;
+                                <span style="color: var(--accent); cursor: pointer;" onclick="toggleEnrichCsv()">or upload a CSV file</span>
+                            </p>
+                            <!-- CSV upload (toggled) -->
+                            <div id="enrichCsvUpload" style="display: none; margin-top: 0.75rem;">
+                                <input type="file" id="csvFileInput" accept=".csv" style="display: none;" onchange="handleCsvUpload(event)">
+                                <div class="csv-dropzone" onclick="document.getElementById('csvFileInput').click()">
+                                    <div style="font-size: 1.5rem; margin-bottom: 0.25rem;">📁</div>
+                                    <p style="margin-bottom: 0.25rem; font-size: 0.85rem;">Click to upload a CSV of company domains</p>
+                                    <p style="font-size: 0.72rem; color: var(--text-muted);">Needs a column with domains — e.g. "domain", "website", or "url"</p>
+                                </div>
+                            </div>
+                            <!-- Output hint -->
+                            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: center; margin-top: 0.75rem;">
+                                <span style="font-size: 0.72rem; color: var(--text-muted);">You'll get:</span>
+                                <span class="tag" style="font-size: 0.7rem;">Company profile</span>
+                                <span class="tag" style="font-size: 0.7rem;">Decision makers</span>
+                                <span class="tag" style="font-size: 0.7rem;">Verified emails</span>
+                                <span class="tag" style="font-size: 0.7rem;">LinkedIn profiles</span>
                             </div>
                         </div>
 
-                        <!-- Bulk Domains Input -->
-                        <div id="enrichModeBulk" style="display: none;">
-                            <textarea id="bulkDomains" rows="6" placeholder="Enter one domain per line:&#10;example.com&#10;acme.io&#10;startup.co" style="font-family: monospace; font-size: 0.8rem;"></textarea>
-                            <button class="btn btn-primary" onclick="enrichBulk()" id="enrichBulkBtn" style="width: 100%; margin-top: 0.75rem;">
-                                ✨ Enrich All (<span id="bulkCount">0</span> domains)
-                            </button>
-                        </div>
-
-                        <!-- CSV Upload -->
-                        <div id="enrichModeCsv" style="display: none;">
-                            <input type="file" id="csvFileInput" accept=".csv" style="display: none;" onchange="handleCsvUpload(event)">
-                            <div class="csv-dropzone" onclick="document.getElementById('csvFileInput').click()">
-                                <div style="font-size: 2rem; margin-bottom: 0.5rem;">📁</div>
-                                <p style="margin-bottom: 0.25rem;">Click to upload CSV file</p>
-                                <p style="font-size: 0.75rem; color: var(--text-muted);">CSV should contain a column with company domains</p>
+                        <!-- Contact Finder -->
+                        <div id="enrichModeContacts" style="display: none;">
+                            <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 0.75rem;">
+                                Upload a list of contacts and we'll find their LinkedIn profiles.
+                            </p>
+                            <!-- What you provide / what you get -->
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.75rem; font-size: 0.75rem;">
+                                <div style="background: var(--surface-2); padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border);">
+                                    <div style="font-weight: 600; margin-bottom: 0.35rem; color: var(--text-muted); text-transform: uppercase; font-size: 0.65rem; letter-spacing: 0.05em;">What you provide</div>
+                                    <div>✓ First &amp; Last Name</div>
+                                    <div>✓ Company name</div>
+                                    <div style="color: var(--text-muted);">○ Job title (optional)</div>
+                                    <div style="color: var(--text-muted);">○ Location (optional)</div>
+                                </div>
+                                <div style="background: var(--surface-2); padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border);">
+                                    <div style="font-weight: 600; margin-bottom: 0.35rem; color: var(--text-muted); text-transform: uppercase; font-size: 0.65rem; letter-spacing: 0.05em;">What you get back</div>
+                                    <div>✓ LinkedIn profile URL</div>
+                                    <div>✓ Status per contact</div>
+                                    <div>✓ Exportable CSV</div>
+                                </div>
+                            </div>
+                            <input type="file" id="socialsFileInput" accept=".csv" style="display: none;" onchange="handleSocialsCSV(event)">
+                            <div class="csv-dropzone" onclick="document.getElementById('socialsFileInput').click()" id="socialsDropzone">
+                                <div style="font-size: 2rem; margin-bottom: 0.5rem;">👤</div>
+                                <p style="margin-bottom: 0.25rem;">Click to upload your contacts CSV</p>
+                                <p style="font-size: 0.75rem; color: var(--text-muted);">Required columns: First Name, Last Name, Company</p>
+                            </div>
+                            <!-- Preview table (shown after CSV parsed) -->
+                            <div id="socialsPreview" style="display: none; margin-top: 0.75rem;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                    <span style="font-size: 0.8rem; color: var(--text-muted);" id="socialsPreviewCount"></span>
+                                    <button class="btn btn-secondary" onclick="document.getElementById('socialsFileInput').click()" style="width: auto; padding: 0.3rem 0.6rem; font-size: 0.75rem;">Change file</button>
+                                </div>
+                                <div style="overflow-x: auto; max-height: 180px; border: 1px solid var(--border); border-radius: 6px;">
+                                    <table style="width: 100%; font-size: 0.75rem; border-collapse: collapse;" id="socialsPreviewTable">
+                                        <thead id="socialsPreviewHead"></thead>
+                                        <tbody id="socialsPreviewBody"></tbody>
+                                    </table>
+                                </div>
+                                <button class="btn btn-primary" onclick="runGetSocials()" id="runSocialsBtn" style="width: 100%; margin-top: 0.75rem;">
+                                    🔍 Find LinkedIn Profiles
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -2550,6 +2675,43 @@
                         <h3>No leads yet</h3>
                         <p>Enter company domains or upload a CSV to start enriching your leads with data from the web.</p>
                     </div>
+
+                    <!-- Socials Results (shown only in Get Socials mode) -->
+                    <div id="socialsResults" style="display: none;">
+                        <div class="empty-state" id="socialsEmpty">
+                            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔗</div>
+                            <h3>No results yet</h3>
+                            <p>Upload a CSV and click "Find LinkedIn Profiles" to get started.</p>
+                        </div>
+                        <div id="socialsResultsTable" style="display: none;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                                <span id="socialsResultsCount" style="font-size: 0.875rem; color: var(--text-muted);"></span>
+                                <button class="btn btn-secondary" onclick="exportSocialsCSV()" id="exportSocialsBtn" style="display: none; width: auto; padding: 0.4rem 0.75rem; font-size: 0.8rem;">
+                                    📥 Export CSV
+                                </button>
+                            </div>
+                            <div id="socialsLoadingBar" style="display: none; margin-bottom: 0.75rem;">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="socialsProgressFill" style="width: 0%; transition: width 0.3s;"></div>
+                                </div>
+                                <p id="socialsProgressText" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.4rem;">Searching...</p>
+                            </div>
+                            <div style="overflow-x: auto;">
+                                <table style="width: 100%; font-size: 0.8rem; border-collapse: collapse;" id="socialsTable">
+                                    <thead id="socialsTableHead">
+                                        <tr style="border-bottom: 1px solid var(--border); text-align: left;">
+                                            <th style="padding: 0.5rem 0.75rem; color: var(--text-muted); font-weight: 500;">Name</th>
+                                            <th style="padding: 0.5rem 0.75rem; color: var(--text-muted); font-weight: 500;">Title</th>
+                                            <th style="padding: 0.5rem 0.75rem; color: var(--text-muted); font-weight: 500;">Company</th>
+                                            <th style="padding: 0.5rem 0.75rem; color: var(--text-muted); font-weight: 500;">LinkedIn URL</th>
+                                            <th style="padding: 0.5rem 0.75rem; color: var(--text-muted); font-weight: 500;">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="socialsTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div><!-- End tab-enrichment -->
@@ -2560,6 +2722,45 @@
         let currentJobId = null;
         let currentJobEnriched = false;
         let pollInterval = null;
+
+        // --- Flame loading messages ---
+        const FLAME_MESSAGES = [
+            'Catching addresses',
+            'Hunting locations',
+            'Fishing for emails',
+            'Scanning websites',
+            'Tracking down phones',
+            'Mining Instagram',
+            'Crawling the web',
+            'Decoding contacts',
+            'Locking targets',
+            'Extracting signals',
+            'Burning through data',
+        ];
+        let _flameInterval = null;
+        let _flameIdx = 0;
+
+        function startFlameMessages() {
+            _flameIdx = Math.floor(Math.random() * FLAME_MESSAGES.length);
+            _setFlameMessage(FLAME_MESSAGES[_flameIdx]);
+            _flameInterval = setInterval(() => {
+                _flameIdx = (_flameIdx + 1) % FLAME_MESSAGES.length;
+                _setFlameMessage(FLAME_MESSAGES[_flameIdx]);
+            }, 2200);
+        }
+
+        function stopFlameMessages() {
+            if (_flameInterval) { clearInterval(_flameInterval); _flameInterval = null; }
+        }
+
+        function _setFlameMessage(text) {
+            const el = document.getElementById('progressMessage');
+            if (!el) return;
+            el.classList.remove('flame-type-in');
+            void el.offsetWidth;
+            el.textContent = text;
+            el.classList.add('flame-type-in');
+        }
         let discoveredProspects = [];
         let enrichedCompanies = [];
         let currentBrief = null;
@@ -3096,27 +3297,24 @@
                 return 'maps_url';
             }
 
-            // 2. B2B keywords or company size filter → Apollo (if available)
-            if ((B2B_KEYWORDS.test(what) || companySize) && config.apollo) {
-                return 'apollo_search';
-            }
-
-            // 3. Physical/local keywords + any location → Google Places
-            if (PHYSICAL_KEYWORDS.test(what) && hasLocation) {
-                return 'google_places';
-            }
-
-            // 4. Has any location (city or country) → Google Places
+            // 2. Location provided → ALWAYS Google Places (reliable, clean business results)
+            //    This intentionally overrides B2B detection — Google Places handles agencies,
+            //    consultancies, software companies etc. just as well as physical businesses.
             if (hasLocation) {
                 return 'google_places';
             }
 
-            // 5. Broad/vague query, no location → Smart Search
-            if (what && !hasLocation) {
+            // 3. No location + B2B/size filter + Apollo configured → Apollo search
+            if ((B2B_KEYWORDS.test(what) || companySize) && config.apollo) {
+                return 'apollo_search';
+            }
+
+            // 4. Broad query, no location → Smart Search (last resort)
+            if (what) {
                 return 'smart_search';
             }
 
-            // 6. Fallback → Google Places
+            // 5. Fallback → Google Places
             return 'google_places';
         }
 
@@ -3258,6 +3456,7 @@
                 document.getElementById('searchBtn').disabled = true;
                 document.getElementById('cancelBtn').style.display = 'block';
                 document.getElementById('progressContainer').classList.add('active');
+                startFlameMessages();
                 document.getElementById('emptyState').style.display = 'none';
 
                 try {
@@ -3275,6 +3474,7 @@
                     alert('Search failed: ' + e.message);
                     document.getElementById('searchBtn').disabled = false;
                     document.getElementById('cancelBtn').style.display = 'none';
+                    stopFlameMessages();
                     document.getElementById('progressContainer').classList.remove('active');
                 }
 
@@ -3363,6 +3563,7 @@
                 document.getElementById('searchBtn').disabled = true;
                 document.getElementById('cancelBtn').style.display = 'block';
                 document.getElementById('progressContainer').classList.add('active');
+                startFlameMessages();
                 document.getElementById('emptyState').style.display = 'none';
                 document.getElementById('discoveryResultsSection').style.display = 'none';
 
@@ -3381,6 +3582,7 @@
                     alert('Search failed: ' + e.message);
                     document.getElementById('searchBtn').disabled = false;
                     document.getElementById('cancelBtn').style.display = 'none';
+                    stopFlameMessages();
                     document.getElementById('progressContainer').classList.remove('active');
                 }
             }
@@ -3437,10 +3639,9 @@
 
             switchTab('enrichment');
             const uniqueDomains = [...new Set(domains)];
-            document.getElementById('bulkDomains').value = uniqueDomains.join('\n');
-            document.getElementById('bulkCount').textContent = uniqueDomains.length;
-            switchEnrichMode('bulk');
-            alert(`Added ${uniqueDomains.length} domains to enrichment. Click "Enrich All" to start.`);
+            document.getElementById('companyDomains').value = uniqueDomains.join(', ');
+            switchEnrichMode('company');
+            alert(`Added ${uniqueDomains.length} domains to enrichment. Click "Enrich →" to start.`);
         }
 
         function displayDiscoveredProspects(prospects) {
@@ -3542,50 +3743,36 @@
 
         // Switch enrichment input mode
         function switchEnrichMode(mode) {
+            // Normalise legacy mode names from "send to enrichment" callers
+            if (mode === 'single' || mode === 'bulk' || mode === 'csv') mode = 'company';
+            if (mode === 'getSocials') mode = 'contacts';
+
             document.querySelectorAll('.enrich-tab').forEach(t => t.classList.remove('active'));
-            document.getElementById('enrichTab' + mode.charAt(0).toUpperCase() + mode.slice(1)).classList.add('active');
-            document.getElementById('enrichModeSingle').style.display = mode === 'single' ? 'block' : 'none';
-            document.getElementById('enrichModeBulk').style.display = mode === 'bulk' ? 'block' : 'none';
-            document.getElementById('enrichModeCsv').style.display = mode === 'csv' ? 'block' : 'none';
+            const tabEl = document.getElementById('enrichTab' + mode.charAt(0).toUpperCase() + mode.slice(1));
+            if (tabEl) tabEl.classList.add('active');
+
+            document.getElementById('enrichModeCompany').style.display = mode === 'company' ? 'block' : 'none';
+            document.getElementById('enrichModeContacts').style.display = mode === 'contacts' ? 'block' : 'none';
+
+            const isContacts = mode === 'contacts';
+            document.getElementById('enrichResults').style.display = isContacts ? 'none' : '';
+            document.getElementById('socialsResults').style.display = isContacts ? 'block' : 'none';
         }
 
-        // Update bulk count
-        document.addEventListener('DOMContentLoaded', function() {
-            const bulkInput = document.getElementById('bulkDomains');
-            if (bulkInput) {
-                bulkInput.addEventListener('input', function() {
-                    const count = this.value.split('\n').filter(d => d.trim()).length;
-                    document.getElementById('bulkCount').textContent = count;
-                });
-            }
-        });
-
-        // Single domain enrichment
-        async function enrichSingle() {
-            const domain = document.getElementById('singleDomain').value.trim();
-            console.log('enrichSingle called with domain:', domain);
-            if (!domain) {
-                alert('Please enter a domain');
-                return;
-            }
-            await enrichDomains([domain]);
-            document.getElementById('singleDomain').value = '';
+        function toggleEnrichCsv() {
+            const el = document.getElementById('enrichCsvUpload');
+            el.style.display = el.style.display === 'none' ? 'block' : 'none';
         }
 
-        // Bulk domains enrichment
-        async function enrichBulk() {
-            const domains = document.getElementById('bulkDomains').value
-                .split('\n')
-                .map(d => d.trim())
-                .filter(d => d.length > 0);
 
-            if (domains.length === 0) {
-                alert('Please enter at least one domain');
-                return;
-            }
+        // Company enrichment — supports single or comma-separated domains
+        async function enrichCompany() {
+            const raw = document.getElementById('companyDomains').value.trim();
+            if (!raw) { alert('Please enter at least one domain'); return; }
+            const domains = raw.split(',').map(d => d.trim()).filter(d => d.length > 0);
+            if (domains.length === 0) { alert('Please enter at least one domain'); return; }
             await enrichDomains(domains);
-            document.getElementById('bulkDomains').value = '';
-            document.getElementById('bulkCount').textContent = '0';
+            document.getElementById('companyDomains').value = '';
         }
 
         // CSV upload handler
@@ -3622,6 +3809,224 @@
             };
             reader.readAsText(file);
             event.target.value = '';
+        }
+
+        // ============================================================
+        // GET SOCIALS — CSV → LinkedIn URL lookup
+        // ============================================================
+
+        let socialsData = []; // parsed people from CSV
+        let socialsResults = []; // enriched results from API
+        let detectedSocialsColumns = []; // ordered list of field keys found in uploaded CSV
+        const SOCIALS_COL_LABELS = { first_name: 'First Name', last_name: 'Last Name', title: 'Job Title', company: 'Company', location: 'Location' };
+
+        // Column name aliases for auto-detection
+        const SOCIALS_COL_MAP = {
+            first_name:   ['first name', 'firstname', 'first_name', 'given name', 'given_name', 'fname'],
+            last_name:    ['last name', 'lastname', 'last_name', 'surname', 'family name', 'family_name', 'lname'],
+            title:        ['job title', 'title', 'position', 'role', 'job_title'],
+            company:      ['company', 'organization', 'company/organization', 'employer', 'company name', 'org'],
+            location:     ['location', 'company location', 'city', 'country'],
+            linkedin_url: ['linkedin url', 'linkedin_url', 'linkedin', 'profile url', 'profile_url', 'li url', 'li_url'],
+        };
+
+        function detectSocialsColumns(headers) {
+            const mapping = {};
+            headers.forEach((h, idx) => {
+                const hl = h.toLowerCase().trim();
+                for (const [field, aliases] of Object.entries(SOCIALS_COL_MAP)) {
+                    if (!mapping[field] && aliases.some(a => hl === a || hl.includes(a))) {
+                        mapping[field] = idx;
+                    }
+                }
+            });
+            return mapping;
+        }
+
+        function parseCSVLine(line) {
+            // Handle quoted fields (commas inside quotes)
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            for (let i = 0; i < line.length; i++) {
+                const ch = line[i];
+                if (ch === '"') { inQuotes = !inQuotes; }
+                else if (ch === ',' && !inQuotes) { result.push(current); current = ''; }
+                else { current += ch; }
+            }
+            result.push(current);
+            return result.map(v => v.trim().replace(/^"|"$/g, ''));
+        }
+
+        function handleSocialsCSV(event) {
+            const file = event.target.files?.[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const text = e.target?.result || '';
+                const lines = text.split('\n').filter(l => l.trim());
+                if (lines.length < 2) { alert('CSV must have a header row and at least one data row.'); return; }
+
+                const headers = parseCSVLine(lines[0]);
+                const colMap = detectSocialsColumns(headers);
+
+                if (colMap.first_name === undefined && colMap.last_name === undefined) {
+                    alert('Could not detect name columns. Please ensure your CSV has "First Name" and "Last Name" columns.');
+                    return;
+                }
+                if (colMap.company === undefined) {
+                    alert('Could not detect a Company column. Please ensure your CSV has a "Company" or "Organization" column.');
+                    return;
+                }
+
+                detectedSocialsColumns = ['first_name', 'last_name', 'title', 'company', 'location']
+                    .filter(f => colMap[f] !== undefined);
+
+                socialsData = [];
+                for (let i = 1; i < lines.length; i++) {
+                    const cols = parseCSVLine(lines[i]);
+                    const first = colMap.first_name !== undefined ? (cols[colMap.first_name] || '') : '';
+                    const last  = colMap.last_name  !== undefined ? (cols[colMap.last_name]  || '') : '';
+                    if (!first && !last) continue;
+                    socialsData.push({
+                        first_name:   first,
+                        last_name:    last,
+                        title:        colMap.title        !== undefined ? (cols[colMap.title]        || '') : '',
+                        company:      colMap.company      !== undefined ? (cols[colMap.company]      || '') : '',
+                        location:     colMap.location     !== undefined ? (cols[colMap.location]     || '') : '',
+                        linkedin_url: colMap.linkedin_url !== undefined ? (cols[colMap.linkedin_url] || '') : '',
+                    });
+                }
+
+                if (socialsData.length === 0) { alert('No valid rows found in CSV.'); return; }
+
+                // Show preview
+                document.getElementById('socialsPreviewCount').textContent = `${socialsData.length} people loaded`;
+                const thead = document.getElementById('socialsPreviewHead');
+                const tbody = document.getElementById('socialsPreviewBody');
+                const previewCols = ['first_name', 'last_name', 'title', 'company'].filter(f => colMap[f] !== undefined);
+                thead.innerHTML = '<tr>' + previewCols.map(c =>
+                    `<th style="padding:0.4rem 0.6rem;color:var(--text-muted);font-weight:500;white-space:nowrap;">${c.replace('_', ' ')}</th>`
+                ).join('') + '</tr>';
+                tbody.innerHTML = socialsData.slice(0, 5).map(p =>
+                    '<tr style="border-top:1px solid var(--border);">' +
+                    previewCols.map(c => `<td style="padding:0.4rem 0.6rem;white-space:nowrap;">${escapeHtml(p[c])}</td>`).join('') +
+                    '</tr>'
+                ).join('');
+                if (socialsData.length > 5) {
+                    tbody.innerHTML += `<tr><td colspan="${previewCols.length}" style="padding:0.4rem 0.6rem;color:var(--text-muted);font-style:italic;">…and ${socialsData.length - 5} more</td></tr>`;
+                }
+                document.getElementById('socialsPreview').style.display = 'block';
+                document.getElementById('socialsDropzone').style.display = 'none';
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        async function runGetSocials() {
+            if (socialsData.length === 0) { alert('Please upload a CSV first.'); return; }
+
+            const btn = document.getElementById('runSocialsBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ Searching...';
+
+            // Show loading state in results panel
+            document.getElementById('socialsEmpty').style.display = 'none';
+            document.getElementById('socialsResultsTable').style.display = 'block';
+            document.getElementById('socialsLoadingBar').style.display = 'block';
+            document.getElementById('socialsResultsCount').textContent = `Finding profiles for ${socialsData.length} people...`;
+            document.getElementById('socialsProgressFill').style.width = '10%';
+            document.getElementById('socialsProgressText').textContent = 'Scanning profiles and enriching data...';
+            document.getElementById('exportSocialsBtn').style.display = 'none';
+            document.getElementById('socialsTableBody').innerHTML = '';
+
+            // Simulate progress animation while we wait
+            let fakeProgress = 10;
+            const progressInterval = setInterval(() => {
+                if (fakeProgress < 85) {
+                    fakeProgress += Math.random() * 8;
+                    document.getElementById('socialsProgressFill').style.width = Math.min(fakeProgress, 85) + '%';
+                }
+            }, 800);
+
+            try {
+                const resp = await fetch('/api/get-socials', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ people: socialsData }),
+                });
+                const data = await resp.json();
+                clearInterval(progressInterval);
+                document.getElementById('socialsProgressFill').style.width = '100%';
+
+                if (!data.success) {
+                    document.getElementById('socialsProgressText').textContent = 'Error: ' + (data.error || 'Unknown error');
+                } else {
+                    socialsResults = data.results || [];
+                    displaySocialsResults(data);
+                }
+            } catch (err) {
+                clearInterval(progressInterval);
+                document.getElementById('socialsProgressText').textContent = 'Network error: ' + err.message;
+            } finally {
+                document.getElementById('socialsLoadingBar').style.display = 'none';
+                btn.disabled = false;
+                btn.textContent = '🔍 Find LinkedIn Profiles';
+            }
+        }
+
+        function displaySocialsResults(data) {
+            const found = data.found || 0;
+            const total = data.total || 0;
+            document.getElementById('socialsResultsCount').textContent = `${found} of ${total} profiles found`;
+            document.getElementById('exportSocialsBtn').style.display = total > 0 ? 'inline-block' : 'none';
+
+            const thStyle = 'padding:0.5rem 0.75rem;color:var(--text-muted);font-weight:500;white-space:nowrap;';
+            const cols = detectedSocialsColumns.length ? detectedSocialsColumns : ['first_name', 'last_name', 'title', 'company'];
+            document.getElementById('socialsTableHead').innerHTML = '<tr style="border-bottom:1px solid var(--border);text-align:left;">'
+                + cols.map(f => `<th style="${thStyle}">${SOCIALS_COL_LABELS[f] || f}</th>`).join('')
+                + `<th style="${thStyle}">LinkedIn URL</th>`
+                + `<th style="${thStyle}">Status</th>`
+                + '</tr>';
+
+            const tbody = document.getElementById('socialsTableBody');
+            tbody.innerHTML = (data.results || []).map(r => {
+                const dataCells = cols.map(f => `<td style="padding:0.5rem 0.75rem;">${escapeHtml(r[f] || '—')}</td>`).join('');
+                const linkedin = r.linkedin_url
+                    ? `<a href="${escapeHtml(r.linkedin_url)}" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;" title="${escapeHtml(r.linkedin_url)}">
+                           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;margin-right:4px;"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg>${escapeHtml(r.linkedin_url)}</a>`
+                    : '<span style="color:var(--text-muted);">—</span>';
+                const statusBadge = r.linkedin_url
+                    ? `<span class="status-badge enriched">LeadFlow</span>`
+                    : `<span class="status-badge" style="background:rgba(107,114,128,0.2);color:var(--text-muted);">not found</span>`;
+                return `<tr style="border-top:1px solid var(--border);">
+                    ${dataCells}
+                    <td style="padding:0.5rem 0.75rem;">${linkedin}</td>
+                    <td style="padding:0.5rem 0.75rem;">${statusBadge}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        function exportSocialsCSV() {
+            if (socialsResults.length === 0) return;
+            const cols = detectedSocialsColumns.length ? detectedSocialsColumns : ['first_name', 'last_name', 'title', 'company'];
+            const headers = [...cols.map(f => SOCIALS_COL_LABELS[f] || f), 'LinkedIn URL', 'Status'];
+            const rows = socialsResults.map(r => [
+                ...cols.map(f => r[f] || ''),
+                r.linkedin_url || '',
+                r.linkedin_url ? 'LeadFlow' : 'not found',
+            ]);
+            const csvContent = [headers, ...rows]
+                .map(row => row.map(v => `"${(v || '').replace(/"/g, '""')}"`).join(','))
+                .join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `socials_${new Date().toISOString().slice(0, 10)}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
         }
 
         // Generate unique ID
@@ -4406,6 +4811,7 @@
 
                 // Update progress
                 document.getElementById('progressFill').style.width = status.progress + '%';
+                document.getElementById('progressPct').textContent = status.progress + '%';
                 document.getElementById('progressText').textContent = status.step;
 
                 if (status.status === 'completed' || status.status === 'error' || status.status === 'cancelled') {
@@ -4416,17 +4822,21 @@
                     document.getElementById('cancelBtn').style.display = 'none';
 
                     if (status.status === 'completed' && status.leads && status.leads.length > 0) {
+                        stopFlameMessages();
                         displayResults(status.leads);
                     } else if (status.status === 'cancelled') {
+                        stopFlameMessages();
                         document.getElementById('progressContainer').classList.remove('active');
                         document.getElementById('emptyState').style.display = 'block';
                         document.getElementById('emptyState').querySelector('h3').textContent = 'Search cancelled';
                         document.getElementById('emptyState').querySelector('p').textContent = 'The search was cancelled. Click "Find Leads" to start a new search.';
                     } else if (status.status === 'error') {
+                        stopFlameMessages();
                         alert('Search error: ' + status.step);
                         document.getElementById('progressContainer').classList.remove('active');
                         document.getElementById('emptyState').style.display = 'block';
                     } else {
+                        stopFlameMessages();
                         document.getElementById('progressContainer').classList.remove('active');
                         document.getElementById('emptyState').style.display = 'block';
                         document.getElementById('emptyState').querySelector('h3').textContent = 'No results found';
@@ -4441,6 +4851,7 @@
 
         function displayResults(leads) {
             // Hide progress, show results
+            stopFlameMessages();
             document.getElementById('progressContainer').classList.remove('active');
             document.getElementById('statsGrid').style.display = 'grid';
             document.getElementById('resultsTable').style.display = 'block';
@@ -4469,12 +4880,11 @@
                 const scoreClass = lead.fit_score >= 70 ? 'score-high' :
                                    lead.fit_score >= 50 ? 'score-medium' : 'score-low';
 
-                const dm = lead.decision_makers && lead.decision_makers[0];
                 const email = lead.emails_found && lead.emails_found[0];
+                const facebook = lead.social_links && lead.social_links.facebook;
                 const instagram = lead.social_links && lead.social_links.instagram;
-
-                const grade = lead.enrichment_grade || '-';
-                const gradeClass = grade === 'A' ? 'grade-A' : grade === 'B' ? 'grade-B' : 'grade-C';
+                const fbHandle = facebook ? facebook.replace(/.*facebook\.com\//, '').replace(/\/$/, '') : '';
+                const igHandle = instagram ? instagram.replace(/.*instagram\.com\//, '').replace(/\/$/, '') : '';
 
                 const row = document.createElement('tr');
                 row.innerHTML = `
@@ -4482,52 +4892,29 @@
                         <div class="score-badge ${scoreClass}">${lead.fit_score}</div>
                     </td>
                     <td>
-                        <div class="grade-badge ${gradeClass}">${grade}</div>
-                        ${lead.email_count ? `<div class="email-count-badge">${lead.email_count} emails</div>` : ''}
-                    </td>
-                    <td>
                         <div class="lead-name">${escapeHtml(lead.name)}</div>
                         <div class="lead-category">${escapeHtml(lead.category)}</div>
-                        <div class="fit-reasons">
-                            ${lead.fit_reasons.slice(0, 3).map(r => `<span>${escapeHtml(r)}</span>`).join('')}
-                        </div>
                     </td>
                     <td>
-                        <div class="lead-location">
-                            <div class="lead-city">${escapeHtml(lead.city || lead.country || '-')}</div>
-                            <div class="lead-address">${escapeHtml(lead.address_full || '').substring(0, 50)}</div>
-                        </div>
+                        <div class="lead-address">${escapeHtml(lead.address_full || '-')}</div>
                     </td>
                     <td>
-                        <div class="contact-info">
-                            ${lead.domain ? `<span class="domain-badge">@${escapeHtml(lead.domain)}</span>` : ''}
-                            ${lead.phone ? `<a href="tel:${lead.phone}">${escapeHtml(lead.phone)}</a>` : ''}
-                            ${lead.website ? `<a href="${lead.website}" target="_blank">Website</a>` : ''}
-                            ${email ? `<a href="mailto:${email}">${escapeHtml(email)}</a>` : ''}
-                        </div>
-                        <div class="social-links">
-                            ${instagram ? `<a href="https://instagram.com/${instagram}" target="_blank">@${instagram}</a>` : ''}
-                            ${lead.linkedin_url ? `<a href="${lead.linkedin_url}" target="_blank">LinkedIn</a>` : ''}
-                        </div>
+                        <div class="lead-city">${escapeHtml(lead.city || lead.country || '-')}</div>
                     </td>
                     <td>
-                        <div class="rating">
-                            <span class="rating-star">★</span>
-                            ${lead.rating || '-'}
-                        </div>
-                        <div class="reviews">${lead.reviews_count || 0} reviews</div>
+                        ${lead.phone ? `<a class="cell-link" href="tel:${escapeHtml(lead.phone)}">${escapeHtml(lead.phone)}</a>` : '<span class="cell-empty">—</span>'}
                     </td>
                     <td>
-                        ${dm ? `
-                            <div class="dm-info">
-                                <div class="dm-name">${escapeHtml(dm.name || '-')}</div>
-                                <div class="dm-title">${escapeHtml(dm.title || '')}</div>
-                                ${dm.email ? `<a class="dm-email" href="mailto:${dm.email}">${escapeHtml(dm.email)}</a>` : ''}
-                            </div>
-                        ` : '<span style="color: var(--text-muted)">-</span>'}
+                        ${email ? `<a class="cell-link" href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a>` : '<span class="cell-empty">—</span>'}
                     </td>
-                    <td class="actions-cell">
-                        <a href="${lead.google_maps_url}" target="_blank">Maps</a>
+                    <td>
+                        ${lead.website ? `<a class="cell-link" href="${lead.website}" target="_blank">${escapeHtml(lead.domain || lead.website)}</a>` : '<span class="cell-empty">—</span>'}
+                    </td>
+                    <td>
+                        ${facebook ? `<a class="cell-link cell-social" href="${facebook}" target="_blank">${escapeHtml(fbHandle)}</a>` : '<span class="cell-empty">—</span>'}
+                    </td>
+                    <td>
+                        ${instagram ? `<a class="cell-link cell-social" href="${instagram}" target="_blank">@${escapeHtml(igHandle)}</a>` : '<span class="cell-empty">—</span>'}
                     </td>
                 `;
                 tbody.appendChild(row);
@@ -4546,7 +4933,8 @@
 
             try {
                 await fetch(`/api/cancel/${currentJobId}`, { method: 'POST' });
-                document.getElementById('progressText').textContent = 'Cancelling...';
+                _setFlameMessage('Cancelling...');
+                document.getElementById('progressText').textContent = '';
             } catch (e) {
                 console.error('Cancel failed:', e);
             }
@@ -4573,9 +4961,8 @@
             document.querySelectorAll('.nav-tab')[2].classList.add('active');
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.getElementById('tab-enrichment').classList.add('active');
-            switchEnrichMode('bulk');
-            document.getElementById('bulkDomains').value = domains.join('\n');
-            document.getElementById('bulkCount').textContent = domains.length;
+            switchEnrichMode('company');
+            document.getElementById('companyDomains').value = domains.join(', ');
         }
 
         function exportCSV() {
