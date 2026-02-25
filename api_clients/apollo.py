@@ -47,6 +47,22 @@ class ApolloClient(BaseAPIClient):
         data = self._post("/mixed_people/search", payload=payload, timeout=10)
         return data.get("people", []) if data else []
 
+    def find_person(self, first_name: str, last_name: str, company_name: str, title: str = None) -> dict:
+        """Find a specific person by name + company via /people/match. Returns full Apollo record (linkedin_url, etc)."""
+        if not self.is_configured:
+            return {}
+
+        params = {}
+        if first_name:
+            params["first_name"] = first_name
+        if last_name:
+            params["last_name"] = last_name
+        if company_name:
+            params["organization_name"] = company_name
+
+        data = self._post("/people/match", params=params, timeout=10)
+        return data.get("person", {}) if data else {}
+
     def search_organizations(
         self,
         name: str = None,

@@ -62,13 +62,14 @@ class BaseAPIClient:
             self._log(f"GET {path} exception: {str(e)[:80]}", "error")
             return {}
 
-    def _post(self, path: str, payload: dict = None, timeout: int = None) -> dict:
+    def _post(self, path: str, payload: dict = None, params: dict = None, timeout: int = None) -> dict:
         if not self.is_configured:
             return {}
         try:
             response = requests.post(
                 f"{self.BASE_URL}{path}",
                 headers=self.headers,
+                params=params or {},
                 json=payload or {},
                 timeout=timeout or self.DEFAULT_TIMEOUT,
             )

@@ -457,6 +457,90 @@ def _verify_all_emails(lead, hunter, stats):
             log_dev("HUNTER", f"Verify failed for {email}: {str(e)[:50]}", "error")
 
 
+def get_socials(people: list, api_keys: dict) -> dict:
+    """Find LinkedIn (and Twitter) URLs for a list of people.
+
+    Each person dict: {first_name, last_name, title, company}
+    Strategy: Apollo find_person first, then Firecrawl web search as fallback.
+    Returns: {success, results: [...], found, total}
+    """
+    apollo = ApolloClient(api_keys.get("apollo", ""), log_fn=log_dev)
+    firecrawl = FirecrawlClient(api_keys.get("firecrawl", ""), log_fn=log_dev)
+
+    if not apollo.is_configured and not firecrawl.is_configured:
+        return {"success": False, "error": "Apollo or Firecrawl API required to find social profiles"}
+
+    results = []
+    for person in people:
+        first = person.get("first_name", "").strip()
+        last = person.get("last_name", "").strip()
+        company = person.get("company", "").strip()
+        title = person.get("title", "").strip()
+
+        existing_url = person.get("linkedin_url", "").strip()
+        result = {
+            "first_name": first,
+            "last_name": last,
+            "title": title,
+            "company": company,
+            "linkedin_url": existing_url,
+            "twitter_url": "",
+            "source": "csv" if existing_url else "not_found",
+        }
+
+        # If LinkedIn URL already in CSV, skip API lookups
+        if existing_url:
+            log_dev("SOCIALS", f"CSV: using existing LinkedIn URL for {first} {last}", "success")
+            results.append(result)
+            continue
+
+        # Apollo: primary source — has LinkedIn URLs for most B2B professionals
+        if apollo.is_configured and (first or last) and company:
+            try:
+                person_data = apollo.find_person(first, last, company, title or None)
+                if person_data:
+                    result["linkedin_url"] = person_data.get("linkedin_url", "") or ""
+                    result["twitter_url"] = person_data.get("twitter_url", "") or ""
+                    if result["linkedin_url"]:
+                        result["source"] = "apollo"
+                        log_dev("SOCIALS", f"Apollo: found LinkedIn for {first} {last}", "success")
+            except Exception as e:
+                log_dev("SOCIALS", f"Apollo find_person failed for {first} {last}: {str(e)[:60]}", "error")
+
+        # Firecrawl fallback: web search for LinkedIn profile URL
+        if not result["linkedin_url"] and firecrawl.is_configured and (first or last):
+            try:
+                query = f'"{first} {last}" {company} site:linkedin.com/in'
+                search_results = firecrawl.search(query, limit=3)
+                for item in search_results:
+                    url = item.get("url", "")
+                    if "linkedin.com/in/" in url:
+                        result["linkedin_url"] = url.split("?")[0]
+                        result["source"] = "firecrawl"
+                        log_dev("SOCIALS", f"Firecrawl: found LinkedIn for {first} {last}", "success")
+                        break
+                    # Also scan markdown content for linkedin.com/in/ links
+                    markdown = item.get("markdown", "")
+                    li_match = re.search(r"linkedin\.com/in/([a-zA-Z0-9\-_%]+)", markdown)
+                    if li_match:
+                        result["linkedin_url"] = f"https://www.linkedin.com/in/{li_match.group(1)}"
+                        result["source"] = "firecrawl"
+                        log_dev("SOCIALS", f"Firecrawl (markdown): found LinkedIn for {first} {last}", "success")
+                        break
+            except Exception as e:
+                log_dev("SOCIALS", f"Firecrawl search failed for {first} {last}: {str(e)[:60]}", "error")
+
+        if not result["linkedin_url"]:
+            log_dev("SOCIALS", f"No LinkedIn found for {first} {last} ({company})", "warning")
+
+        results.append(result)
+        time.sleep(0.3)  # Be gentle on APIs
+
+    found = sum(1 for r in results if r["linkedin_url"])
+    log_dev("SOCIALS", f"Get Socials complete: {found}/{len(results)} profiles found", "success")
+    return {"success": True, "results": results, "found": found, "total": len(results)}
+
+
 def enrich_company(domain_input: str, api_keys: dict) -> dict:
     """Enrich a single company by domain. Returns dict for jsonify."""
     domain = clean_domain(domain_input)
