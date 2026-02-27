@@ -2428,11 +2428,11 @@
                                 <th>Business</th>
                                 <th>Industry</th>
                                 <th>Address</th>
-                                <th>City</th>
                                 <th>Country</th>
+                                <th>City</th>
+                                <th>Municipality</th>
                                 <th>Website</th>
                                 <th>Social</th>
-                                <th>Municipality</th>
                                 <th>Reviews</th>
                             </tr>
                         </thead>
@@ -4912,19 +4912,19 @@
                         <div class="lead-address">${escapeHtml(lead.address_full || '—')}</div>
                     </td>
                     <td>
+                        <div class="lead-city">${escapeHtml(lead.country || '—')}</div>
+                    </td>
+                    <td>
                         <div class="lead-city">${escapeHtml(lead.city || '—')}</div>
                     </td>
                     <td>
-                        <div class="lead-city">${escapeHtml(lead.country || '—')}</div>
+                        ${lead.municipality ? escapeHtml(lead.municipality) : '<span class="cell-empty">—</span>'}
                     </td>
                     <td>
                         ${lead.website ? `<a class="cell-link" href="${lead.website}" target="_blank">${escapeHtml(lead.domain || lead.website)}</a>` : '<span class="cell-empty">—</span>'}
                     </td>
                     <td>
                         ${socialUrl ? `<a class="cell-link cell-social" href="${socialUrl}" target="_blank">${escapeHtml(socialLabel)}</a>` : '<span class="cell-empty">—</span>'}
-                    </td>
-                    <td>
-                        ${lead.municipality ? escapeHtml(lead.municipality) : '<span class="cell-empty">—</span>'}
                     </td>
                     <td>
                         ${lead.reviews_count ? escapeHtml(String(lead.reviews_count)) : '<span class="cell-empty">—</span>'}
