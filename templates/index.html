@@ -931,10 +931,12 @@
         }
 
         .flame-icon {
-            font-size: 1.1rem;
+            width: 22px;
+            height: 22px;
             display: inline-block;
-            animation: flame-pulse 0.7s ease-in-out infinite alternate;
             flex-shrink: 0;
+            vertical-align: middle;
+            object-fit: contain;
         }
 
         .progress-message {
@@ -2286,7 +2288,7 @@
                         <div class="progress-fill" id="progressFill"></div>
                     </div>
                     <div class="progress-content">
-                        <span class="flame-icon">🔥</span>
+                        <img class="flame-icon" src="https://media.tenor.com/sRL5jAfDjMcAAAAj/flame-lit.gif" alt="🔥">
                         <span class="progress-message" id="progressMessage">Catching addresses</span>
                         <span class="progress-pct" id="progressPct">0%</span>
                     </div>
@@ -2398,8 +2400,8 @@
                                 <th>Phone</th>
                                 <th>Email</th>
                                 <th>Website</th>
-                                <th>Facebook</th>
-                                <th>Instagram</th>
+                                <th id="th-facebook">Facebook</th>
+                                <th id="th-instagram">Instagram</th>
                             </tr>
                         </thead>
                         <tbody id="leadsBody">
@@ -2701,6 +2703,7 @@
 
     <script>
         let currentJobId = null;
+        let lastCompletedJobId = null;
         let currentJobEnriched = false;
         let pollInterval = null;
 
@@ -4781,6 +4784,7 @@
                 if (status.status === 'completed' || status.status === 'error' || status.status === 'cancelled') {
                     clearInterval(pollInterval);
                     pollInterval = null;
+                    if (status.status === 'completed') lastCompletedJobId = currentJobId;
                     currentJobId = null;
                     document.getElementById('searchBtn').disabled = false;
                     document.getElementById('cancelBtn').style.display = 'none';
@@ -4874,15 +4878,25 @@
                     <td>
                         ${lead.website ? `<a class="cell-link" href="${lead.website}" target="_blank">${escapeHtml(lead.domain || lead.website)}</a>` : '<span class="cell-empty">—</span>'}
                     </td>
-                    <td>
+                    <td class="td-facebook">
                         ${facebook ? `<a class="cell-link cell-social" href="${facebook}" target="_blank">${escapeHtml(fbHandle)}</a>` : '<span class="cell-empty">—</span>'}
                     </td>
-                    <td>
+                    <td class="td-instagram">
                         ${instagram ? `<a class="cell-link cell-social" href="${instagram}" target="_blank">@${escapeHtml(igHandle)}</a>` : '<span class="cell-empty">—</span>'}
                     </td>
                 `;
                 tbody.appendChild(row);
             });
+
+            // Hide Facebook/Instagram columns if no leads have those values
+            const hasFacebook = leads.some(l => l.social_links && l.social_links.facebook);
+            const hasInstagram = leads.some(l => l.social_links && l.social_links.instagram);
+            const fbDisplay = hasFacebook ? '' : 'none';
+            const igDisplay = hasInstagram ? '' : 'none';
+            document.getElementById('th-facebook').style.display = fbDisplay;
+            document.getElementById('th-instagram').style.display = igDisplay;
+            document.querySelectorAll('.td-facebook').forEach(td => td.style.display = fbDisplay);
+            document.querySelectorAll('.td-instagram').forEach(td => td.style.display = igDisplay);
         }
 
         function escapeHtml(text) {
@@ -4930,9 +4944,10 @@
         }
 
         function exportCSV() {
-            if (currentJobId) {
+            const jobId = lastCompletedJobId || currentJobId;
+            if (jobId) {
                 const mode = currentJobEnriched ? 'enriched' : 'prospect';
-                window.location.href = `/api/export/${currentJobId}?mode=${mode}`;
+                window.location.href = `/api/export/${jobId}?mode=${mode}`;
             }
         }
 
