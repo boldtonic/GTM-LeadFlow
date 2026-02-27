@@ -185,7 +185,7 @@ def _step_details(job_id, leads, google, job_mgr):
                 elif "locality" in types or "postal_town" in types:
                     if not lead.city:
                         lead.city = long
-                elif "sublocality" in types or "sublocality_level_1" in types:
+                elif any(t in types for t in ("sublocality", "sublocality_level_1", "sublocality_level_2", "neighborhood")):
                     if not lead.municipality:
                         lead.municipality = long
                 elif "administrative_area_level_2" in types:
