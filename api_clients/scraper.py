@@ -50,7 +50,8 @@ class WebsiteScraper:
         if not (self.firecrawl and self.firecrawl.is_configured):
             return {}
         try:
-            fc_result = self.firecrawl.scrape(url)
+            # Full page (not just main content) so footer/header social icons are included
+            fc_result = self.firecrawl.scrape(url, only_main_content=False)
             if not fc_result:
                 return {}
             all_text = fc_result.get("markdown", "") + " " + " ".join(fc_result.get("links", []))
