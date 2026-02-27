@@ -727,47 +727,63 @@
             overflow-y: auto;
             line-height: 1.5;
         }
-        .enrich-toggle {
+        /* --- Enrichment banner --- */
+        .enrichment-banner {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.07) 0%, rgba(15, 10, 5, 0.5) 100%);
+            border: 1px solid rgba(249, 115, 22, 0.22);
+            border-radius: 0.75rem;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.25rem;
             display: flex;
             align-items: center;
-            gap: 0.6rem;
-            padding: 0.55rem 0.9rem;
-            border-radius: 8px;
-            border: 1.5px solid var(--border);
-            background: var(--surface-2);
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .enrichment-banner__text {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.55;
+            flex: 1;
+            min-width: 200px;
+        }
+        .enrichment-banner__text strong { color: var(--text-primary); }
+        .enrichment-banner__btn {
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            color: #fff;
+            border: none;
+            padding: 0.5rem 1.2rem;
+            border-radius: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.25s ease;
-            user-select: none;
-        }
-        .enrich-toggle input[type="checkbox"] { display: none; }
-        .enrich-toggle:hover {
-            border-color: #ca8a04;
-            background: rgba(234, 179, 8, 0.06);
-        }
-        .enrich-toggle.active {
-            border-color: var(--warning);
-            background: rgba(234, 179, 8, 0.10);
-            box-shadow: 0 0 14px rgba(234, 179, 8, 0.12);
-        }
-        .enrich-toggle__icon {
-            font-size: 1.1rem;
-            line-height: 1;
-            filter: grayscale(1) brightness(0.5);
-            transition: filter 0.25s ease, transform 0.25s ease;
-        }
-        .enrich-toggle.active .enrich-toggle__icon {
-            filter: none;
-            transform: scale(1.15);
-        }
-        .enrich-toggle__text {
-            font-size: 0.8rem;
-            font-weight: 500;
-            color: var(--text-muted);
-            transition: color 0.25s ease;
             white-space: nowrap;
+            flex-shrink: 0;
+            transition: opacity 0.2s;
         }
-        .enrich-toggle.active .enrich-toggle__text {
-            color: var(--warning);
+        .enrichment-banner__btn:hover { opacity: 0.88; }
+
+        /* --- Toast --- */
+        .toast {
+            position: fixed;
+            bottom: 1.75rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(1.5rem);
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 0.65rem 1.25rem;
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.45);
+            opacity: 0;
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            z-index: 9999;
+            pointer-events: none;
+        }
+        .toast.visible {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
         }
 
         /* --- Results area --- */
@@ -2344,12 +2360,6 @@
                             </select>
                         </div>
 
-                        <div class="enrich-toggle" id="enrichToggle" style="margin: 0.75rem 0;" onclick="toggleEnrich()">
-                            <input type="checkbox" id="enrichLeads">
-                            <span class="enrich-toggle__icon">&#11088;</span>
-                            <span class="enrich-toggle__text" id="enrichLabel">Auto-enrich leads</span>
-                        </div>
-
                         <button id="searchBtn" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem; padding: 0.75rem;"
                                 onclick="findProspects()">
                             Find Prospects
@@ -2390,6 +2400,16 @@
                             </span>
                         </div>
                     </div>
+                </div>
+
+                <!-- Enrichment upgrade banner — shown once results load -->
+                <div class="enrichment-banner" id="enrichmentBanner" style="display: none;">
+                    <div class="enrichment-banner__text">
+                        🔥 <strong>Ready to dig deeper?</strong> Send your prospects to the Enrichment Kanban to unlock decision makers, verified emails, LinkedIn profiles and more.
+                    </div>
+                    <button class="enrichment-banner__btn" onclick="takeToEnrichment()">
+                        🔥 Take to Enrichment
+                    </button>
                 </div>
 
                 <div class="stats-grid" id="statsGrid" style="display: none;">
@@ -3334,11 +3354,21 @@
             return 'google_places';
         }
 
-        function toggleEnrich() {
-            const checkbox = document.getElementById('enrichLeads');
-            const toggle = document.getElementById('enrichToggle');
-            checkbox.checked = !checkbox.checked;
-            toggle.classList.toggle('active', checkbox.checked);
+        function showToast(msg) {
+            let toast = document.getElementById('globalToast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'globalToast';
+                toast.className = 'toast';
+                document.body.appendChild(toast);
+            }
+            toast.textContent = msg;
+            toast.classList.add('visible');
+            setTimeout(() => toast.classList.remove('visible'), 2800);
+        }
+
+        function takeToEnrichment() {
+            showToast('🔥 Enrichment Kanban coming soon!');
         }
 
         function updateStrategyIndicator() {
@@ -3461,7 +3491,7 @@
                     positive_signals: document.getElementById('positiveSignals').value.split(',').map(s => s.trim()).filter(Boolean),
                     negative_signals: document.getElementById('negativeSignals').value.split(',').map(s => s.trim()).filter(Boolean),
                     exclude_brands: document.getElementById('excludeBrands').value.split(',').map(s => s.trim()).filter(Boolean),
-                    enrich: document.getElementById('enrichLeads').checked,
+                    enrich: false,
                     country: country || undefined,
                     min_reviews: parseInt(document.getElementById('minReviews').value) || 0,
                     has_website: document.getElementById('hasWebsite').value,
@@ -4863,6 +4893,7 @@
             // Hide progress, show results
             stopFlameMessages();
             document.getElementById('progressContainer').classList.remove('active');
+            document.getElementById('enrichmentBanner').style.display = 'flex';
             document.getElementById('statsGrid').style.display = 'grid';
             document.getElementById('resultsTable').style.display = 'block';
             document.getElementById('resultsActions').style.display = 'flex';
