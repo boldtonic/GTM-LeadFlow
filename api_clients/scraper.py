@@ -9,12 +9,28 @@ from .firecrawl import FirecrawlClient
 
 class WebsiteScraper:
     EMAIL_PATTERN = re.compile(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}")
+    # Non-profile paths to exclude from social matches
+    _IG_SKIP = {"p", "reel", "reels", "explore", "stories", "tv", "accounts", "about", "web", "static"}
+    _FB_SKIP = {"sharer", "share", "dialog", "plugins", "tr", "pg", "help", "login", "photo", "video", "events", "groups", "pages"}
+
     SOCIAL_PATTERNS = {
-        "instagram": (re.compile(r"instagram\.com/([a-zA-Z0-9_.]+)"), "https://instagram.com/"),
-        "facebook": (re.compile(r"facebook\.com/([a-zA-Z0-9_.]+)"), "https://facebook.com/"),
+        # Instagram: min 3-char handle, skip utility paths
+        "instagram": (re.compile(r"instagram\.com/([a-zA-Z0-9_.]{3,30})"), "https://instagram.com/"),
+        # Facebook: min 3-char handle, skip utility paths
+        "facebook": (re.compile(r"facebook\.com/([a-zA-Z0-9_.]{3,})"), "https://facebook.com/"),
         "linkedin": (re.compile(r"linkedin\.com/company/([a-zA-Z0-9_-]+)"), "https://linkedin.com/company/"),
-        "twitter": (re.compile(r"(?:twitter|x)\.com/([a-zA-Z0-9_]+)"), "https://twitter.com/"),
+        "twitter": (re.compile(r"(?:twitter|x)\.com/([a-zA-Z0-9_]{2,})"), "https://twitter.com/"),
     }
+
+    @classmethod
+    def _filter_social_match(cls, platform: str, handle: str) -> bool:
+        """Return True if the handle is a valid profile (not a utility path)."""
+        handle_lower = handle.lower().split("?")[0].split(".")[0]
+        if platform == "instagram" and handle_lower in cls._IG_SKIP:
+            return False
+        if platform == "facebook" and handle_lower in cls._FB_SKIP:
+            return False
+        return True
 
     def __init__(self, firecrawl_key: str = None, log_fn=None):
         self.firecrawl = FirecrawlClient(firecrawl_key, log_fn=log_fn) if firecrawl_key else None
@@ -40,9 +56,10 @@ class WebsiteScraper:
             all_text = fc_result.get("markdown", "") + " " + " ".join(fc_result.get("links", []))
             social_links = {}
             for platform, (pattern, base_url) in self.SOCIAL_PATTERNS.items():
-                matches = pattern.findall(all_text)
-                if matches:
-                    social_links[platform] = base_url + matches[0]
+                for handle in pattern.findall(all_text):
+                    if self._filter_social_match(platform, handle):
+                        social_links[platform] = base_url + handle
+                        break
             return social_links
         except Exception as e:
             self._log(f"Social scrape error for {url}: {e}", "warning")
@@ -85,9 +102,10 @@ class WebsiteScraper:
                 # Extract social links
                 all_text = combined_markdown + " " + " ".join(combined_links)
                 for platform, (pattern, base_url) in self.SOCIAL_PATTERNS.items():
-                    matches = pattern.findall(all_text)
-                    if matches:
-                        result["social_links"][platform] = base_url + matches[0]
+                    for handle in pattern.findall(all_text):
+                        if self._filter_social_match(platform, handle):
+                            result["social_links"][platform] = base_url + handle
+                            break
 
                 # Extract description from homepage markdown (first substantial paragraph)
                 first_page_md = combined_markdown.split("\n\n")
@@ -119,9 +137,10 @@ class WebsiteScraper:
             ][:3]
 
             for platform, (pattern, base_url) in self.SOCIAL_PATTERNS.items():
-                matches = pattern.findall(all_text)
-                if matches:
-                    result["social_links"][platform] = base_url + matches[0]
+                for handle in pattern.findall(all_text):
+                    if self._filter_social_match(platform, handle):
+                        result["social_links"][platform] = base_url + handle
+                        break
 
         except Exception as e:
             self._log(f"Scrape error for {url}: {e}", "error")
