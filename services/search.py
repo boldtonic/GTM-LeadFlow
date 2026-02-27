@@ -62,6 +62,12 @@ def run_search(job_id: str, config: dict, api_keys: dict, job_mgr):
         if job_mgr.is_cancelled(job_id):
             return
 
+        # Step 2b: Apply post-details filters (min_reviews, has_website)
+        _step_filter(leads, config)
+        if not leads:
+            job_mgr.update(job_id, status="completed", step="No results matched your filters", progress=100)
+            return
+
         # Step 3: Enrich (or just compute lightweight signals)
         if config.get("enrich", True):
             _step_enrich(job_id, leads, clients, target_titles, job_mgr)
@@ -191,6 +197,30 @@ def _step_details(job_id, leads, google, job_mgr):
                 lead.street = f"{street_number} {street_name}".strip()
 
         time.sleep(0.05)
+
+
+def _step_filter(leads: dict, config: dict):
+    """Remove leads that don't pass post-details filters (min_reviews, has_website)."""
+    min_reviews = int(config.get("min_reviews", 0) or 0)
+    has_website = config.get("has_website", "")  # "yes", "no", or ""
+
+    to_remove = [
+        pid
+        for pid, lead in leads.items()
+        if (min_reviews and lead.reviews_count < min_reviews)
+        or (has_website == "yes" and not lead.website)
+        or (has_website == "no" and lead.website)
+    ]
+    for pid in to_remove:
+        del leads[pid]
+
+    if to_remove:
+        log_dev(
+            "SEARCH",
+            f"Filtered out {len(to_remove)} leads "
+            f"(min_reviews={min_reviews or 'any'}, has_website={has_website or 'any'})",
+            "info",
+        )
 
 
 def _step_enrich(job_id, leads, clients, target_titles, job_mgr):

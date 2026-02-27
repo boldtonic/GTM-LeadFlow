@@ -2193,7 +2193,33 @@
                             </div>
                         </details>
 
-                        <!-- 4. Advanced Options -->
+                        <!-- 4. Quality Filters -->
+                        <details class="filter-section">
+                            <summary>
+                                <span class="filter-section__icon">&#11088;</span>
+                                Quality Filters
+                                <span class="filter-section__chevron">&#9660;</span>
+                            </summary>
+                            <div class="filter-section__body">
+                                <div class="filter-grid-2">
+                                    <div class="filter-field">
+                                        <label for="minReviews">Min Reviews</label>
+                                        <input type="number" id="minReviews" min="0" placeholder="e.g. 10"
+                                               oninput="debouncedUpdateSummary()">
+                                    </div>
+                                    <div class="filter-field">
+                                        <label for="hasWebsite">Has Website</label>
+                                        <select id="hasWebsite" onchange="debouncedUpdateSummary()">
+                                            <option value="">Any</option>
+                                            <option value="yes">Yes</option>
+                                            <option value="no">No</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </details>
+
+                        <!-- 5. Advanced Options -->
                         <details class="filter-section">
                             <summary>
                                 <span class="filter-section__icon">&#9881;&#65039;</span>
@@ -2395,13 +2421,14 @@
                             <tr>
                                 <th>Score</th>
                                 <th>Business</th>
+                                <th>Industry</th>
                                 <th>Address</th>
                                 <th>City</th>
-                                <th>Phone</th>
-                                <th>Email</th>
+                                <th>Country</th>
                                 <th>Website</th>
-                                <th id="th-facebook">Facebook</th>
-                                <th id="th-instagram">Instagram</th>
+                                <th>Social</th>
+                                <th>Reviews</th>
+                                <th>Size</th>
                             </tr>
                         </thead>
                         <tbody id="leadsBody">
@@ -3431,6 +3458,8 @@
                     exclude_brands: document.getElementById('excludeBrands').value.split(',').map(s => s.trim()).filter(Boolean),
                     enrich: document.getElementById('enrichLeads').checked,
                     country: country || undefined,
+                    min_reviews: parseInt(document.getElementById('minReviews').value) || 0,
+                    has_website: document.getElementById('hasWebsite').value,
                     ...(companySizeRanges && { company_size_ranges: companySizeRanges }),
                 };
 
@@ -3529,6 +3558,8 @@
                     negative_signals: document.getElementById('negativeSignals').value.split(',').map(s => s.trim()).filter(Boolean),
                     exclude_brands: document.getElementById('excludeBrands').value.split(',').map(s => s.trim()).filter(Boolean),
                     segment: document.getElementById('segment').value,
+                    min_reviews: parseInt(document.getElementById('minReviews').value) || 0,
+                    has_website: document.getElementById('hasWebsite').value,
                 };
 
                 if (strategy === 'apollo_search') {
@@ -4490,6 +4521,12 @@
             const size = document.getElementById('companySize')?.value;
             if (size) filters.push({ icon: '\u{1F465}', label: 'Size', value: document.getElementById('companySize').selectedOptions[0]?.text || size, field: 'companySize' });
 
+            const minReviews = document.getElementById('minReviews')?.value?.trim();
+            if (minReviews) filters.push({ icon: '\u2B50', label: 'Min Reviews', value: minReviews + '+', field: 'minReviews' });
+
+            const hasWebsite = document.getElementById('hasWebsite')?.value;
+            if (hasWebsite) filters.push({ icon: '\u{1F310}', label: 'Website', value: hasWebsite === 'yes' ? 'Required' : 'None', field: 'hasWebsite' });
+
             const mapsUrl = document.getElementById('mapsUrlInput')?.value?.trim();
             if (mapsUrl) filters.push({ icon: '\u{1F5FA}', label: 'Maps URL', value: 'Imported', field: 'mapsUrlInput' });
 
@@ -4848,11 +4885,11 @@
                 const scoreClass = lead.fit_score >= 70 ? 'score-high' :
                                    lead.fit_score >= 50 ? 'score-medium' : 'score-low';
 
-                const email = lead.emails_found && lead.emails_found[0];
-                const facebook = lead.social_links && lead.social_links.facebook;
-                const instagram = lead.social_links && lead.social_links.instagram;
-                const fbHandle = facebook ? facebook.replace(/.*facebook\.com\//, '').replace(/\/$/, '') : '';
-                const igHandle = instagram ? instagram.replace(/.*instagram\.com\//, '').replace(/\/$/, '') : '';
+                const sl = lead.social_links || {};
+                const socialUrl = sl.linkedin || sl.instagram || sl.facebook || '';
+                const socialLabel = sl.linkedin ? 'LinkedIn'
+                    : sl.instagram ? ('@' + sl.instagram.replace(/.*instagram\.com\//, '').replace(/\/$/, ''))
+                    : sl.facebook ? 'Facebook' : '';
 
                 const row = document.createElement('tr');
                 row.innerHTML = `
@@ -4864,39 +4901,33 @@
                         <div class="lead-category">${escapeHtml(lead.category)}</div>
                     </td>
                     <td>
-                        <div class="lead-address">${escapeHtml(lead.address_full || '-')}</div>
+                        <div class="lead-category">${escapeHtml(lead.industry || lead.category || '—')}</div>
                     </td>
                     <td>
-                        <div class="lead-city">${escapeHtml(lead.city || lead.country || '-')}</div>
+                        <div class="lead-address">${escapeHtml(lead.address_full || '—')}</div>
                     </td>
                     <td>
-                        ${lead.phone ? `<a class="cell-link" href="tel:${escapeHtml(lead.phone)}">${escapeHtml(lead.phone)}</a>` : '<span class="cell-empty">—</span>'}
+                        <div class="lead-city">${escapeHtml(lead.city || '—')}</div>
                     </td>
                     <td>
-                        ${email ? `<a class="cell-link" href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a>` : '<span class="cell-empty">—</span>'}
+                        <div class="lead-city">${escapeHtml(lead.country || '—')}</div>
                     </td>
                     <td>
                         ${lead.website ? `<a class="cell-link" href="${lead.website}" target="_blank">${escapeHtml(lead.domain || lead.website)}</a>` : '<span class="cell-empty">—</span>'}
                     </td>
-                    <td class="td-facebook">
-                        ${facebook ? `<a class="cell-link cell-social" href="${facebook}" target="_blank">${escapeHtml(fbHandle)}</a>` : '<span class="cell-empty">—</span>'}
+                    <td>
+                        ${socialUrl ? `<a class="cell-link cell-social" href="${socialUrl}" target="_blank">${escapeHtml(socialLabel)}</a>` : '<span class="cell-empty">—</span>'}
                     </td>
-                    <td class="td-instagram">
-                        ${instagram ? `<a class="cell-link cell-social" href="${instagram}" target="_blank">@${escapeHtml(igHandle)}</a>` : '<span class="cell-empty">—</span>'}
+                    <td>
+                        ${lead.reviews_count ? escapeHtml(String(lead.reviews_count)) : '<span class="cell-empty">—</span>'}
+                    </td>
+                    <td>
+                        ${lead.company_size ? escapeHtml(lead.company_size) : '<span class="cell-empty">—</span>'}
                     </td>
                 `;
                 tbody.appendChild(row);
             });
 
-            // Hide Facebook/Instagram columns if no leads have those values
-            const hasFacebook = leads.some(l => l.social_links && l.social_links.facebook);
-            const hasInstagram = leads.some(l => l.social_links && l.social_links.instagram);
-            const fbDisplay = hasFacebook ? '' : 'none';
-            const igDisplay = hasInstagram ? '' : 'none';
-            document.getElementById('th-facebook').style.display = fbDisplay;
-            document.getElementById('th-instagram').style.display = igDisplay;
-            document.querySelectorAll('.td-facebook').forEach(td => td.style.display = fbDisplay);
-            document.querySelectorAll('.td-instagram').forEach(td => td.style.display = igDisplay);
         }
 
         function escapeHtml(text) {

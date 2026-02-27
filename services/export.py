@@ -39,29 +39,26 @@ def _write_prospect_csv(writer, leads):
     """Company-level CSV. One row per company, includes primary email + first decision maker."""
     writer.writerow(
         [
-            # Core identity (matches competitor + our extras)
+            # Core identity
             "name",
+            "industry",
             "full_address",
             "street_address",
             "city",
+            "country",
             "zip",
             "municipality",
-            "phone",
-            "email",
             "website",
-            "facebook_url",
-            "instagram_url",
-            # Our extras
-            "fit_score",
-            "country",
             "linkedin_url",
-            "decision_maker",
-            "dm_email",
-            "rating",
+            "instagram_url",
+            "facebook_url",
+            # Signals
             "reviews",
-            "industry",
+            "rating",
             "company_size",
+            "fit_score",
             "fit_reasons",
+            # Meta
             "google_maps_url",
             "source_query",
         ]
@@ -69,41 +66,25 @@ def _write_prospect_csv(writer, leads):
 
     for lead in leads:
         social = lead.get("social_links", {})
-        dms = lead.get("decision_makers", [])
-        emails = lead.get("emails_found", [])
-
-        # Primary email: prefer one linked to a decision maker
-        dm_emails = {dm.get("email", "").lower() for dm in dms if dm.get("email")}
-        primary_email = next((e for e in emails if e.lower() in dm_emails), emails[0] if emails else "")
-
-        # First decision maker
-        dm = dms[0] if dms else {}
-        dm_name = dm.get("name", "")
-        dm_email = dm.get("email", "") or primary_email
 
         writer.writerow(
             [
                 lead.get("name", ""),
+                lead.get("industry", "") or lead.get("category", ""),
                 lead.get("address_full", ""),
                 lead.get("street", ""),
                 lead.get("city", ""),
+                lead.get("country", ""),
                 lead.get("postal_code", ""),
                 lead.get("municipality", ""),
-                lead.get("phone", ""),
-                primary_email,
                 lead.get("website", ""),
-                social.get("facebook", ""),
-                social.get("instagram", ""),
-                # Our extras
-                lead.get("fit_score", 0),
-                lead.get("country", ""),
                 lead.get("linkedin_url", "") or social.get("linkedin", ""),
-                dm_name,
-                dm_email,
-                lead.get("rating", 0),
+                social.get("instagram", ""),
+                social.get("facebook", ""),
                 lead.get("reviews_count", 0),
-                lead.get("industry", ""),
+                lead.get("rating", 0),
                 lead.get("company_size", ""),
+                lead.get("fit_score", 0),
                 "; ".join(lead.get("fit_reasons", [])),
                 lead.get("google_maps_url", ""),
                 lead.get("source_query", ""),
