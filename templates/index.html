@@ -2376,14 +2376,19 @@
                             </svg>
                             Export CSV
                         </button>
-                        <button class="btn btn-secondary" onclick="sendResultsToEnrichment()" style="width: auto; padding: 0.5rem 1rem;">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <line x1="12" y1="8" x2="12" y2="16"></line>
-                                <line x1="8" y1="12" x2="16" y2="12"></line>
-                            </svg>
-                            Send to Enrichment
-                        </button>
+                        <div style="display: flex; flex-direction: column; gap: 0.3rem;">
+                            <button class="btn btn-secondary" onclick="sendResultsToEnrichment()" style="width: auto; padding: 0.5rem 1rem;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="12" y1="8" x2="12" y2="16"></line>
+                                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                                </svg>
+                                Send to Enrichment
+                            </button>
+                            <span style="font-size: 0.7rem; color: var(--text-muted); max-width: 220px; line-height: 1.4;">
+                                Unlock decision makers, emails, LinkedIn profiles and more.
+                            </span>
+                        </div>
                     </div>
                 </div>
 
@@ -2427,8 +2432,8 @@
                                 <th>Country</th>
                                 <th>Website</th>
                                 <th>Social</th>
+                                <th>Municipality</th>
                                 <th>Reviews</th>
-                                <th>Size</th>
                             </tr>
                         </thead>
                         <tbody id="leadsBody">
@@ -4919,10 +4924,10 @@
                         ${socialUrl ? `<a class="cell-link cell-social" href="${socialUrl}" target="_blank">${escapeHtml(socialLabel)}</a>` : '<span class="cell-empty">—</span>'}
                     </td>
                     <td>
-                        ${lead.reviews_count ? escapeHtml(String(lead.reviews_count)) : '<span class="cell-empty">—</span>'}
+                        ${lead.municipality ? escapeHtml(lead.municipality) : '<span class="cell-empty">—</span>'}
                     </td>
                     <td>
-                        ${lead.company_size ? escapeHtml(lead.company_size) : '<span class="cell-empty">—</span>'}
+                        ${lead.reviews_count ? escapeHtml(String(lead.reviews_count)) : '<span class="cell-empty">—</span>'}
                     </td>
                 `;
                 tbody.appendChild(row);

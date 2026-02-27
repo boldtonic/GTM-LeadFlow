@@ -68,13 +68,15 @@ def run_search(job_id: str, config: dict, api_keys: dict, job_mgr):
             job_mgr.update(job_id, status="completed", step="No results matched your filters", progress=100)
             return
 
-        # Step 3: Enrich (or just compute lightweight signals)
+        # Step 3: Enrich (or lightweight social scrape + free signals)
         if config.get("enrich", True):
             _step_enrich(job_id, leads, clients, target_titles, job_mgr)
             if job_mgr.is_cancelled(job_id):
                 return
         else:
-            # Even without enrichment, compute free signals (email count, grade)
+            # Lightweight: homepage-only Firecrawl scrape for social links (1 credit/lead)
+            _step_scrape_socials(job_id, leads, clients["scraper"], job_mgr)
+            # Free signals (email count, enrichment grade)
             hunter = clients["hunter"]
             for lead in leads.values():
                 if lead.domain:
@@ -197,6 +199,31 @@ def _step_details(job_id, leads, google, job_mgr):
                 lead.street = f"{street_number} {street_name}".strip()
 
         time.sleep(0.05)
+
+
+def _step_scrape_socials(job_id, leads, scraper, job_mgr):
+    """Lightweight homepage-only social scrape for prospect stage (no full enrichment)."""
+    if not (scraper.firecrawl and scraper.firecrawl.is_configured):
+        return
+
+    lead_list = [lead for lead in leads.values() if lead.website]
+    total = len(lead_list)
+    if not total:
+        return
+
+    log_dev("SCRAPER", f"Lightweight social scrape for {total} leads", "info")
+    found = 0
+    for i, lead in enumerate(lead_list):
+        if job_mgr.is_cancelled(job_id):
+            return
+        job_mgr.update(job_id, progress=60 + int((i / total) * 30), step=f"Social links: {lead.name[:30]}...")
+        social = scraper.scrape_social_links(lead.website)
+        if social:
+            lead.social_links = social
+            found += 1
+        time.sleep(0.05)
+
+    log_dev("SCRAPER", f"Social scrape done: {found}/{total} leads got links", "success")
 
 
 def _step_filter(leads: dict, config: dict):

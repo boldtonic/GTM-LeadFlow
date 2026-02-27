@@ -28,6 +28,26 @@ class WebsiteScraper:
         if self.log_fn:
             self.log_fn("SCRAPER", message, level)
 
+    def scrape_social_links(self, url: str) -> dict:
+        """Lightweight single-page scrape to extract social links only (1 Firecrawl credit).
+        Used at prospect stage — no emails or description extracted."""
+        if not (self.firecrawl and self.firecrawl.is_configured):
+            return {}
+        try:
+            fc_result = self.firecrawl.scrape(url)
+            if not fc_result:
+                return {}
+            all_text = fc_result.get("markdown", "") + " " + " ".join(fc_result.get("links", []))
+            social_links = {}
+            for platform, (pattern, base_url) in self.SOCIAL_PATTERNS.items():
+                matches = pattern.findall(all_text)
+                if matches:
+                    social_links[platform] = base_url + matches[0]
+            return social_links
+        except Exception as e:
+            self._log(f"Social scrape error for {url}: {e}", "warning")
+            return {}
+
     def scrape(self, url: str) -> dict:
         result = {"emails": [], "social_links": {}, "description": "", "scrape_method": "basic"}
 
