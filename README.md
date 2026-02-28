@@ -1,6 +1,6 @@
 # GTM LeadFlow
 
-**Find the right companies and people. Enrich them. Export and go.**
+**Find the right companies and people. [Enrich them in Kanban to Messaging soon]
 
 LeadFlow is a self-hosted B2B prospecting tool that helps you build qualified lead lists fast — without the price tag of enterprise sales tools. Search by location and industry, discover decision makers, score every lead automatically, and export a clean CSV ready for your outreach campaigns.
 
