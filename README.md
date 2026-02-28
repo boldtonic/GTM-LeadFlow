@@ -1,81 +1,34 @@
 # GTM LeadFlow
 
-B2B lead discovery and enrichment tool for Go-To-Market campaigns. Find retail partners, enrich company data, discover decision makers, and export actionable lead lists.
+**Find the right companies and people. Enrich them. Export and go.**
 
-## Tech Stack
+LeadFlow is a local B2B prospecting tool that helps you build qualified lead lists fast — without the price tag of enterprise sales tools. Search by location and industry, discover decision makers, score every lead automatically, and export a clean CSV ready for your outreach campaigns.
 
-- **Backend:** Python 3.x + Flask (port 5001)
-- **Frontend:** Single-page HTML/CSS/JS (vanilla, dark theme)
-- **Data:** YAML briefs for client configs, CSV export
+---
 
-## API Integrations
+## What It Does
 
-| API | Purpose | Required |
-|-----|---------|----------|
-| Google Places | Lead discovery (location search, place details) | Yes |
-| Apollo.io | Company enrichment (size, revenue, LinkedIn) + contact search | Optional |
-| Hunter.io | Email finding, verification, domain search | Optional |
-| Firecrawl | Web scraping (markdown extraction, email/social discovery) | Optional |
-| OpenAI | AI-powered GTM brief generation | Optional |
+### Company Search
+Search for businesses by location, industry, or intent. LeadFlow finds matching companies, scrapes their websites for contact info and social links, identifies decision makers, and scores each lead based on how well they match your ideal customer profile.
 
-## Project Structure
+### People Search
+Search Apollo's people database by job title, seniority, department, and location. Get a scored list of contacts with their LinkedIn profiles, company info, and fit scores — ready to work.
 
-```
-GTM-LEADFLOW/
-├── app.py                  # Main Flask app (~2200 lines)
-│                           #   - API client classes (Google, Apollo, Hunter, Firecrawl)
-│                           #   - WebsiteScraper (Firecrawl + basic fallback)
-│                           #   - LeadScorer (fit scoring with signals)
-│                           #   - Lead dataclass (30+ fields)
-│                           #   - All Flask routes / endpoints
-│                           #   - Background job processing (threading)
-│                           #   - Dev logging system
-├── api_clients/            # New modular API client module
-│   ├── __init__.py
-│   └── base.py             # BaseAPIClient (reusable GET/POST, auth, logging)
-├── config.py               # API keys config + rate limits
-├── lead_finder.py          # Original CLI tool
-├── run.py                  # CLI batch runner
-├── brief_template.yaml     # YAML template for client briefs
-├── briefs/                 # Client brief files
-├── templates/
-│   └── index.html          # Web UI (single-page, ~156KB)
-├── requirements.txt        # Python deps
-├── .env.example            # Environment variable template
-└── START.command           # macOS quick launch
-```
+### Lead Scoring
+Every result gets a **fit score (0–100)** based on real signals: ratings, review volume, website quality, email availability, decision maker presence, and keyword relevance. No more sorting through noise manually.
 
-## Key Endpoints
+### Decision Maker Discovery
+For each company, LeadFlow finds the right people — CEOs, Marketing Directors, Owners — with their emails, LinkedIn profiles, and titles. Enrichment data flows directly into the CSV export.
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/` | GET | Web UI |
-| `/api/config` | GET | Check configured APIs |
-| `/api/search` | POST | Start background search job |
-| `/api/status/<job_id>` | GET | Job progress & results |
-| `/api/cancel/<job_id>` | POST | Cancel running job |
-| `/api/export/<job_id>` | GET | Export results as CSV |
-| `/api/brief` | POST | Generate GTM brief (OpenAI) |
-| `/api/discover` | POST | Discover leads from web |
-| `/api/enrich` | POST | Enrich single company by domain |
-| `/api/enrich-batch` | POST | Enrich multiple companies |
-| `/api/enrich-contacts` | POST | Find decision makers |
-| `/api/hunter/*` | POST | Hunter.io direct endpoints |
-| `/api/dev/logs` | GET | Debug logs |
-| `/api/dev/stats` | GET | Enrichment statistics |
+### GTM Brief Generator
+Paste a company URL and get an AI-generated Go-To-Market brief: positioning, target audience, competitive landscape, and outreach hooks. Powered by web scraping and AI analysis.
 
-## Enrichment Pipeline
+### CSV Export
+Two export formats built for real workflows:
+- **Prospect CSV** — one row per company, with social links, scores, and contact info
+- **Enriched CSV** — one row per decision maker, ready to paste into any email sequencer
 
-```
-Search (Google Places)
-  -> Scrape website (Firecrawl / basic fallback)
-    -> Extract emails, social links, description
-  -> Enrich company (Apollo: size, revenue, LinkedIn)
-  -> Find contacts (Apollo: decision makers by title)
-  -> Find emails (Hunter: domain search, verification)
-  -> Score lead (fit score 0-100 based on signals)
-  -> Export CSV
-```
+---
 
 ## Setup
 
@@ -83,20 +36,52 @@ Search (Google Places)
 # 1. Install dependencies
 pip3 install -r requirements.txt
 
-# 2. Configure API keys
+# 2. Configure your keys
 cp .env.example .env
-# Edit .env with your keys
+# Edit .env — only Google Places is required to start
 
-# 3. Run
+# 3. Launch
 python3 app.py
 # Open http://localhost:5001
 ```
 
-## Architecture Notes
+LeadFlow runs entirely on your machine. No SaaS subscription, no usage dashboard, no data leaving your environment except through your own API keys.
 
-- **Monolithic app.py** contains all API clients, routes, and logic inline. The `api_clients/` module is the start of modularizing this.
-- **BaseAPIClient** (`api_clients/base.py`) provides reusable `_get()` / `_post()` with auth, logging, error handling, and timeouts. New API integrations should inherit from this.
-- **Background jobs** run in threads, tracked by `job_status` dict. Real-time progress via polling `/api/status/<job_id>`.
-- **Dev panel** built-in logging (`log_dev()`) with categories per API. Last 500 entries.
-- **Graceful degradation** — app works with only Google Places key; other APIs enhance results when configured.
-- **Lead dataclass** has 30+ fields covering: identity, location (7 fields), contact, reputation, operations, web scraping results, Apollo enrichment, scoring, and metadata.
+---
+
+## Data Sources
+
+LeadFlow connects to best-in-class data providers — but you're always in control of which ones you use. Every integration is optional except Google Places:
+
+| Source | What it adds |
+|---|---|
+| **Google Places** | Location-based company discovery (required) |
+| **Apollo.io** | Company size, revenue, LinkedIn, contact search |
+| **Hunter.io** | Email finding and verification |
+| **Firecrawl** | Deep website scraping for emails, social links, and about text |
+| **OpenAI** | GTM brief generation |
+
+---
+
+## Scoring Logic
+
+Leads are scored from 0 to 100 based on:
+- Google rating and review count
+- Website presence and quality
+- Email and social link availability
+- Decision maker count
+- Signal keywords in name/category
+- Specific exclusions (chains, platforms, aggregators)
+
+High-fit leads (≥70) are the ones worth prioritizing for outreach.
+
+---
+
+## Dev Notes
+
+Built with Python/Flask (backend) and vanilla JS (frontend). No framework, no build step. Runs on port 5001.
+
+```bash
+python3 -m pytest tests/ -v   # smoke tests
+python3 -m ruff check .        # lint
+```
