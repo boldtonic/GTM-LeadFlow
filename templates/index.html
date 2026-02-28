@@ -323,6 +323,70 @@
            PROSPECTING TAB — Instantly SuperSearch Layout
            ============================================================ */
 
+        /* Search mode toggle */
+        .search-mode-toggle {
+            display: flex;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 3px;
+            gap: 3px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .mode-btn:hover {
+            color: var(--text);
+        }
+
+        .mode-btn.active {
+            background: var(--surface);
+            color: var(--text);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+        }
+
+        /* Pill multi-select for seniority/department */
+        .pill-select {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-top: 0.25rem;
+        }
+
+        .pill-option {
+            padding: 0.25rem 0.65rem;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 0.78rem;
+            cursor: pointer;
+            background: transparent;
+            color: var(--text-muted);
+            transition: all 0.15s;
+            user-select: none;
+        }
+
+        .pill-option:hover {
+            border-color: var(--accent);
+            color: var(--text);
+        }
+
+        .pill-option.selected {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
         .finder-layout {
             display: flex;
             flex-direction: column;
@@ -956,7 +1020,7 @@
             background: var(--surface-2);
             border-radius: 2px;
             overflow: hidden;
-            margin-bottom: 0.75rem;
+            margin-top: 0.75rem;
         }
 
         .progress-fill {
@@ -1018,6 +1082,76 @@
             min-height: 400px;
         }
 
+        /* Single results bar: stat chips + export button, one row */
+        .results-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-chip {
+            display: flex;
+            align-items: baseline;
+            gap: 0.3rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.45rem 0.75rem;
+            white-space: nowrap;
+        }
+
+        .stat-chip__val {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .stat-chip__lbl {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .stat-chip--high .stat-chip__val  { color: var(--success); }
+        .stat-chip--medium .stat-chip__val { color: var(--warning); }
+        .stat-chip--low .stat-chip__val    { color: var(--text-muted); }
+
+        .results-bar__spacer { flex: 1; }
+
+        /* Fire export button */
+        .btn-export {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            background: linear-gradient(135deg, #f97316 0%, #eab308 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 0.48rem 1rem;
+            font-size: 0.825rem;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            flex-shrink: 0;
+            letter-spacing: 0.03em;
+            box-shadow: 0 0 14px rgba(249, 115, 22, 0.3);
+            transition: box-shadow 0.2s, transform 0.15s;
+        }
+
+        .btn-export:hover {
+            box-shadow: 0 0 24px rgba(249, 115, 22, 0.55);
+            transform: translateY(-1px);
+        }
+
+        .btn-export:active {
+            transform: translateY(0);
+            box-shadow: 0 0 10px rgba(249, 115, 22, 0.3);
+        }
+
+        /* Legacy .results-header used in other tabs */
         .results-header {
             display: flex;
             justify-content: space-between;
@@ -1029,53 +1163,6 @@
             font-size: 1.125rem;
             font-weight: 500;
         }
-
-        .results-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .results-actions .btn {
-            width: auto;
-            padding: 0.5rem 1rem;
-        }
-
-        /* Stats */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        @media (max-width: 768px) {
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        .stat-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 1rem;
-        }
-
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
-
-        .stat-label {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .stat-card.high .stat-value { color: var(--success); }
-        .stat-card.medium .stat-value { color: var(--warning); }
-        .stat-card.low .stat-value { color: var(--text-muted); }
 
         /* Table */
         .table-container {
@@ -2043,6 +2130,12 @@
                 <div class="finder-left-col">
                 <div class="finder-left">
 
+                    <!-- Mode toggle: Company vs People (top of left card) -->
+                    <div class="search-mode-toggle" style="margin-bottom: 0.75rem;">
+                        <button id="modeCompanyBtn" class="mode-btn active" onclick="setSearchMode('company')">&#127970; Company Search</button>
+                        <button id="modePeopleBtn" class="mode-btn" onclick="setSearchMode('people')">&#128100; People Search</button>
+                    </div>
+
                     <!-- Compact search input -->
                     <div class="finder-search">
                         <span class="finder-search__icon">&#128269;</span>
@@ -2063,11 +2156,13 @@
                         <button class="suggestion-chip" onclick="addSuggestionChip('industry', 'Startup / Tech')">Startup</button>
                     </div>
 
+                    <!-- Company Filters -->
+                    <div id="companyFilters">
                     <!-- Accordion Filters -->
                     <div class="filter-accordion">
 
                         <!-- 1. Industry -->
-                        <details class="filter-section" open>
+                        <details class="filter-section">
                             <summary>
                                 <span class="filter-section__icon">&#127970;</span>
                                 Industry
@@ -2137,7 +2232,7 @@
                         </details>
 
                         <!-- 2. Location -->
-                        <details class="filter-section" open>
+                        <details class="filter-section">
                             <summary>
                                 <span class="filter-section__icon">&#128205;</span>
                                 Location
@@ -2339,17 +2434,127 @@
                         </details>
 
                     </div><!-- end filter-accordion -->
+                    </div><!-- end companyFilters -->
+
+                    <!-- People Filters -->
+                    <div id="peopleFilters" style="display:none;">
+                        <div class="filter-accordion">
+
+                            <!-- Title/Role -->
+                            <details class="filter-section">
+                                <summary>
+                                    <span class="filter-section__icon">&#128100;</span>
+                                    Title / Role
+                                    <span class="filter-section__chevron">&#9660;</span>
+                                </summary>
+                                <div class="filter-section__body">
+                                    <div class="filter-field">
+                                        <input type="text" id="peopleTitles" class="filter-input"
+                                               placeholder="Marketing Director, CEO, Owner"
+                                               oninput="debouncedUpdateSummary()"
+                                               style="width:100%; padding:0.5rem 0.75rem; background:var(--surface-2); border:1px solid var(--border); border-radius:6px; color:var(--text); font-size:0.875rem;">
+                                        <span class="field-hint">Comma-separated. Required.</span>
+                                    </div>
+                                </div>
+                            </details>
+
+                            <!-- Location -->
+                            <details class="filter-section">
+                                <summary>
+                                    <span class="filter-section__icon">&#127757;</span>
+                                    Location
+                                    <span class="filter-section__chevron">&#9660;</span>
+                                </summary>
+                                <div class="filter-section__body">
+                                    <div class="filter-field">
+                                        <label for="peopleCountry">Country</label>
+                                        <input type="text" id="peopleCountry" class="filter-input"
+                                               placeholder="e.g. Spain, United States"
+                                               oninput="debouncedUpdateSummary()"
+                                               style="width:100%; padding:0.5rem 0.75rem; background:var(--surface-2); border:1px solid var(--border); border-radius:6px; color:var(--text); font-size:0.875rem;">
+                                    </div>
+                                    <div class="filter-field" style="margin-top:0.5rem;">
+                                        <label for="peopleCity">City / Region</label>
+                                        <input type="text" id="peopleCity" class="filter-input"
+                                               placeholder="e.g. Madrid, Barcelona"
+                                               oninput="debouncedUpdateSummary()"
+                                               style="width:100%; padding:0.5rem 0.75rem; background:var(--surface-2); border:1px solid var(--border); border-radius:6px; color:var(--text); font-size:0.875rem;">
+                                    </div>
+                                </div>
+                            </details>
+
+                            <!-- Seniority -->
+                            <details class="filter-section">
+                                <summary>
+                                    <span class="filter-section__icon">&#127775;</span>
+                                    Seniority
+                                    <span class="filter-section__chevron">&#9660;</span>
+                                </summary>
+                                <div class="filter-section__body">
+                                    <div class="pill-select" id="senioritySel">
+                                        <span class="pill-option" data-val="Entry" onclick="togglePill(this)">Entry</span>
+                                        <span class="pill-option" data-val="Senior" onclick="togglePill(this)">Senior</span>
+                                        <span class="pill-option" data-val="Manager" onclick="togglePill(this)">Manager</span>
+                                        <span class="pill-option" data-val="Director" onclick="togglePill(this)">Director</span>
+                                        <span class="pill-option" data-val="VP" onclick="togglePill(this)">VP</span>
+                                        <span class="pill-option" data-val="C-Suite" onclick="togglePill(this)">C-Suite</span>
+                                        <span class="pill-option" data-val="Owner" onclick="togglePill(this)">Owner</span>
+                                    </div>
+                                </div>
+                            </details>
+
+                            <!-- Department -->
+                            <details class="filter-section">
+                                <summary>
+                                    <span class="filter-section__icon">&#127970;</span>
+                                    Department
+                                    <span class="filter-section__chevron">&#9660;</span>
+                                </summary>
+                                <div class="filter-section__body">
+                                    <div class="pill-select" id="departmentSel">
+                                        <span class="pill-option" data-val="Marketing" onclick="togglePill(this)">Marketing</span>
+                                        <span class="pill-option" data-val="Sales" onclick="togglePill(this)">Sales</span>
+                                        <span class="pill-option" data-val="Engineering" onclick="togglePill(this)">Engineering</span>
+                                        <span class="pill-option" data-val="Finance" onclick="togglePill(this)">Finance</span>
+                                        <span class="pill-option" data-val="HR" onclick="togglePill(this)">HR</span>
+                                        <span class="pill-option" data-val="Operations" onclick="togglePill(this)">Operations</span>
+                                        <span class="pill-option" data-val="Executive" onclick="togglePill(this)">Executive</span>
+                                    </div>
+                                </div>
+                            </details>
+
+                            <!-- Company Size -->
+                            <details class="filter-section">
+                                <summary>
+                                    <span class="filter-section__icon">&#128202;</span>
+                                    Company Size
+                                    <span class="filter-section__chevron">&#9660;</span>
+                                </summary>
+                                <div class="filter-section__body">
+                                    <div class="pill-select" id="peopleSizeSel">
+                                        <span class="pill-option" data-val="1-10" onclick="togglePill(this)">1-10</span>
+                                        <span class="pill-option" data-val="11-50" onclick="togglePill(this)">11-50</span>
+                                        <span class="pill-option" data-val="51-200" onclick="togglePill(this)">51-200</span>
+                                        <span class="pill-option" data-val="201-1K" onclick="togglePill(this)">201-1K</span>
+                                        <span class="pill-option" data-val="1K+" onclick="togglePill(this)">1K+</span>
+                                    </div>
+                                </div>
+                            </details>
+
+                        </div><!-- end people filter-accordion -->
+                    </div><!-- end peopleFilters -->
+
                 </div><!-- end finder-left -->
 
                 <!-- Progress indicator (below filter card) -->
                 <div class="progress-container" id="progressContainer">
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progressFill"></div>
-                    </div>
                     <div class="progress-content">
                         <img class="flame-icon" src="https://media.tenor.com/sRL5jAfDjMcAAAAj/flame-lit.gif" alt="🔥">
                         <span class="progress-message" id="progressMessage">Catching addresses</span>
                         <span class="progress-pct" id="progressPct">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
                     </div>
                 </div>
 
@@ -2358,7 +2563,7 @@
                 <!-- RIGHT COLUMN -->
                 <div class="finder-right">
                     <div class="search-summary">
-                        <div class="search-summary__title">Your Search</div>
+                        <div class="search-summary__title" id="searchSummaryTitle">Your Research</div>
                         <div class="search-summary__tags" id="searchSummaryTags">
                             <div class="search-summary__empty">Add filters to build your search</div>
                         </div>
@@ -2377,12 +2582,12 @@
                         </div>
 
                         <button id="searchBtn" class="btn btn-fire" style="width: 100%; margin-top: 0.5rem; padding: 0.75rem;"
-                                onclick="findProspects()">
+                                onclick="startSearch()">
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="11" cy="11" r="8"></circle>
                                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                             </svg>
-                            Find Prospects
+                            <span id="searchBtnLabel">Find Prospects</span>
                         </button>
                         <button id="cancelBtn" class="btn btn-outline" style="width: 100%; margin-top: 0.5rem; display: none;"
                                 onclick="cancelSearch()">
@@ -2395,18 +2600,42 @@
 
             <!-- RESULTS: Full-width below -->
             <div class="finder-results">
-                <div class="results-header">
-                    <h2>Results</h2>
-                    <div class="results-actions" id="resultsActions" style="display: none;">
-                        <button class="btn btn-secondary" onclick="exportCSV()" style="width: auto; padding: 0.5rem 1rem;">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                <polyline points="7 10 12 15 17 10"></polyline>
-                                <line x1="12" y1="15" x2="12" y2="3"></line>
-                            </svg>
-                            Export CSV
-                        </button>
+
+                <!-- Single results bar: stats + export, one row -->
+                <div class="results-bar" id="resultsBar" style="display: none;">
+                    <div class="stat-chip">
+                        <span class="stat-chip__val" id="totalLeads">0</span>
+                        <span class="stat-chip__lbl">Total</span>
                     </div>
+                    <div class="stat-chip stat-chip--high">
+                        <span class="stat-chip__val" id="highFit">0</span>
+                        <span class="stat-chip__lbl">High Fit</span>
+                    </div>
+                    <div class="stat-chip stat-chip--medium">
+                        <span class="stat-chip__val" id="mediumFit">0</span>
+                        <span class="stat-chip__lbl">Medium</span>
+                    </div>
+                    <div class="stat-chip stat-chip--low">
+                        <span class="stat-chip__val" id="lowFit">0</span>
+                        <span class="stat-chip__lbl">Low</span>
+                    </div>
+                    <div class="stat-chip stat-chip--high">
+                        <span class="stat-chip__val" id="gradeACount">0</span>
+                        <span class="stat-chip__lbl" id="gradeALabel">Grade A</span>
+                    </div>
+                    <div class="stat-chip stat-chip--medium">
+                        <span class="stat-chip__val" id="gradeBCount">0</span>
+                        <span class="stat-chip__lbl" id="gradeBLabel">Grade B</span>
+                    </div>
+                    <div class="results-bar__spacer"></div>
+                    <button class="btn-export" onclick="exportCSV()">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        Export CSV
+                    </button>
                 </div>
 
                 <!-- Enrichment upgrade banner — shown once results load -->
@@ -2419,35 +2648,8 @@
                     </button>
                 </div>
 
-                <div class="stats-grid" id="statsGrid" style="display: none;">
-                    <div class="stat-card">
-                        <div class="stat-value" id="totalLeads">0</div>
-                        <div class="stat-label">Total Leads</div>
-                    </div>
-                    <div class="stat-card high">
-                        <div class="stat-value" id="highFit">0</div>
-                        <div class="stat-label">High Fit (70+)</div>
-                    </div>
-                    <div class="stat-card medium">
-                        <div class="stat-value" id="mediumFit">0</div>
-                        <div class="stat-label">Medium (50-69)</div>
-                    </div>
-                    <div class="stat-card low">
-                        <div class="stat-value" id="lowFit">0</div>
-                        <div class="stat-label">Low (&lt;50)</div>
-                    </div>
-                    <div class="stat-card high">
-                        <div class="stat-value" id="gradeACount">0</div>
-                        <div class="stat-label">Grade A</div>
-                    </div>
-                    <div class="stat-card medium">
-                        <div class="stat-value" id="gradeBCount">0</div>
-                        <div class="stat-label">Grade B</div>
-                    </div>
-                </div>
-
-                <!-- Google Places results table -->
-                <div class="table-container" id="resultsTable" style="display: none;">
+                <!-- Company Search results table -->
+                <div class="table-container" id="companyResultsTable" style="display: none;">
                     <table>
                         <thead>
                             <tr>
@@ -2464,6 +2666,24 @@
                             </tr>
                         </thead>
                         <tbody id="leadsBody">
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- People Search results table -->
+                <div class="table-container" id="peopleResultsTable" style="display: none;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Score</th>
+                                <th>Name</th>
+                                <th>Title</th>
+                                <th>Company</th>
+                                <th>Location</th>
+                                <th>LinkedIn</th>
+                            </tr>
+                        </thead>
+                        <tbody id="peopleBody">
                         </tbody>
                     </table>
                 </div>
@@ -3379,7 +3599,110 @@
         }
 
         function updateStrategyIndicator() {
+            if (currentSearchMode === 'people') {
+                const text = (document.getElementById('prospectWhat')?.value || '').trim();
+                if (text) parsePeopleIntent(text);
+                return;
+            }
             updateGeneratedQueries();
+        }
+
+        // ---------------------------------------------------------------
+        // PEOPLE INTENT PARSER
+        // Extracts title, location, seniority, department from free text
+        // e.g. "growth marketing managers in Alicante, Spain" →
+        //   title="growth marketing managers", city="Alicante", country="Spain",
+        //   seniority=Manager, department=Marketing
+        // ---------------------------------------------------------------
+        function parsePeopleIntent(text) {
+            if (!text) return;
+            const lower = text.toLowerCase();
+
+            // 1. Split on " in " to find location
+            const inIdx = lower.search(/\s+in\s+/);
+            let titlePart = text.trim();
+            let locationPart = '';
+
+            if (inIdx !== -1) {
+                titlePart = text.slice(0, inIdx).trim();
+                locationPart = text.slice(inIdx).replace(/^\s+in\s+/i, '').trim();
+            }
+
+            // 2. Parse location → city / country
+            if (locationPart) {
+                const knownCountries = [
+                    'spain', 'france', 'germany', 'italy', 'portugal', 'uk', 'united kingdom',
+                    'united states', 'usa', 'mexico', 'brazil', 'argentina', 'colombia', 'chile',
+                    'netherlands', 'belgium', 'switzerland', 'sweden', 'norway', 'denmark',
+                    'poland', 'austria', 'australia', 'canada', 'india', 'japan', 'china',
+                    'singapore', 'uae', 'dubai', 'south africa',
+                ];
+                const parts = locationPart.split(',').map(p => p.trim()).filter(Boolean);
+                if (parts.length >= 2) {
+                    // "Alicante, Spain" → city, country
+                    document.getElementById('peopleCity').value = parts[0];
+                    document.getElementById('peopleCountry').value = parts.slice(1).join(', ');
+                } else if (parts.length === 1) {
+                    const pLower = parts[0].toLowerCase();
+                    if (knownCountries.includes(pLower)) {
+                        document.getElementById('peopleCountry').value = parts[0];
+                    } else {
+                        document.getElementById('peopleCity').value = parts[0];
+                    }
+                }
+            }
+
+            // 3. Set title field (entire titlePart — Apollo searches by full title string)
+            if (titlePart) {
+                document.getElementById('peopleTitles').value = titlePart;
+            }
+
+            const titleLower = titlePart.toLowerCase();
+
+            // 4. Detect seniority
+            const seniorityMap = {
+                'manager': 'Manager', 'managers': 'Manager',
+                'director': 'Director', 'directors': 'Director',
+                'vp': 'VP', 'vice president': 'VP',
+                'ceo': 'C-Suite', 'cto': 'C-Suite', 'coo': 'C-Suite',
+                'cfo': 'C-Suite', 'chief': 'C-Suite', 'c-suite': 'C-Suite',
+                'owner': 'Owner', 'owners': 'Owner', 'founder': 'Owner',
+                'senior': 'Senior', 'sr.': 'Senior',
+                'junior': 'Entry', 'jr.': 'Entry', 'associate': 'Entry',
+            };
+            const detectedSeniority = new Set();
+            for (const [kw, val] of Object.entries(seniorityMap)) {
+                if (titleLower.includes(kw)) detectedSeniority.add(val);
+            }
+            document.querySelectorAll('#senioritySel .pill-option').forEach(pill => {
+                if (detectedSeniority.size > 0) {
+                    pill.classList.toggle('selected', detectedSeniority.has(pill.dataset.val));
+                }
+            });
+
+            // 5. Detect department
+            const deptMap = {
+                'marketing': 'Marketing', 'growth': 'Marketing', 'brand': 'Marketing', 'content': 'Marketing',
+                'sales': 'Sales', 'account executive': 'Sales', 'business development': 'Sales', 'bdr': 'Sales', 'sdr': 'Sales',
+                'engineer': 'Engineering', 'engineering': 'Engineering', 'developer': 'Engineering',
+                'dev': 'Engineering', 'tech': 'Engineering', 'software': 'Engineering',
+                'finance': 'Finance', 'financial': 'Finance', 'accounting': 'Finance', 'cfo': 'Finance',
+                'hr': 'HR', 'human resources': 'HR', 'talent': 'HR', 'recruiting': 'HR',
+                'operations': 'Operations', 'ops': 'Operations', 'supply chain': 'Operations',
+                'ceo': 'Executive', 'coo': 'Executive', 'chief': 'Executive', 'president': 'Executive',
+            };
+            const detectedDept = new Set();
+            for (const [kw, val] of Object.entries(deptMap)) {
+                if (titleLower.includes(kw)) detectedDept.add(val);
+            }
+            document.querySelectorAll('#departmentSel .pill-option').forEach(pill => {
+                if (detectedDept.size > 0) {
+                    pill.classList.toggle('selected', detectedDept.has(pill.dataset.val));
+                }
+            });
+
+            // Sync the summary card immediately
+            updateSearchSummary();
         }
 
         // Build queries from intent fields (adapts generateQueries for the unified form)
@@ -3440,6 +3763,172 @@
             }
 
             return [...new Set(queries)].filter(Boolean);
+        }
+
+        // ============================================
+        // SEARCH MODE TOGGLE (Company / People)
+        // ============================================
+
+        let currentSearchMode = 'company';
+
+        function setSearchMode(mode) {
+            currentSearchMode = mode;
+            document.getElementById('modeCompanyBtn').classList.toggle('active', mode === 'company');
+            document.getElementById('modePeopleBtn').classList.toggle('active', mode === 'people');
+            document.getElementById('companyFilters').style.display = mode === 'company' ? '' : 'none';
+            document.getElementById('peopleFilters').style.display = mode === 'people' ? '' : 'none';
+            // Hide all results
+            document.getElementById('companyResultsTable').style.display = 'none';
+            document.getElementById('peopleResultsTable').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'block';
+            document.getElementById('resultsBar').style.display = 'none';
+            document.getElementById('enrichmentBanner').style.display = 'none';
+            // Reset empty state text
+            document.getElementById('emptyState').querySelector('h3').textContent = 'Ready to find leads';
+            document.getElementById('emptyState').querySelector('p').textContent =
+                mode === 'people'
+                    ? 'Enter a job title above and click "Find People" to search.'
+                    : 'Define your target market above and click "Find Prospects" to start.';
+            // Update button label
+            document.getElementById('searchBtnLabel').textContent = mode === 'people' ? 'Find People' : 'Find Prospects';
+            // Update placeholder immediately
+            const input = document.getElementById('prospectWhat');
+            if (input && !input.value) {
+                const list = mode === 'people' ? peoplePlaceholders : companyPlaceholders;
+                input.placeholder = list[0];
+            }
+        }
+
+        function startSearch() {
+            collapseFilters();
+            if (currentSearchMode === 'people') findPeople();
+            else findProspects();
+        }
+
+        function collapseFilters() {
+            document.querySelectorAll('#companyFilters .filter-section, #peopleFilters .filter-section')
+                .forEach(d => d.removeAttribute('open'));
+        }
+
+        function togglePill(el) {
+            el.classList.toggle('selected');
+            updateSearchSummary();
+        }
+
+        function getSelectedPills(containerId) {
+            return [...document.querySelectorAll(`#${containerId} .pill-option.selected`)]
+                .map(el => el.dataset.val);
+        }
+
+        // ============================================
+        // PEOPLE SEARCH
+        // ============================================
+
+        async function findPeople() {
+            if (pollInterval) {
+                clearInterval(pollInterval);
+                pollInterval = null;
+            }
+
+            // Sync-parse the main search bar in case the debounce hasn't fired yet
+            const mainInput = (document.getElementById('prospectWhat')?.value || '').trim();
+            if (mainInput) parsePeopleIntent(mainInput);
+
+            const titles = (document.getElementById('peopleTitles')?.value || '').trim();
+            const country = (document.getElementById('peopleCountry')?.value || '').trim();
+            const city = (document.getElementById('peopleCity')?.value || '').trim();
+            const _seniorities = getSelectedPills('senioritySel');
+            const _departments = getSelectedPills('departmentSel');
+
+            // Need at least one filter to search
+            if (!titles && !country && !city && !_seniorities.length && !_departments.length) {
+                alert('Please enter a job title, location, or select a seniority / department filter.');
+                return;
+            }
+            let location = '';
+            if (city && country) location = `${city}, ${country}`;
+            else location = city || country;
+
+            const company_size_ranges = getSelectedPills('peopleSizeSel');
+            const max_leads = parseInt(document.getElementById('maxLeads')?.value || '25', 10);
+
+            const config = { titles, location, seniorities: _seniorities, departments: _departments, company_size_ranges, max_leads };
+
+            document.getElementById('searchBtn').disabled = true;
+            document.getElementById('cancelBtn').style.display = 'block';
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('progressContainer').classList.add('active');
+            document.getElementById('progressFill').style.width = '0%';
+            document.getElementById('progressPct').textContent = '0%';
+            currentJobEnriched = false;
+
+            startFlameMessages();
+
+            try {
+                const resp = await fetch('/api/people-search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(config)
+                });
+                const data = await resp.json();
+                currentJobId = data.job_id;
+                pollInterval = setInterval(pollStatus, 1000);
+            } catch (e) {
+                console.error('People search failed:', e);
+                document.getElementById('searchBtn').disabled = false;
+                document.getElementById('progressContainer').classList.remove('active');
+                stopFlameMessages();
+            }
+        }
+
+        function displayPeopleResults(people) {
+            stopFlameMessages();
+            document.getElementById('progressContainer').classList.remove('active');
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('enrichmentBanner').style.display = 'flex';
+            document.getElementById('resultsBar').style.display = 'flex';
+            document.getElementById('peopleResultsTable').style.display = 'block';
+            document.getElementById('companyResultsTable').style.display = 'none';
+
+            const highFit = people.filter(p => p.fit_score >= 70).length;
+            const mediumFit = people.filter(p => p.fit_score >= 50 && p.fit_score < 70).length;
+            const lowFit = people.filter(p => p.fit_score < 50).length;
+            const hasLinkedIn = people.filter(p => p.linkedin_url).length;
+            const directorPlus = people.filter(p => ['owner','founder','c_suite','partner','vp','director'].includes(p.seniority)).length;
+
+            document.getElementById('totalLeads').textContent = people.length;
+            document.getElementById('highFit').textContent = highFit;
+            document.getElementById('mediumFit').textContent = mediumFit;
+            document.getElementById('lowFit').textContent = lowFit;
+            document.getElementById('gradeACount').textContent = hasLinkedIn;
+            document.getElementById('gradeALabel').textContent = 'Has LinkedIn';
+            document.getElementById('gradeBCount').textContent = directorPlus;
+            document.getElementById('gradeBLabel').textContent = 'Director+';
+
+            const tbody = document.getElementById('peopleBody');
+            tbody.innerHTML = '';
+
+            people.forEach(person => {
+                const scoreClass = person.fit_score >= 70 ? 'score-high' :
+                                   person.fit_score >= 50 ? 'score-medium' : 'score-low';
+                const location = [person.city, person.country].filter(Boolean).join(', ') || '—';
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><div class="score-badge ${scoreClass}">${person.fit_score}</div></td>
+                    <td><div class="lead-name">${escapeHtml(person.name || '—')}</div></td>
+                    <td>
+                        <div class="lead-name">${escapeHtml(person.title || '—')}</div>
+                        ${person.seniority ? `<div class="lead-category">${escapeHtml(person.seniority)}</div>` : ''}
+                    </td>
+                    <td>
+                        <div class="lead-name">${escapeHtml(person.company_name || '—')}</div>
+                        ${person.company_domain ? `<div class="lead-category"><a class="cell-link" href="https://${escapeHtml(person.company_domain)}" target="_blank">${escapeHtml(person.company_domain)}</a></div>` : ''}
+                    </td>
+                    <td><div class="lead-city">${escapeHtml(location)}</div></td>
+                    <td>${person.linkedin_url ? `<a class="cell-link" href="${escapeHtml(person.linkedin_url)}" target="_blank">LinkedIn</a>` : '<span class="cell-empty">—</span>'}</td>
+                `;
+                tbody.appendChild(row);
+            });
         }
 
         // ============================================
@@ -4543,6 +5032,11 @@
         // ============================================================
 
         function updateSearchSummary() {
+            if (currentSearchMode === 'people') {
+                updatePeopleSearchSummary();
+                return;
+            }
+
             const container = document.getElementById('searchSummaryTags');
             if (!container) return;
 
@@ -4581,10 +5075,65 @@
                 <div class="summary-tag">
                     <span class="summary-tag__icon">${f.icon}</span>
                     <span class="summary-tag__label">${f.label}</span>
-                    <span class="summary-tag__value">${f.value}</span>
+                    <span class="summary-tag__value">${escapeHtml(String(f.value))}</span>
                     <span class="summary-tag__remove" onclick="removeFilter('${f.field}')">&times;</span>
                 </div>
             `).join('');
+        }
+
+        function updatePeopleSearchSummary() {
+            const container = document.getElementById('searchSummaryTags');
+            if (!container) return;
+
+            const filters = [];
+
+            const titles = document.getElementById('peopleTitles')?.value?.trim();
+            if (titles) filters.push({ icon: '\u{1F464}', label: 'Title', value: titles, type: 'field', id: 'peopleTitles' });
+
+            const country = document.getElementById('peopleCountry')?.value?.trim();
+            if (country) filters.push({ icon: '\u{1F30D}', label: 'Country', value: country, type: 'field', id: 'peopleCountry' });
+
+            const city = document.getElementById('peopleCity')?.value?.trim();
+            if (city) filters.push({ icon: '\u{1F4CD}', label: 'City', value: city, type: 'field', id: 'peopleCity' });
+
+            getSelectedPills('senioritySel').forEach(s =>
+                filters.push({ icon: '\u2B50', label: 'Seniority', value: s, type: 'pill', container: 'senioritySel', val: s })
+            );
+            getSelectedPills('departmentSel').forEach(d =>
+                filters.push({ icon: '\u{1F3E2}', label: 'Dept', value: d, type: 'pill', container: 'departmentSel', val: d })
+            );
+            getSelectedPills('peopleSizeSel').forEach(s =>
+                filters.push({ icon: '\u{1F465}', label: 'Size', value: s, type: 'pill', container: 'peopleSizeSel', val: s })
+            );
+
+            if (filters.length === 0) {
+                container.innerHTML = '<div class="search-summary__empty">Add filters to build your search</div>';
+                return;
+            }
+
+            container.innerHTML = filters.map((f, i) => {
+                const removeAttr = f.type === 'pill'
+                    ? `removePeopleFilter('pill','${f.container}','${f.val}')`
+                    : `removePeopleFilter('field','${f.id}','')`;
+                return `
+                <div class="summary-tag">
+                    <span class="summary-tag__icon">${f.icon}</span>
+                    <span class="summary-tag__label">${f.label}</span>
+                    <span class="summary-tag__value">${escapeHtml(f.value)}</span>
+                    <span class="summary-tag__remove" onclick="${removeAttr}">&times;</span>
+                </div>`;
+            }).join('');
+        }
+
+        function removePeopleFilter(type, idOrContainer, val) {
+            if (type === 'pill') {
+                const pill = document.querySelector(`#${idOrContainer} [data-val="${val}"]`);
+                if (pill) pill.classList.remove('selected');
+            } else {
+                const el = document.getElementById(idOrContainer);
+                if (el) el.value = '';
+            }
+            updateSearchSummary();
         }
 
         function removeFilter(fieldId) {
@@ -4629,7 +5178,7 @@
             updateStrategyIndicator();
         }
 
-        const searchPlaceholders = [
+        const companyPlaceholders = [
             "SaaS startups in Berlin under 50 employees",
             "Premium yoga studios in Barcelona",
             "Artisan bakeries in Tokyo with 4.5+ rating",
@@ -4643,16 +5192,30 @@
             "Fintech companies in Mexico City 11-50 people",
             "Law firms in Bogota with 5+ reviews",
         ];
-        let currentPlaceholderIndex = 0;
+        const peoplePlaceholders = [
+            "growth marketing managers in Alicante, Spain",
+            "VP of Sales in London",
+            "CMO or marketing director in Berlin",
+            "senior engineers in Amsterdam",
+            "HR directors in Madrid, Spain",
+            "CEO of startups in Barcelona",
+            "head of sales in New York",
+            "content marketing managers in Paris",
+            "founders in Mexico City",
+            "operations managers in São Paulo, Brazil",
+        ];
+        // Keep a single index per mode
+        const placeholderIndex = { company: 0, people: 0 };
 
         function rotatePlaceholder() {
             const input = document.getElementById('prospectWhat');
             if (!input || input === document.activeElement || input.value) return;
 
+            const list = currentSearchMode === 'people' ? peoplePlaceholders : companyPlaceholders;
             input.classList.add('placeholder-fade');
             setTimeout(() => {
-                currentPlaceholderIndex = (currentPlaceholderIndex + 1) % searchPlaceholders.length;
-                input.placeholder = searchPlaceholders[currentPlaceholderIndex];
+                placeholderIndex[currentSearchMode] = (placeholderIndex[currentSearchMode] + 1) % list.length;
+                input.placeholder = list[placeholderIndex[currentSearchMode]];
                 input.classList.remove('placeholder-fade');
             }, 300);
         }
@@ -4886,7 +5449,10 @@
                         document.getElementById('progressContainer').classList.remove('active');
                         document.getElementById('emptyState').style.display = 'block';
                         document.getElementById('emptyState').querySelector('h3').textContent = 'No results found';
-                        document.getElementById('emptyState').querySelector('p').textContent = 'Try different search queries or locations.';
+                        document.getElementById('emptyState').querySelector('p').textContent =
+                            currentSearchMode === 'people'
+                                ? 'Apollo returned 0 results. Try broader filters, or check that your Apollo plan supports People Search.'
+                                : 'Try different search queries or locations.';
                     }
                 }
 
@@ -4896,13 +5462,19 @@
         }
 
         function displayResults(leads) {
-            // Hide progress, show results
+            // Route to people display if in people mode
+            if (currentSearchMode === 'people') {
+                displayPeopleResults(leads);
+                return;
+            }
+
+            // Hide progress, show company results
             stopFlameMessages();
             document.getElementById('progressContainer').classList.remove('active');
             document.getElementById('enrichmentBanner').style.display = 'flex';
-            document.getElementById('statsGrid').style.display = 'grid';
-            document.getElementById('resultsTable').style.display = 'block';
-            document.getElementById('resultsActions').style.display = 'flex';
+            document.getElementById('resultsBar').style.display = 'flex';
+            document.getElementById('companyResultsTable').style.display = 'block';
+            document.getElementById('peopleResultsTable').style.display = 'none';
 
             // Calculate stats
             const highFit = leads.filter(l => l.fit_score >= 70).length;
@@ -4918,6 +5490,9 @@
             document.getElementById('lowFit').textContent = lowFit;
             document.getElementById('gradeACount').textContent = gradeA;
             document.getElementById('gradeBCount').textContent = gradeB;
+            // Restore stat labels to company defaults (may have been changed by people mode)
+            document.getElementById('gradeALabel').textContent = 'Grade A';
+            document.getElementById('gradeBLabel').textContent = 'Grade B';
 
             // Build table
             const tbody = document.getElementById('leadsBody');
@@ -5018,7 +5593,12 @@
         function exportCSV() {
             const jobId = lastCompletedJobId || currentJobId;
             if (jobId) {
-                const mode = currentJobEnriched ? 'enriched' : 'prospect';
+                let mode;
+                if (currentSearchMode === 'people') {
+                    mode = 'people';
+                } else {
+                    mode = currentJobEnriched ? 'enriched' : 'prospect';
+                }
                 window.location.href = `/api/export/${jobId}?mode=${mode}`;
             }
         }

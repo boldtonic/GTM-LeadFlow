@@ -1,10 +1,28 @@
 """
 CSV export service for GTM LeadFlow.
 Two formats: prospect (company-level) and enriched (contact-level).
+People search has its own 9-column format.
 """
 
 import csv
 import io
+
+
+def export_people_csv(people: list) -> io.BytesIO:
+    """Generate CSV from people search results. 9 columns, email excluded."""
+    cols = [
+        "name", "title", "city", "country", "company_name",
+        "linkedin_url", "fit_score", "fit_reasons", "source_query",
+    ]
+    output = io.StringIO()
+    writer = csv.DictWriter(output, fieldnames=cols, extrasaction="ignore")
+    writer.writeheader()
+    for person in people:
+        row = {col: person.get(col, "") for col in cols}
+        row["fit_reasons"] = "; ".join(person.get("fit_reasons", []))
+        writer.writerow(row)
+    output.seek(0)
+    return io.BytesIO(output.getvalue().encode("utf-8"))
 
 
 def _resolve_domain(lead):

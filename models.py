@@ -51,3 +51,30 @@ class Lead:
     scraped_at: str = ""
     enriched_at: str = ""
     source_query: str = ""
+
+
+@dataclass
+class Person:
+    """A person found via Apollo People Search."""
+
+    id: str = ""
+    first_name: str = ""
+    last_name: str = ""
+    name: str = ""
+    title: str = ""
+    seniority: str = ""
+    departments: list = field(default_factory=list)
+    city: str = ""
+    state: str = ""
+    country: str = ""
+    email: str = ""
+    linkedin_url: str = ""
+    company_name: str = ""
+    company_website: str = ""
+    company_domain: str = ""
+    company_industry: str = ""
+    company_size: str = ""
+    company_linkedin: str = ""
+    fit_score: int = 0
+    fit_reasons: list = field(default_factory=list)
+    source_query: str = ""

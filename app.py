@@ -18,6 +18,7 @@ from services import brief as brief_service
 from services import discovery as discovery_service
 from services import enrichment as enrichment_service
 from services import export as export_service
+from services import people as people_service
 from services import search as search_service
 from utils import clean_domain, dev_logs, log_dev
 
@@ -179,16 +180,40 @@ def cancel_search(job_id):
     return jsonify({"success": False, "error": "Job not found"}), 404
 
 
+@app.route("/api/people-search", methods=["POST"])
+def start_people_search():
+    """Start a background people search job (Apollo mixed_people/search)."""
+    config = request.json
+    job_id = datetime.now().strftime("%Y%m%d_%H%M%S") + "_people"
+
+    thread = threading.Thread(
+        target=people_service.run_people_search,
+        args=(job_id, config, _api_keys(), job_mgr),
+        daemon=True,
+    )
+    thread.start()
+
+    return jsonify({"job_id": job_id})
+
+
 @app.route("/api/export/<job_id>")
 def export_csv(job_id):
-    """Export leads as CSV. ?mode=prospect for company-level, default is enriched (contact-level)."""
+    """Export leads as CSV.
+    ?mode=prospect — company-level
+    ?mode=enriched — contact-level (default)
+    ?mode=people   — people search results
+    """
     leads = job_mgr.get_leads(job_id)
     if not leads:
         return "Not found", 404
 
     mode = request.args.get("mode", "prospect")
-    prefix = "prospects" if mode == "prospect" else "leads"
-    csv_data = export_service.export_leads_csv(leads, mode=mode)
+    if mode == "people":
+        csv_data = export_service.export_people_csv(leads)
+        prefix = "people"
+    else:
+        prefix = "prospects" if mode == "prospect" else "leads"
+        csv_data = export_service.export_leads_csv(leads, mode=mode)
     return send_file(csv_data, mimetype="text/csv", as_attachment=True, download_name=f"{prefix}_{job_id}.csv")
 
 

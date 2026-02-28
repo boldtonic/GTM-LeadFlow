@@ -63,6 +63,35 @@ class ApolloClient(BaseAPIClient):
         data = self._post("/people/match", params=params, timeout=10)
         return data.get("person", {}) if data else {}
 
+    def search_people(
+        self,
+        titles: list = None,
+        seniorities: list = None,
+        departments: list = None,
+        person_locations: list = None,
+        employee_ranges: list = None,
+        page: int = 1,
+        per_page: int = 25,
+    ) -> list:
+        """Search Apollo's people database with filters (mixed_people/search)."""
+        if not self.is_configured:
+            return []
+
+        payload = {"page": page, "per_page": min(per_page, 100)}
+        if titles:
+            payload["person_titles"] = titles
+        if seniorities:
+            payload["person_seniorities"] = seniorities
+        if departments:
+            payload["person_departments"] = departments
+        if person_locations:
+            payload["person_locations"] = person_locations
+        if employee_ranges:
+            payload["organization_num_employees_ranges"] = employee_ranges
+
+        data = self._post("/mixed_people/search", payload=payload, timeout=15)
+        return data.get("people", []) if data else []
+
     def search_organizations(
         self,
         name: str = None,
