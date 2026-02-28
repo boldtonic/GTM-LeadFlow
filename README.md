@@ -75,13 +75,3 @@ Leads are scored from 0 to 100 based on:
 
 High-fit leads (≥70) are the ones worth prioritizing for outreach.
 
----
-
-## Dev Notes
-
-Built with Python/Flask (backend) and vanilla JS (frontend). No framework, no build step. Runs on port 5001.
-
-```bash
-python3 -m pytest tests/ -v   # smoke tests
-python3 -m ruff check .        # lint
-```
