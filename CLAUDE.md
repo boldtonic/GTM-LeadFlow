@@ -45,16 +45,16 @@ python run.py briefs/client.yaml --no-enrich     # skip enrichment
 ### Backend (modular)
 
 ```
-app.py              (~418 lines) — thin Flask route handlers, API key loading
+app.py              (~443 lines) — thin Flask route handlers, API key loading
 utils.py            — log_dev (thread-safe), dev_logs, extract_domain, clean_domain, clean_markdown_text, is_business_domain, SKIP_DOMAINS
-models.py           — Lead dataclass (30+ fields)
+models.py           — Lead dataclass (30+ fields), Person dataclass (people search results)
 scoring.py          — LeadScorer class (0-100 fit_score)
 jobs.py             — JobManager class (thread-safe with Lock, TTL cleanup)
 
 api_clients/
   base.py           — BaseAPIClient with _get(), _post(), is_configured, _log()
   google_places.py  — GooglePlacesClient (query-param auth override)
-  apollo.py         — ApolloClient (search_contacts, search_organizations, enrich_organization, find_person)
+  apollo.py         — ApolloClient (search_contacts, search_organizations, enrich_organization, find_person, search_people)
   firecrawl.py      — FirecrawlClient (scrape, search)
   hunter.py         — HunterClient (domain_search, email_finder, email_verifier, email_count)
   scraper.py        — WebsiteScraper (requests-based, extracts social links + emails)
@@ -64,14 +64,15 @@ services/
   search.py         — run_search() pipeline: _step_search → _step_details → _step_enrich → _step_score
   discovery.py      — discover_prospects(), run_web_search(), run_apollo_search(), parse_maps_markdown()
   enrichment.py     — run_discover_and_enrich() (universal background pipeline), get_socials() (LinkedIn/Twitter lookup), compute_enrichment_signals(), enrich_company(), enrich_batch(), enrich_contacts(), extract_company_data()
+  people.py         — run_people_search() background pipeline (Apollo /mixed_people/search), _score_person()
   brief.py          — generate_brief() via Firecrawl + OpenAI
-  export.py         — export_leads_csv() → BytesIO
+  export.py         — export_leads_csv(), export_people_csv() → BytesIO
   __init__.py
 ```
 
-### Frontend: templates/index.html (~4500 lines)
+### Frontend: templates/index.html (~5610 lines)
 
-Single-page vanilla JS app with tabbed UI: **Prospecting** (unified search with auto-routing), **Enrichment** (domain enrichment), **Brief** (AI GTM generation). Dark theme, no framework, no build step.
+Single-page vanilla JS app with tabbed UI: **Prospecting** (unified search with auto-routing), **People Search** (Apollo people pipeline), **Enrichment** (domain enrichment), **Brief** (AI GTM generation). Dark theme, no framework, no build step.
 
 ## Enrichment Pipeline
 
@@ -89,7 +90,7 @@ Background jobs use `threading.Thread` (daemon=True) with polling (`/api/status/
 | `/api/search` | Start background search job |
 | `/api/status/<job_id>` | Poll job progress |
 | `/api/cancel/<job_id>` | Cancel running job |
-| `/api/export/<job_id>` | Download CSV |
+| `/api/export/<job_id>` | Download CSV (`?mode=people` for people CSV) |
 | `/api/brief` | AI brief generation (OpenAI + Firecrawl) |
 | `/api/discover` | Smart search / Apollo search / Maps URL scraping |
 | `/api/discover-and-enrich` | Background job: discover + enrich (same output as `/api/search`) |
@@ -103,6 +104,7 @@ Background jobs use `threading.Thread` (daemon=True) with polling (`/api/status/
 | `/api/dev/logs` | Dev panel log stream |
 | `/api/dev/logs/clear` | Clear dev logs (POST) |
 | `/api/dev/stats` | Enrichment statistics |
+| `/api/people-search` | Start background people search job (Apollo people pipeline) |
 
 ## API Client Pattern
 

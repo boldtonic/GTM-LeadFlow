@@ -54,6 +54,52 @@ class Lead:
 
 
 @dataclass
+class EnrichedLead:
+    """A lead on the Enrichment Kanban board."""
+
+    # Identity
+    id: str = ""
+    source_type: str = ""           # "company" or "person"
+    parent_company_id: str = ""     # non-empty when nested under a company card
+
+    # Original prospect data (full dict as received from Prospecting)
+    source_data: dict = field(default_factory=dict)
+
+    # Status
+    column: str = "imported"        # "imported" | "contacts_found" | "deep_researched"
+
+    # Contact enrichment layer
+    persons: list = field(default_factory=list)         # decision makers found inside a company
+    contact_email: str = ""
+    contact_phone: str = ""
+    all_socials: dict = field(default_factory=dict)
+    company_size_verified: str = ""
+    contact_enriched_at: str = ""
+
+    # Deep research layer
+    linkedin_summary: str = ""
+    recent_activity: str = ""
+    company_news: str = ""
+    pain_points: list = field(default_factory=list)
+    outreach_angle: str = ""
+    tech_stack: list = field(default_factory=list)
+    deep_researched_at: str = ""
+
+    # Organisation
+    tags: list = field(default_factory=list)
+    notes: str = ""
+    activity_log: list = field(default_factory=list)
+
+    # Scoring
+    fit_score: int = 0
+    enriched_score: int = 0         # updated after enrichment (0 = not yet updated)
+
+    # Meta
+    added_at: str = ""
+    updated_at: str = ""
+
+
+@dataclass
 class Person:
     """A person found via Apollo People Search."""
 

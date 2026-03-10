@@ -2058,6 +2058,407 @@
                 display: none;
             }
         }
+
+        /* ============================================================
+           PROSPECTING — Selection toolbar & checkbox column
+           ============================================================ */
+
+        .selection-toolbar {
+            display: none;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.6rem 0.9rem;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            flex-wrap: wrap;
+        }
+        .selection-toolbar.visible { display: flex; }
+        .selection-toolbar__count {
+            font-size: 0.82rem;
+            color: var(--text-primary);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .selection-toolbar__divider {
+            width: 1px;
+            height: 18px;
+            background: var(--border);
+        }
+        .sel-filter-btn {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            padding: 0.3rem 0.6rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: border-color 0.15s, color 0.15s;
+        }
+        .sel-filter-btn:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+        .sel-take-btn {
+            background: var(--accent);
+            border: none;
+            border-radius: 6px;
+            padding: 0.35rem 0.85rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #fff;
+            cursor: pointer;
+            margin-left: auto;
+            transition: opacity 0.15s;
+        }
+        .sel-take-btn:hover { opacity: 0.85; }
+        .sel-take-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* checkbox column in table */
+        th.col-check, td.col-check {
+            width: 36px;
+            text-align: center;
+            padding: 0.4rem 0.25rem;
+        }
+        input[type="checkbox"].row-check { cursor: pointer; accent-color: var(--accent); }
+
+        /* ============================================================
+           KANBAN BOARD
+           ============================================================ */
+
+        .kanban-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            height: 100%;
+        }
+
+        .kanban-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .kanban-topbar h2 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+        }
+        .kanban-topbar-actions { display: flex; gap: 0.5rem; }
+
+        .kanban-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            align-items: start;
+        }
+
+        @media (max-width: 1100px) {
+            .kanban-board { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 640px) {
+            .kanban-board { grid-template-columns: 1fr; }
+        }
+
+        .kanban-col {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            min-height: 180px;
+            max-height: calc(100vh - 240px);
+            overflow: hidden;
+        }
+
+        .kanban-col-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 0.9rem 0.6rem;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            background: var(--surface-2);
+            z-index: 1;
+        }
+        .kanban-col-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+        .kanban-col-count {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 0.1rem 0.5rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            min-width: 22px;
+            text-align: center;
+        }
+
+        .kanban-col-cards {
+            padding: 0.6rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .kanban-col-empty {
+            padding: 1.5rem 0.75rem;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        /* Kanban Card */
+        .kcard {
+            background: var(--card-bg, var(--surface));
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.65rem 0.75rem;
+            cursor: pointer;
+            transition: border-color 0.15s, box-shadow 0.15s;
+            position: relative;
+        }
+        .kcard:hover { border-color: var(--accent); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+        .kcard.selected { border-color: var(--accent); background: rgba(99,102,241,0.06); }
+
+        .kcard-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+        .kcard-check { margin-top: 2px; flex-shrink: 0; accent-color: var(--accent); cursor: pointer; }
+        .kcard-icon { font-size: 1rem; flex-shrink: 0; line-height: 1.4; }
+        .kcard-body { flex: 1; min-width: 0; }
+
+        .kcard-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .kcard-sub {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            margin-top: 1px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .kcard-score {
+            font-size: 0.72rem;
+            font-weight: 700;
+            border-radius: 4px;
+            padding: 0.1rem 0.35rem;
+            flex-shrink: 0;
+            align-self: flex-start;
+        }
+        .kcard-score.high { background: rgba(34,197,94,0.15); color: #22c55e; }
+        .kcard-score.medium { background: rgba(251,191,36,0.15); color: #fbbf24; }
+        .kcard-score.low { background: rgba(239,68,68,0.12); color: #ef4444; }
+
+        .kcard-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.25rem;
+            margin-top: 0.4rem;
+        }
+        .kcard-tag {
+            font-size: 0.65rem;
+            background: rgba(99,102,241,0.12);
+            color: var(--accent);
+            border-radius: 3px;
+            padding: 0.1rem 0.4rem;
+            cursor: pointer;
+        }
+        .kcard-tag:hover { background: rgba(99,102,241,0.22); }
+
+        .kcard-signals {
+            display: flex;
+            gap: 0.4rem;
+            margin-top: 0.35rem;
+            flex-wrap: wrap;
+        }
+        .kcard-signal {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        /* Expanded card */
+        .kcard-expanded {
+            display: none;
+            margin-top: 0.6rem;
+            padding-top: 0.6rem;
+            border-top: 1px solid var(--border);
+        }
+        .kcard.open .kcard-expanded { display: block; }
+
+        .kcard-detail-row {
+            display: flex;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 0.3rem;
+            align-items: flex-start;
+        }
+        .kcard-detail-row strong { color: var(--text-primary); min-width: 64px; flex-shrink: 0; }
+
+        .kcard-notes-field {
+            width: 100%;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            padding: 0.4rem 0.5rem;
+            font-size: 0.75rem;
+            color: var(--text-primary);
+            resize: vertical;
+            min-height: 52px;
+            margin-top: 0.5rem;
+            box-sizing: border-box;
+        }
+        .kcard-notes-field:focus { outline: none; border-color: var(--accent); }
+
+        .kcard-tag-input-row {
+            display: flex;
+            gap: 0.4rem;
+            margin-top: 0.4rem;
+        }
+        .kcard-tag-input {
+            flex: 1;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            padding: 0.3rem 0.5rem;
+            font-size: 0.75rem;
+            color: var(--text-primary);
+        }
+        .kcard-tag-input:focus { outline: none; border-color: var(--accent); }
+        .kcard-tag-add-btn {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            padding: 0.3rem 0.6rem;
+            font-size: 0.75rem;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+        .kcard-tag-add-btn:hover { border-color: var(--accent); color: var(--text-primary); }
+
+        .kcard-actions {
+            display: flex;
+            gap: 0.4rem;
+            margin-top: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .kcard-action-btn {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            padding: 0.3rem 0.55rem;
+            font-size: 0.72rem;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: border-color 0.12s, color 0.12s;
+        }
+        .kcard-action-btn:hover { border-color: var(--accent); color: var(--text-primary); }
+        .kcard-action-btn.danger:hover { border-color: #ef4444; color: #ef4444; }
+
+        /* Activity log */
+        .kcard-log {
+            margin-top: 0.5rem;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+        .kcard-log-entry {
+            padding: 0.2rem 0;
+            border-left: 2px solid var(--border);
+            padding-left: 0.5rem;
+            margin-bottom: 0.2rem;
+        }
+        .kcard-log-entry time {
+            display: block;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            opacity: 0.7;
+        }
+
+        /* Kanban bulk action bar */
+        .kanban-bulk-bar {
+            display: none;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.55rem 0.9rem;
+            background: rgba(99,102,241,0.08);
+            border: 1px solid rgba(99,102,241,0.25);
+            border-radius: 8px;
+            flex-wrap: wrap;
+        }
+        .kanban-bulk-bar.visible { display: flex; }
+        .kanban-bulk-bar__count {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            white-space: nowrap;
+        }
+
+        /* Outreach Ready column special styling */
+        .kanban-col.col-outreach .kanban-col-header {
+            border-bottom-color: rgba(99,102,241,0.3);
+        }
+        .kanban-col.col-outreach .kanban-col-title { color: var(--accent); }
+
+        /* Kanban tools panel (old enrichment tools, collapsed) */
+        .kanban-tools-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            padding: 0.5rem 0;
+            border-top: 1px solid var(--border);
+            margin-top: 1rem;
+            user-select: none;
+        }
+        .kanban-tools-toggle:hover { color: var(--text-primary); }
+        .kanban-tools-panel { display: none; margin-top: 0.75rem; }
+        .kanban-tools-panel.open { display: block; }
+
+        /* Duplicate detection modal */
+        .kmodal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        .kmodal-overlay.open { display: flex; }
+        .kmodal {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            max-width: 420px;
+            width: 90%;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+        .kmodal h3 { margin: 0 0 0.5rem; font-size: 1rem; }
+        .kmodal p { color: var(--text-muted); font-size: 0.875rem; margin: 0 0 1.25rem; }
+        .kmodal-actions { display: flex; gap: 0.6rem; justify-content: flex-end; }
+        .kmodal-actions .btn { width: auto; padding: 0.5rem 1rem; font-size: 0.85rem; }
     </style>
 </head>
 <body>
@@ -2648,11 +3049,27 @@
                     </button>
                 </div>
 
+                <!-- Selection toolbar (company + people tables) -->
+                <div class="selection-toolbar" id="companySelectionToolbar">
+                    <input type="checkbox" id="selectAllCompany" onchange="toggleSelectAllCompany()" title="Select all">
+                    <span class="selection-toolbar__count" id="companySelCount">0 selected</span>
+                    <div class="selection-toolbar__divider"></div>
+                    <button class="sel-filter-btn" onclick="selectCompanyByScore(70)">Score 70+</button>
+                    <button class="sel-filter-btn" onclick="selectCompanyByScore(80)">80+</button>
+                    <button class="sel-filter-btn" onclick="selectCompanyByGrade('A')">Grade A</button>
+                    <button class="sel-filter-btn" onclick="selectCompanyByGrade('B')">Grade B</button>
+                    <button class="sel-filter-btn" onclick="clearCompanySelection()">Clear</button>
+                    <button class="sel-take-btn" id="companyTakeBtn" onclick="openImportModal('company')" disabled>
+                        🔥 Take to Enrichment
+                    </button>
+                </div>
+
                 <!-- Company Search results table -->
                 <div class="table-container" id="companyResultsTable" style="display: none;">
                     <table>
                         <thead>
                             <tr>
+                                <th class="col-check"><input type="checkbox" id="selectAllCompanyTh" onchange="toggleSelectAllCompany()" title="Select all"></th>
                                 <th>Score</th>
                                 <th>Business</th>
                                 <th>Industry</th>
@@ -2670,11 +3087,26 @@
                     </table>
                 </div>
 
+                <!-- Selection toolbar (people) -->
+                <div class="selection-toolbar" id="peopleSelectionToolbar">
+                    <input type="checkbox" id="selectAllPeople" onchange="toggleSelectAllPeople()" title="Select all">
+                    <span class="selection-toolbar__count" id="peopleSelCount">0 selected</span>
+                    <div class="selection-toolbar__divider"></div>
+                    <button class="sel-filter-btn" onclick="selectPeopleByScore(70)">Score 70+</button>
+                    <button class="sel-filter-btn" onclick="selectPeopleByScore(80)">80+</button>
+                    <button class="sel-filter-btn" onclick="selectPeopleBySeniority()">Director+</button>
+                    <button class="sel-filter-btn" onclick="clearPeopleSelection()">Clear</button>
+                    <button class="sel-take-btn" id="peopleTakeBtn" onclick="openImportModal('person')" disabled>
+                        🔥 Take to Enrichment
+                    </button>
+                </div>
+
                 <!-- People Search results table -->
                 <div class="table-container" id="peopleResultsTable" style="display: none;">
                     <table>
                         <thead>
                             <tr>
+                                <th class="col-check"><input type="checkbox" id="selectAllPeopleTh" onchange="toggleSelectAllPeople()" title="Select all"></th>
                                 <th>Score</th>
                                 <th>Name</th>
                                 <th>Title</th>
@@ -2794,189 +3226,213 @@
             </div>
         </div><!-- End tab-brief -->
 
-        <!-- TAB: Enrichment -->
+        <!-- TAB: Enrichment Kanban -->
         <div id="tab-enrichment" class="tab-content">
-            <!-- Stats Cards -->
-            <div id="enrichStatsGrid" class="stats-grid" style="display: none; margin-bottom: 1.5rem;">
-                <div class="stat-card">
-                    <div class="stat-value" id="enrichTotal">0</div>
-                    <div class="stat-label">Total Leads</div>
-                </div>
-                <div class="stat-card high">
-                    <div class="stat-value" id="enrichEnriched">0</div>
-                    <div class="stat-label">Enriched</div>
-                </div>
-                <div class="stat-card medium">
-                    <div class="stat-value" id="enrichProcessing">0</div>
-                    <div class="stat-label">Processing</div>
-                </div>
-                <div class="stat-card low">
-                    <div class="stat-value" id="enrichFailed">0</div>
-                    <div class="stat-label">Failed</div>
-                </div>
-            </div>
+            <div class="kanban-wrap">
 
-            <div class="main-grid">
-                <div class="form-panel">
-                    <div class="form-section">
-                        <h3>✨ Enrich</h3>
-
-                        <!-- Two intent-based tabs -->
-                        <div class="enrich-tabs" style="display: flex; gap: 0.25rem; margin-bottom: 1.25rem;">
-                            <button class="enrich-tab active" onclick="switchEnrichMode('company')" id="enrichTabCompany">
-                                🏢 Company Enrichment
-                            </button>
-                            <button class="enrich-tab" onclick="switchEnrichMode('contacts')" id="enrichTabContacts">
-                                👤 Contact Finder
-                            </button>
-                        </div>
-
-                        <!-- Company Enrichment -->
-                        <div id="enrichModeCompany">
-                            <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 0.75rem;">
-                                Enter one or more company domains — we'll surface the company profile, key decision makers, and their verified contact information.
-                            </p>
-                            <div style="display: flex; gap: 0.5rem;">
-                                <input type="text" id="companyDomains" placeholder="acme.com, stripe.com, hubspot.com…" style="flex: 1;">
-                                <button class="btn btn-primary" onclick="enrichCompany()" id="enrichCompanyBtn" style="width: auto; padding: 0.75rem 1.25rem;">
-                                    Enrich →
-                                </button>
-                            </div>
-                            <p style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.4rem;">
-                                Separate multiple domains with commas &nbsp;·&nbsp;
-                                <span style="color: var(--accent); cursor: pointer;" onclick="toggleEnrichCsv()">or upload a CSV file</span>
-                            </p>
-                            <!-- CSV upload (toggled) -->
-                            <div id="enrichCsvUpload" style="display: none; margin-top: 0.75rem;">
-                                <input type="file" id="csvFileInput" accept=".csv" style="display: none;" onchange="handleCsvUpload(event)">
-                                <div class="csv-dropzone" onclick="document.getElementById('csvFileInput').click()">
-                                    <div style="font-size: 1.5rem; margin-bottom: 0.25rem;">📁</div>
-                                    <p style="margin-bottom: 0.25rem; font-size: 0.85rem;">Click to upload a CSV of company domains</p>
-                                    <p style="font-size: 0.72rem; color: var(--text-muted);">Needs a column with domains — e.g. "domain", "website", or "url"</p>
-                                </div>
-                            </div>
-                            <!-- Output hint -->
-                            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: center; margin-top: 0.75rem;">
-                                <span style="font-size: 0.72rem; color: var(--text-muted);">You'll get:</span>
-                                <span class="tag" style="font-size: 0.7rem;">Company profile</span>
-                                <span class="tag" style="font-size: 0.7rem;">Decision makers</span>
-                                <span class="tag" style="font-size: 0.7rem;">Verified emails</span>
-                                <span class="tag" style="font-size: 0.7rem;">LinkedIn profiles</span>
-                            </div>
-                        </div>
-
-                        <!-- Contact Finder -->
-                        <div id="enrichModeContacts" style="display: none;">
-                            <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 0.75rem;">
-                                Upload a list of contacts and we'll find their LinkedIn profiles.
-                            </p>
-                            <!-- What you provide / what you get -->
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.75rem; font-size: 0.75rem;">
-                                <div style="background: var(--surface-2); padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border);">
-                                    <div style="font-weight: 600; margin-bottom: 0.35rem; color: var(--text-muted); text-transform: uppercase; font-size: 0.65rem; letter-spacing: 0.05em;">What you provide</div>
-                                    <div>✓ First &amp; Last Name</div>
-                                    <div>✓ Company name</div>
-                                    <div style="color: var(--text-muted);">○ Job title (optional)</div>
-                                    <div style="color: var(--text-muted);">○ Location (optional)</div>
-                                </div>
-                                <div style="background: var(--surface-2); padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border);">
-                                    <div style="font-weight: 600; margin-bottom: 0.35rem; color: var(--text-muted); text-transform: uppercase; font-size: 0.65rem; letter-spacing: 0.05em;">What you get back</div>
-                                    <div>✓ LinkedIn profile URL</div>
-                                    <div>✓ Status per contact</div>
-                                    <div>✓ Exportable CSV</div>
-                                </div>
-                            </div>
-                            <input type="file" id="socialsFileInput" accept=".csv" style="display: none;" onchange="handleSocialsCSV(event)">
-                            <div class="csv-dropzone" onclick="document.getElementById('socialsFileInput').click()" id="socialsDropzone">
-                                <div style="font-size: 2rem; margin-bottom: 0.5rem;">👤</div>
-                                <p style="margin-bottom: 0.25rem;">Click to upload your contacts CSV</p>
-                                <p style="font-size: 0.75rem; color: var(--text-muted);">Required columns: First Name, Last Name, Company</p>
-                            </div>
-                            <!-- Preview table (shown after CSV parsed) -->
-                            <div id="socialsPreview" style="display: none; margin-top: 0.75rem;">
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                                    <span style="font-size: 0.8rem; color: var(--text-muted);" id="socialsPreviewCount"></span>
-                                    <button class="btn btn-secondary" onclick="document.getElementById('socialsFileInput').click()" style="width: auto; padding: 0.3rem 0.6rem; font-size: 0.75rem;">Change file</button>
-                                </div>
-                                <div style="overflow-x: auto; max-height: 180px; border: 1px solid var(--border); border-radius: 6px;">
-                                    <table style="width: 100%; font-size: 0.75rem; border-collapse: collapse;" id="socialsPreviewTable">
-                                        <thead id="socialsPreviewHead"></thead>
-                                        <tbody id="socialsPreviewBody"></tbody>
-                                    </table>
-                                </div>
-                                <button class="btn btn-primary" onclick="runGetSocials()" id="runSocialsBtn" style="width: 100%; margin-top: 0.75rem;">
-                                    🔍 Find LinkedIn Profiles
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="enrichProgress" style="display: none; margin-top: 1rem;">
-                        <div class="progress-bar">
-                            <div class="progress-fill" id="enrichProgressFill" style="width: 0%;"></div>
-                        </div>
-                        <p id="enrichProgressText" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">Enriching...</p>
+                <!-- Top bar -->
+                <div class="kanban-topbar">
+                    <h2>Enrichment Kanban</h2>
+                    <div class="kanban-topbar-actions">
+                        <span id="kanbanTotalCount" style="font-size:0.8rem;color:var(--text-muted);align-self:center;"></span>
+                        <button class="btn btn-secondary" style="width:auto;padding:0.4rem 0.8rem;font-size:0.8rem;" onclick="loadKanban()">↻ Refresh</button>
                     </div>
                 </div>
 
-                <div class="results-panel">
-                    <div class="results-header">
-                        <h2>Leads</h2>
-                        <div style="display: flex; gap: 0.5rem; align-items: center;">
-                            <span id="enrichLeadsCount" style="color: var(--text-muted); font-size: 0.875rem;"></span>
-                            <button class="btn btn-secondary" onclick="exportEnriched()" id="exportEnrichedBtn" style="display: none;">
-                                📥 Export CSV
-                            </button>
+                <!-- Bulk action bar (shown when cards selected) -->
+                <div class="kanban-bulk-bar" id="kanbanBulkBar">
+                    <span class="kanban-bulk-bar__count" id="kanbanBulkCount">0 leads selected</span>
+                    <div class="selection-toolbar__divider"></div>
+                    <button class="sel-filter-btn" onclick="kanbanBulkDelete()">🗑 Remove</button>
+                    <button class="sel-filter-btn" onclick="openBulkTagModal()">🏷 Add Tag</button>
+                </div>
+
+                <!-- Kanban columns -->
+                <div class="kanban-board" id="kanbanBoard">
+                    <div class="kanban-col" id="kanban-col-imported">
+                        <div class="kanban-col-header">
+                            <span class="kanban-col-title">Imported</span>
+                            <span class="kanban-col-count" id="kanban-count-imported">0</span>
+                        </div>
+                        <div class="kanban-col-cards" id="kanban-cards-imported">
+                            <div class="kanban-col-empty">No leads yet.<br>Send prospects from Prospecting.</div>
                         </div>
                     </div>
 
-                    <div id="enrichResults" class="empty-state">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                        </svg>
-                        <h3>No leads yet</h3>
-                        <p>Enter company domains or upload a CSV to start enriching your leads with data from the web.</p>
+                    <div class="kanban-col" id="kanban-col-contacts_found">
+                        <div class="kanban-col-header">
+                            <span class="kanban-col-title">Contacts Found</span>
+                            <span class="kanban-col-count" id="kanban-count-contacts_found">0</span>
+                        </div>
+                        <div class="kanban-col-cards" id="kanban-cards-contacts_found">
+                            <div class="kanban-col-empty">Leads with decision makers &amp; emails appear here.</div>
+                        </div>
                     </div>
 
-                    <!-- Socials Results (shown only in Get Socials mode) -->
-                    <div id="socialsResults" style="display: none;">
-                        <div class="empty-state" id="socialsEmpty">
-                            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔗</div>
-                            <h3>No results yet</h3>
-                            <p>Upload a CSV and click "Find LinkedIn Profiles" to get started.</p>
+                    <div class="kanban-col" id="kanban-col-deep_researched">
+                        <div class="kanban-col-header">
+                            <span class="kanban-col-title">Deep Researched</span>
+                            <span class="kanban-col-count" id="kanban-count-deep_researched">0</span>
                         </div>
-                        <div id="socialsResultsTable" style="display: none;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                                <span id="socialsResultsCount" style="font-size: 0.875rem; color: var(--text-muted);"></span>
-                                <button class="btn btn-secondary" onclick="exportSocialsCSV()" id="exportSocialsBtn" style="display: none; width: auto; padding: 0.4rem 0.75rem; font-size: 0.8rem;">
-                                    📥 Export CSV
-                                </button>
-                            </div>
-                            <div id="socialsLoadingBar" style="display: none; margin-bottom: 0.75rem;">
-                                <div class="progress-bar">
-                                    <div class="progress-fill" id="socialsProgressFill" style="width: 0%; transition: width 0.3s;"></div>
-                                </div>
-                                <p id="socialsProgressText" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.4rem;">Searching...</p>
-                            </div>
-                            <div style="overflow-x: auto;">
-                                <table style="width: 100%; font-size: 0.8rem; border-collapse: collapse;" id="socialsTable">
-                                    <thead id="socialsTableHead">
-                                        <tr style="border-bottom: 1px solid var(--border); text-align: left;">
-                                            <th style="padding: 0.5rem 0.75rem; color: var(--text-muted); font-weight: 500;">Name</th>
-                                            <th style="padding: 0.5rem 0.75rem; color: var(--text-muted); font-weight: 500;">Title</th>
-                                            <th style="padding: 0.5rem 0.75rem; color: var(--text-muted); font-weight: 500;">Company</th>
-                                            <th style="padding: 0.5rem 0.75rem; color: var(--text-muted); font-weight: 500;">LinkedIn URL</th>
-                                            <th style="padding: 0.5rem 0.75rem; color: var(--text-muted); font-weight: 500;">Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="socialsTableBody"></tbody>
-                                </table>
-                            </div>
+                        <div class="kanban-col-cards" id="kanban-cards-deep_researched">
+                            <div class="kanban-col-empty">AI-researched leads appear here.</div>
+                        </div>
+                    </div>
+
+                    <div class="kanban-col col-outreach" id="kanban-col-outreach_ready">
+                        <div class="kanban-col-header">
+                            <span class="kanban-col-title">Outreach Ready</span>
+                            <span class="kanban-col-count" id="kanban-count-outreach_ready">0</span>
+                        </div>
+                        <div class="kanban-col-cards" id="kanban-cards-outreach_ready">
+                            <div class="kanban-col-empty">Leads matching your outreach criteria appear here.</div>
                         </div>
                     </div>
                 </div>
-            </div>
+
+                <!-- Old enrichment tools (collapsed) -->
+                <div class="kanban-tools-toggle" onclick="toggleKanbanTools()">
+                    <span id="kanbanToolsArrow">▶</span>
+                    <span>Manual Enrichment Tools</span>
+                    <span style="font-size:0.7rem;opacity:0.6;margin-left:0.25rem;">(domain enrichment, contact finder)</span>
+                </div>
+                <div class="kanban-tools-panel" id="kanbanToolsPanel">
+                    <div class="main-grid">
+                        <div class="form-panel">
+                            <div class="form-section">
+                                <h3>✨ Enrich</h3>
+                                <div class="enrich-tabs" style="display: flex; gap: 0.25rem; margin-bottom: 1.25rem;">
+                                    <button class="enrich-tab active" onclick="switchEnrichMode('company')" id="enrichTabCompany">🏢 Company Enrichment</button>
+                                    <button class="enrich-tab" onclick="switchEnrichMode('contacts')" id="enrichTabContacts">👤 Contact Finder</button>
+                                </div>
+
+                                <div id="enrichModeCompany">
+                                    <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 0.75rem;">Enter one or more company domains — we'll surface the company profile, key decision makers, and their verified contact information.</p>
+                                    <div style="display: flex; gap: 0.5rem;">
+                                        <input type="text" id="companyDomains" placeholder="acme.com, stripe.com, hubspot.com…" style="flex: 1;">
+                                        <button class="btn btn-primary" onclick="enrichCompany()" id="enrichCompanyBtn" style="width: auto; padding: 0.75rem 1.25rem;">Enrich →</button>
+                                    </div>
+                                    <p style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.4rem;">Separate multiple domains with commas &nbsp;·&nbsp; <span style="color: var(--accent); cursor: pointer;" onclick="toggleEnrichCsv()">or upload a CSV file</span></p>
+                                    <div id="enrichCsvUpload" style="display: none; margin-top: 0.75rem;">
+                                        <input type="file" id="csvFileInput" accept=".csv" style="display: none;" onchange="handleCsvUpload(event)">
+                                        <div class="csv-dropzone" onclick="document.getElementById('csvFileInput').click()">
+                                            <div style="font-size: 1.5rem; margin-bottom: 0.25rem;">📁</div>
+                                            <p style="margin-bottom: 0.25rem; font-size: 0.85rem;">Click to upload a CSV of company domains</p>
+                                            <p style="font-size: 0.72rem; color: var(--text-muted);">Needs a column with domains — e.g. "domain", "website", or "url"</p>
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: center; margin-top: 0.75rem;">
+                                        <span style="font-size: 0.72rem; color: var(--text-muted);">You'll get:</span>
+                                        <span class="tag" style="font-size: 0.7rem;">Company profile</span>
+                                        <span class="tag" style="font-size: 0.7rem;">Decision makers</span>
+                                        <span class="tag" style="font-size: 0.7rem;">Verified emails</span>
+                                        <span class="tag" style="font-size: 0.7rem;">LinkedIn profiles</span>
+                                    </div>
+                                </div>
+
+                                <div id="enrichModeContacts" style="display: none;">
+                                    <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 0.75rem;">Upload a list of contacts and we'll find their LinkedIn profiles.</p>
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.75rem; font-size: 0.75rem;">
+                                        <div style="background: var(--surface-2); padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border);">
+                                            <div style="font-weight: 600; margin-bottom: 0.35rem; color: var(--text-muted); text-transform: uppercase; font-size: 0.65rem; letter-spacing: 0.05em;">What you provide</div>
+                                            <div>✓ First &amp; Last Name</div><div>✓ Company name</div>
+                                            <div style="color: var(--text-muted);">○ Job title (optional)</div>
+                                        </div>
+                                        <div style="background: var(--surface-2); padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border);">
+                                            <div style="font-weight: 600; margin-bottom: 0.35rem; color: var(--text-muted); text-transform: uppercase; font-size: 0.65rem; letter-spacing: 0.05em;">What you get back</div>
+                                            <div>✓ LinkedIn profile URL</div><div>✓ Status per contact</div><div>✓ Exportable CSV</div>
+                                        </div>
+                                    </div>
+                                    <input type="file" id="socialsFileInput" accept=".csv" style="display: none;" onchange="handleSocialsCSV(event)">
+                                    <div class="csv-dropzone" onclick="document.getElementById('socialsFileInput').click()" id="socialsDropzone">
+                                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">👤</div>
+                                        <p style="margin-bottom: 0.25rem;">Click to upload your contacts CSV</p>
+                                        <p style="font-size: 0.75rem; color: var(--text-muted);">Required columns: First Name, Last Name, Company</p>
+                                    </div>
+                                    <div id="socialsPreview" style="display: none; margin-top: 0.75rem;">
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                            <span style="font-size: 0.8rem; color: var(--text-muted);" id="socialsPreviewCount"></span>
+                                            <button class="btn btn-secondary" onclick="document.getElementById('socialsFileInput').click()" style="width: auto; padding: 0.3rem 0.6rem; font-size: 0.75rem;">Change file</button>
+                                        </div>
+                                        <div style="overflow-x: auto; max-height: 180px; border: 1px solid var(--border); border-radius: 6px;">
+                                            <table style="width: 100%; font-size: 0.75rem; border-collapse: collapse;" id="socialsPreviewTable">
+                                                <thead id="socialsPreviewHead"></thead>
+                                                <tbody id="socialsPreviewBody"></tbody>
+                                            </table>
+                                        </div>
+                                        <button class="btn btn-primary" onclick="runGetSocials()" id="runSocialsBtn" style="width: 100%; margin-top: 0.75rem;">🔍 Find LinkedIn Profiles</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="enrichProgress" style="display: none; margin-top: 1rem;">
+                                <div class="progress-bar"><div class="progress-fill" id="enrichProgressFill" style="width: 0%;"></div></div>
+                                <p id="enrichProgressText" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">Enriching...</p>
+                            </div>
+                        </div>
+
+                        <div class="results-panel">
+                            <div class="results-header">
+                                <h2>Leads</h2>
+                                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                    <span id="enrichLeadsCount" style="color: var(--text-muted); font-size: 0.875rem;"></span>
+                                    <button class="btn btn-secondary" onclick="exportEnriched()" id="exportEnrichedBtn" style="display: none;">📥 Export CSV</button>
+                                </div>
+                            </div>
+                            <div id="enrichResults" class="empty-state">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                </svg>
+                                <h3>No leads yet</h3>
+                                <p>Enter company domains or upload a CSV to start enriching.</p>
+                            </div>
+                            <div id="socialsResults" style="display: none;">
+                                <div class="empty-state" id="socialsEmpty">
+                                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔗</div>
+                                    <h3>No results yet</h3>
+                                    <p>Upload a CSV and click "Find LinkedIn Profiles" to get started.</p>
+                                </div>
+                                <div id="socialsResultsTable" style="display: none;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                                        <span id="socialsResultsCount" style="font-size: 0.875rem; color: var(--text-muted);"></span>
+                                        <button class="btn btn-secondary" onclick="exportSocialsCSV()" id="exportSocialsBtn" style="display: none; width: auto; padding: 0.4rem 0.75rem; font-size: 0.8rem;">📥 Export CSV</button>
+                                    </div>
+                                    <div id="socialsLoadingBar" style="display: none; margin-bottom: 0.75rem;">
+                                        <div class="progress-bar"><div class="progress-fill" id="socialsProgressFill" style="width: 0%; transition: width 0.3s;"></div></div>
+                                        <p id="socialsProgressText" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.4rem;">Searching...</p>
+                                    </div>
+                                    <div style="overflow-x: auto;">
+                                        <table style="width: 100%; font-size: 0.8rem; border-collapse: collapse;" id="socialsTable">
+                                            <thead id="socialsTableHead">
+                                                <tr style="border-bottom: 1px solid var(--border); text-align: left;">
+                                                    <th style="padding: 0.5rem 0.75rem; color: var(--text-muted); font-weight: 500;">Name</th>
+                                                    <th style="padding: 0.5rem 0.75rem; color: var(--text-muted); font-weight: 500;">Title</th>
+                                                    <th style="padding: 0.5rem 0.75rem; color: var(--text-muted); font-weight: 500;">Company</th>
+                                                    <th style="padding: 0.5rem 0.75rem; color: var(--text-muted); font-weight: 500;">LinkedIn URL</th>
+                                                    <th style="padding: 0.5rem 0.75rem; color: var(--text-muted); font-weight: 500;">Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="socialsTableBody"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div><!-- end kanban-tools-panel -->
+            </div><!-- end kanban-wrap -->
         </div><!-- End tab-enrichment -->
+
+        <!-- Import modal (duplicate detection) -->
+        <div class="kmodal-overlay" id="importModal">
+            <div class="kmodal">
+                <h3 id="importModalTitle">Send to Enrichment Kanban</h3>
+                <p id="importModalMsg">Loading…</p>
+                <div class="kmodal-actions">
+                    <button class="btn btn-secondary" onclick="closeImportModal()">Cancel</button>
+                    <button class="btn btn-primary" id="importModalConfirmBtn" onclick="confirmImport()">Import</button>
+                </div>
+            </div>
+        </div>
 
     </div>
 
@@ -3051,6 +3507,8 @@
             } else {
                 if (placeholderInterval) { clearInterval(placeholderInterval); placeholderInterval = null; }
             }
+            // Load Kanban when switching to enrichment tab
+            if (tabName === 'enrichment') loadKanban();
         }
 
         // Update step status
@@ -3535,6 +3993,16 @@
 
         let selectedProspectIds = new Set();
 
+        // ---- Company & People table selection state ----
+        let companyLeads = [];       // full lead objects from last company search
+        let peopleLeads = [];        // full person objects from last people search
+        let selectedCompanyIds = new Set();
+        let selectedPeopleIds = new Set();
+
+        // pending import state
+        let _importSourceType = '';
+        let _importProspects = [];
+
         // ============================================
         // INTENT-DRIVEN STRATEGY ROUTING
         // ============================================
@@ -3595,7 +4063,507 @@
         }
 
         function takeToEnrichment() {
-            showToast('🔥 Enrichment Kanban coming soon!');
+            // Opens import modal for company table (legacy banner button)
+            openImportModal('company');
+        }
+
+        // ============================================
+        // COMPANY TABLE SELECTION
+        // ============================================
+
+        function toggleCompanyRow(id) {
+            if (selectedCompanyIds.has(id)) selectedCompanyIds.delete(id);
+            else selectedCompanyIds.add(id);
+            _updateCompanySelectionUI();
+        }
+
+        function toggleSelectAllCompany() {
+            const checked = document.getElementById('selectAllCompanyTh')?.checked
+                         || document.getElementById('selectAllCompany')?.checked;
+            if (checked) {
+                selectedCompanyIds = new Set(companyLeads.map(l => l._rowId));
+            } else {
+                selectedCompanyIds.clear();
+            }
+            // Sync both header checkboxes
+            ['selectAllCompany', 'selectAllCompanyTh'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.checked = checked;
+            });
+            document.querySelectorAll('#leadsBody .row-check').forEach(cb => {
+                cb.checked = checked;
+            });
+            _updateCompanySelectionUI();
+        }
+
+        function selectCompanyByScore(min) {
+            selectedCompanyIds = new Set(
+                companyLeads.filter(l => (l.fit_score || 0) >= min).map(l => l._rowId)
+            );
+            document.querySelectorAll('#leadsBody .row-check').forEach(cb => {
+                cb.checked = selectedCompanyIds.has(cb.dataset.id);
+            });
+            _updateCompanySelectionUI();
+        }
+
+        function selectCompanyByGrade(grade) {
+            selectedCompanyIds = new Set(
+                companyLeads.filter(l => l.enrichment_grade === grade).map(l => l._rowId)
+            );
+            document.querySelectorAll('#leadsBody .row-check').forEach(cb => {
+                cb.checked = selectedCompanyIds.has(cb.dataset.id);
+            });
+            _updateCompanySelectionUI();
+        }
+
+        function clearCompanySelection() {
+            selectedCompanyIds.clear();
+            document.querySelectorAll('#leadsBody .row-check').forEach(cb => cb.checked = false);
+            ['selectAllCompany', 'selectAllCompanyTh'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.checked = false;
+            });
+            _updateCompanySelectionUI();
+        }
+
+        function _updateCompanySelectionUI() {
+            const n = selectedCompanyIds.size;
+            const total = companyLeads.length;
+            document.getElementById('companySelCount').textContent =
+                n ? `${n} of ${total} selected` : `${total} leads`;
+            const btn = document.getElementById('companyTakeBtn');
+            if (btn) btn.disabled = n === 0;
+            // Sync header checkboxes state
+            ['selectAllCompany', 'selectAllCompanyTh'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.checked = total > 0 && n === total;
+                    el.indeterminate = n > 0 && n < total;
+                }
+            });
+        }
+
+        // ============================================
+        // PEOPLE TABLE SELECTION
+        // ============================================
+
+        function togglePeopleRow(id) {
+            if (selectedPeopleIds.has(id)) selectedPeopleIds.delete(id);
+            else selectedPeopleIds.add(id);
+            _updatePeopleSelectionUI();
+        }
+
+        function toggleSelectAllPeople() {
+            const checked = document.getElementById('selectAllPeopleTh')?.checked
+                         || document.getElementById('selectAllPeople')?.checked;
+            if (checked) {
+                selectedPeopleIds = new Set(peopleLeads.map(p => p._rowId));
+            } else {
+                selectedPeopleIds.clear();
+            }
+            ['selectAllPeople', 'selectAllPeopleTh'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.checked = checked;
+            });
+            document.querySelectorAll('#peopleBody .row-check').forEach(cb => {
+                cb.checked = checked;
+            });
+            _updatePeopleSelectionUI();
+        }
+
+        function selectPeopleByScore(min) {
+            selectedPeopleIds = new Set(
+                peopleLeads.filter(p => (p.fit_score || 0) >= min).map(p => p._rowId)
+            );
+            document.querySelectorAll('#peopleBody .row-check').forEach(cb => {
+                cb.checked = selectedPeopleIds.has(cb.dataset.id);
+            });
+            _updatePeopleSelectionUI();
+        }
+
+        function selectPeopleBySeniority() {
+            const senior = new Set(['owner','founder','c_suite','partner','vp','director']);
+            selectedPeopleIds = new Set(
+                peopleLeads.filter(p => senior.has(p.seniority)).map(p => p._rowId)
+            );
+            document.querySelectorAll('#peopleBody .row-check').forEach(cb => {
+                cb.checked = selectedPeopleIds.has(cb.dataset.id);
+            });
+            _updatePeopleSelectionUI();
+        }
+
+        function clearPeopleSelection() {
+            selectedPeopleIds.clear();
+            document.querySelectorAll('#peopleBody .row-check').forEach(cb => cb.checked = false);
+            ['selectAllPeople', 'selectAllPeopleTh'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.checked = false;
+            });
+            _updatePeopleSelectionUI();
+        }
+
+        function _updatePeopleSelectionUI() {
+            const n = selectedPeopleIds.size;
+            const total = peopleLeads.length;
+            document.getElementById('peopleSelCount').textContent =
+                n ? `${n} of ${total} selected` : `${total} people`;
+            const btn = document.getElementById('peopleTakeBtn');
+            if (btn) btn.disabled = n === 0;
+            ['selectAllPeople', 'selectAllPeopleTh'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.checked = total > 0 && n === total;
+                    el.indeterminate = n > 0 && n < total;
+                }
+            });
+        }
+
+        // ============================================
+        // IMPORT MODAL — duplicate detection
+        // ============================================
+
+        async function openImportModal(sourceType) {
+            _importSourceType = sourceType;
+            const pool = sourceType === 'person'
+                ? peopleLeads.filter(p => selectedPeopleIds.has(p._rowId))
+                : companyLeads.filter(l => selectedCompanyIds.has(l._rowId));
+
+            if (!pool.length) {
+                showToast('Select at least one lead first.');
+                return;
+            }
+            _importProspects = pool;
+
+            document.getElementById('importModalTitle').textContent =
+                `Send ${pool.length} ${sourceType === 'person' ? 'people' : 'companies'} to Kanban`;
+            document.getElementById('importModalMsg').textContent = 'Checking for duplicates…';
+            document.getElementById('importModal').classList.add('open');
+
+            // Check duplicates
+            const ids = pool.map(p => p._rowId || p.id || p.place_id || '');
+            try {
+                const resp = await fetch('/api/enrichment/deduplicate-check', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ids})
+                });
+                const data = await resp.json();
+                const dupes = data.count || 0;
+                const newCount = pool.length - dupes;
+                if (dupes === 0) {
+                    document.getElementById('importModalMsg').textContent =
+                        `${pool.length} lead${pool.length !== 1 ? 's' : ''} will be added to the Imported column.`;
+                } else if (newCount === 0) {
+                    document.getElementById('importModalMsg').textContent =
+                        `All ${dupes} selected lead${dupes !== 1 ? 's are' : ' is'} already in your Kanban.`;
+                    document.getElementById('importModalConfirmBtn').disabled = true;
+                } else {
+                    document.getElementById('importModalMsg').textContent =
+                        `${dupes} lead${dupes !== 1 ? 's are' : ' is'} already in your Kanban. The other ${newCount} will be imported.`;
+                }
+            } catch (e) {
+                document.getElementById('importModalMsg').textContent =
+                    `${pool.length} lead${pool.length !== 1 ? 's' : ''} ready to import.`;
+            }
+        }
+
+        function closeImportModal() {
+            document.getElementById('importModal').classList.remove('open');
+            document.getElementById('importModalConfirmBtn').disabled = false;
+        }
+
+        async function confirmImport() {
+            document.getElementById('importModalConfirmBtn').disabled = true;
+            document.getElementById('importModalMsg').textContent = 'Importing…';
+            try {
+                const resp = await fetch('/api/enrichment/import', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        prospects: _importProspects,
+                        source_type: _importSourceType
+                    })
+                });
+                const data = await resp.json();
+                closeImportModal();
+                if (data.success) {
+                    showToast(`✓ ${data.imported} lead${data.imported !== 1 ? 's' : ''} added to Kanban`);
+                    // Switch to Enrichment tab and refresh board
+                    switchTab('enrichment');
+                    loadKanban();
+                } else {
+                    showToast('Import failed: ' + (data.error || 'Unknown error'));
+                }
+            } catch (e) {
+                closeImportModal();
+                showToast('Import failed: ' + e.message);
+            }
+        }
+
+        // ============================================
+        // KANBAN BOARD
+        // ============================================
+
+        let kanbanLeads = [];
+        let selectedKanbanIds = new Set();
+
+        async function loadKanban() {
+            try {
+                const resp = await fetch('/api/enrichment/leads');
+                const data = await resp.json();
+                kanbanLeads = data.leads || [];
+                renderKanbanBoard(kanbanLeads, data.counts || {});
+            } catch (e) {
+                console.error('Kanban load failed:', e);
+            }
+        }
+
+        function renderKanbanBoard(leads, counts) {
+            const cols = ['imported', 'contacts_found', 'deep_researched'];
+            const colCounts = {...counts};
+
+            // Outreach Ready = contacts_found + deep_researched with email or linkedin
+            const outreachLeads = leads.filter(l =>
+                (l.contact_email || l.all_socials?.linkedin || l.source_data?.linkedin_url) &&
+                l.column !== 'imported'
+            );
+            colCounts.outreach_ready = outreachLeads.length;
+
+            // Update count badges
+            cols.forEach(col => {
+                const el = document.getElementById(`kanban-count-${col}`);
+                if (el) el.textContent = colCounts[col] || 0;
+            });
+            document.getElementById('kanban-count-outreach_ready').textContent = colCounts.outreach_ready;
+
+            const total = leads.length;
+            document.getElementById('kanbanTotalCount').textContent =
+                total ? `${total} lead${total !== 1 ? 's' : ''}` : '';
+
+            // Render each column
+            cols.forEach(col => {
+                const colLeads = leads.filter(l => l.column === col);
+                const container = document.getElementById(`kanban-cards-${col}`);
+                if (!container) return;
+                if (!colLeads.length) {
+                    container.innerHTML = `<div class="kanban-col-empty">${_colEmptyMsg(col)}</div>`;
+                    return;
+                }
+                container.innerHTML = colLeads.map(lead => renderKanbanCard(lead)).join('');
+            });
+
+            // Outreach Ready
+            const orContainer = document.getElementById('kanban-cards-outreach_ready');
+            if (orContainer) {
+                if (!outreachLeads.length) {
+                    orContainer.innerHTML = '<div class="kanban-col-empty">Leads matching your outreach criteria appear here.</div>';
+                } else {
+                    orContainer.innerHTML = outreachLeads.map(lead => renderKanbanCard(lead, true)).join('');
+                }
+            }
+
+            _updateKanbanBulkBar();
+        }
+
+        function _colEmptyMsg(col) {
+            const msgs = {
+                imported: 'No leads yet.<br>Send prospects from Prospecting.',
+                contacts_found: 'Leads with decision makers &amp; emails appear here.',
+                deep_researched: 'AI-researched leads appear here.',
+            };
+            return msgs[col] || '';
+        }
+
+        function renderKanbanCard(lead, readonly = false) {
+            const sd = lead.source_data || {};
+            const isCompany = lead.source_type === 'company';
+            const icon = isCompany ? '🏢' : '👤';
+
+            const name = sd.name || sd.company_name || '—';
+            const sub = isCompany
+                ? [sd.industry || sd.category, sd.city || sd.country].filter(Boolean).join(' · ')
+                : [sd.title, sd.company_name].filter(Boolean).join(' · ');
+
+            const score = lead.enriched_score || lead.fit_score || 0;
+            const scoreClass = score >= 70 ? 'high' : score >= 50 ? 'medium' : 'low';
+            const scoreDelta = lead.enriched_score && lead.enriched_score !== lead.fit_score
+                ? ` <span style="color:${lead.enriched_score > lead.fit_score ? '#22c55e' : '#ef4444'};font-size:0.65rem;">
+                    ${lead.enriched_score > lead.fit_score ? '↑' : '↓'}${Math.abs(lead.enriched_score - lead.fit_score)}</span>`
+                : '';
+
+            const tags = (lead.tags || []).map(t =>
+                `<span class="kcard-tag" onclick="event.stopPropagation();kanbanRemoveTag('${escapeHtml(lead.id)}','${escapeHtml(t)}')">${escapeHtml(t)} ✕</span>`
+            ).join('');
+
+            // Signals row
+            const signals = [];
+            if (isCompany && sd.reviews_count) signals.push(`⭐ ${sd.reviews_count}`);
+            if (sd.website || sd.company_website) signals.push('🌐');
+            if (lead.contact_email) signals.push('📧');
+            if (sd.linkedin_url || lead.all_socials?.linkedin) signals.push('💼');
+            if (lead.persons?.length) signals.push(`👥 ${lead.persons.length}`);
+
+            const logHtml = (lead.activity_log || []).slice(-3).reverse().map(e => `
+                <div class="kcard-log-entry">
+                    ${escapeHtml(e.action)}${e.detail ? ': ' + escapeHtml(e.detail) : ''}
+                    <time>${new Date(e.timestamp).toLocaleString([], {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</time>
+                </div>
+            `).join('');
+
+            const checkAttr = selectedKanbanIds.has(lead.id) ? 'checked' : '';
+            const selClass = selectedKanbanIds.has(lead.id) ? 'selected' : '';
+
+            return `
+                <div class="kcard ${selClass}" id="kcard-${escapeHtml(lead.id)}"
+                     onclick="toggleKanbanCard('${escapeHtml(lead.id)}')">
+                    <div class="kcard-header">
+                        ${!readonly ? `<input type="checkbox" class="kcard-check" ${checkAttr}
+                            onclick="event.stopPropagation()"
+                            onchange="toggleKanbanSelect('${escapeHtml(lead.id)}')">` : ''}
+                        <span class="kcard-icon">${icon}</span>
+                        <div class="kcard-body">
+                            <div class="kcard-name" title="${escapeHtml(name)}">${escapeHtml(name)}</div>
+                            <div class="kcard-sub">${escapeHtml(sub)}</div>
+                        </div>
+                        <div class="kcard-score ${scoreClass}">${score}${scoreDelta}</div>
+                    </div>
+                    ${signals.length ? `<div class="kcard-signals">${signals.map(s => `<span class="kcard-signal">${s}</span>`).join('')}</div>` : ''}
+                    ${tags ? `<div class="kcard-tags">${tags}</div>` : ''}
+                    <div class="kcard-expanded">
+                        ${isCompany && sd.address_full ? `<div class="kcard-detail-row"><strong>Address</strong>${escapeHtml(sd.address_full)}</div>` : ''}
+                        ${sd.website || sd.company_website ? `<div class="kcard-detail-row"><strong>Website</strong><a href="${escapeHtml(sd.website||sd.company_website)}" target="_blank" style="color:var(--accent)">${escapeHtml(sd.domain||sd.company_domain||sd.website||sd.company_website)}</a></div>` : ''}
+                        ${lead.contact_email ? `<div class="kcard-detail-row"><strong>Email</strong><a href="mailto:${escapeHtml(lead.contact_email)}" style="color:var(--accent)">${escapeHtml(lead.contact_email)}</a></div>` : ''}
+                        ${lead.notes ? `<div class="kcard-detail-row"><strong>Notes</strong>${escapeHtml(lead.notes)}</div>` : ''}
+                        <textarea class="kcard-notes-field"
+                            placeholder="Add a note…"
+                            onclick="event.stopPropagation()"
+                            onblur="kanbanSaveNotes('${escapeHtml(lead.id)}', this.value)"
+                        >${escapeHtml(lead.notes || '')}</textarea>
+                        <div class="kcard-tag-input-row">
+                            <input class="kcard-tag-input" type="text" placeholder="Add tag…"
+                                   id="tag-input-${escapeHtml(lead.id)}"
+                                   onclick="event.stopPropagation()"
+                                   onkeydown="if(event.key==='Enter'){event.preventDefault();kanbanAddTagInput('${escapeHtml(lead.id)}');}">
+                            <button class="kcard-tag-add-btn"
+                                    onclick="event.stopPropagation();kanbanAddTagInput('${escapeHtml(lead.id)}')">+ Tag</button>
+                        </div>
+                        ${logHtml ? `<div class="kcard-log" style="margin-top:0.5rem;"><div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);margin-bottom:0.2rem;">Activity</div>${logHtml}</div>` : ''}
+                        <div class="kcard-actions">
+                            <button class="kcard-action-btn danger"
+                                    onclick="event.stopPropagation();kanbanDeleteCard('${escapeHtml(lead.id)}')">🗑 Remove</button>
+                        </div>
+                    </div>
+                </div>`;
+        }
+
+        function toggleKanbanCard(id) {
+            const el = document.getElementById('kcard-' + id);
+            if (!el) return;
+            el.classList.toggle('open');
+        }
+
+        function toggleKanbanSelect(id) {
+            if (selectedKanbanIds.has(id)) selectedKanbanIds.delete(id);
+            else selectedKanbanIds.add(id);
+            const el = document.getElementById('kcard-' + id);
+            if (el) el.classList.toggle('selected', selectedKanbanIds.has(id));
+            _updateKanbanBulkBar();
+        }
+
+        function _updateKanbanBulkBar() {
+            const n = selectedKanbanIds.size;
+            const bar = document.getElementById('kanbanBulkBar');
+            const cnt = document.getElementById('kanbanBulkCount');
+            if (bar) bar.classList.toggle('visible', n > 0);
+            if (cnt) cnt.textContent = `${n} lead${n !== 1 ? 's' : ''} selected`;
+        }
+
+        async function kanbanSaveNotes(id, notes) {
+            try {
+                await fetch(`/api/enrichment/leads/${id}/notes`, {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({notes})
+                });
+                // Update in local cache
+                const lead = kanbanLeads.find(l => l.id === id);
+                if (lead) lead.notes = notes;
+            } catch (e) { console.error('Save notes failed:', e); }
+        }
+
+        async function kanbanAddTagInput(id) {
+            const input = document.getElementById('tag-input-' + id);
+            if (!input) return;
+            const tag = input.value.trim();
+            if (!tag) return;
+            input.value = '';
+            await kanbanAddTag(id, tag);
+        }
+
+        async function kanbanAddTag(id, tag) {
+            try {
+                await fetch(`/api/enrichment/leads/${id}/tags`, {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({tag, action: 'add'})
+                });
+                await loadKanban();
+            } catch (e) { console.error('Add tag failed:', e); }
+        }
+
+        async function kanbanRemoveTag(id, tag) {
+            try {
+                await fetch(`/api/enrichment/leads/${id}/tags`, {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({tag, action: 'remove'})
+                });
+                await loadKanban();
+            } catch (e) { console.error('Remove tag failed:', e); }
+        }
+
+        async function kanbanDeleteCard(id) {
+            try {
+                await fetch(`/api/enrichment/leads/${id}`, {method: 'DELETE'});
+                selectedKanbanIds.delete(id);
+                await loadKanban();
+            } catch (e) { showToast('Delete failed: ' + e.message); }
+        }
+
+        async function kanbanBulkDelete() {
+            if (!selectedKanbanIds.size) return;
+            const ids = [...selectedKanbanIds];
+            try {
+                await fetch('/api/enrichment/leads/bulk-delete', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ids})
+                });
+                selectedKanbanIds.clear();
+                await loadKanban();
+            } catch (e) { showToast('Bulk delete failed: ' + e.message); }
+        }
+
+        async function openBulkTagModal() {
+            const tag = prompt('Tag to add to selected leads:');
+            if (!tag || !tag.trim()) return;
+            const ids = [...selectedKanbanIds];
+            await Promise.all(ids.map(id =>
+                fetch(`/api/enrichment/leads/${id}/tags`, {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({tag: tag.trim(), action: 'add'})
+                })
+            ));
+            await loadKanban();
+            showToast(`Tag "${tag.trim()}" added to ${ids.length} leads`);
+        }
+
+        function toggleKanbanTools() {
+            const panel = document.getElementById('kanbanToolsPanel');
+            const arrow = document.getElementById('kanbanToolsArrow');
+            const open = panel.classList.toggle('open');
+            if (arrow) arrow.textContent = open ? '▼' : '▶';
         }
 
         function updateStrategyIndicator() {
@@ -3905,15 +4873,27 @@
             document.getElementById('gradeBCount').textContent = directorPlus;
             document.getElementById('gradeBLabel').textContent = 'Director+';
 
+            // Store for selection
+            peopleLeads = people;
+            selectedPeopleIds.clear();
+            _updatePeopleSelectionUI();
+
             const tbody = document.getElementById('peopleBody');
             tbody.innerHTML = '';
 
-            people.forEach(person => {
+            people.forEach((person, idx) => {
+                const pid = person.id || String(idx);
+                person._rowId = pid;
                 const scoreClass = person.fit_score >= 70 ? 'score-high' :
                                    person.fit_score >= 50 ? 'score-medium' : 'score-low';
                 const location = [person.city, person.country].filter(Boolean).join(', ') || '—';
                 const row = document.createElement('tr');
+                row.dataset.rowId = pid;
                 row.innerHTML = `
+                    <td class="col-check">
+                        <input type="checkbox" class="row-check" data-id="${escapeHtml(pid)}"
+                               onchange="togglePeopleRow('${escapeHtml(pid)}')">
+                    </td>
                     <td><div class="score-badge ${scoreClass}">${person.fit_score}</div></td>
                     <td><div class="lead-name">${escapeHtml(person.name || '—')}</div></td>
                     <td>
@@ -3929,6 +4909,9 @@
                 `;
                 tbody.appendChild(row);
             });
+
+            // Show toolbar
+            document.getElementById('peopleSelectionToolbar').classList.add('visible');
         }
 
         // ============================================
@@ -5494,11 +6477,18 @@
             document.getElementById('gradeALabel').textContent = 'Grade A';
             document.getElementById('gradeBLabel').textContent = 'Grade B';
 
+            // Store leads for selection
+            companyLeads = leads;
+            selectedCompanyIds.clear();
+            _updateCompanySelectionUI();
+
             // Build table
             const tbody = document.getElementById('leadsBody');
             tbody.innerHTML = '';
 
-            leads.forEach(lead => {
+            leads.forEach((lead, idx) => {
+                const lid = lead.place_id || lead.id || String(idx);
+                lead._rowId = lid;
                 const scoreClass = lead.fit_score >= 70 ? 'score-high' :
                                    lead.fit_score >= 50 ? 'score-medium' : 'score-low';
 
@@ -5509,7 +6499,12 @@
                     : sl.facebook ? 'Facebook' : '';
 
                 const row = document.createElement('tr');
+                row.dataset.rowId = lid;
                 row.innerHTML = `
+                    <td class="col-check">
+                        <input type="checkbox" class="row-check" data-id="${escapeHtml(lid)}"
+                               onchange="toggleCompanyRow('${escapeHtml(lid)}')">
+                    </td>
                     <td>
                         <div class="score-badge ${scoreClass}">${lead.fit_score}</div>
                     </td>
@@ -5545,6 +6540,8 @@
                 tbody.appendChild(row);
             });
 
+            // Show toolbar
+            document.getElementById('companySelectionToolbar').classList.add('visible');
         }
 
         function escapeHtml(text) {

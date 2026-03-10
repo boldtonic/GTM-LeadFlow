@@ -18,6 +18,7 @@ from services import brief as brief_service
 from services import discovery as discovery_service
 from services import enrichment as enrichment_service
 from services import export as export_service
+from services import kanban as kanban_service
 from services import people as people_service
 from services import search as search_service
 from utils import clean_domain, dev_logs, log_dev
@@ -39,6 +40,9 @@ INSTANTLY_API_KEY = os.getenv("INSTANTLY_API_KEY", "")
 
 # Thread-safe job manager (replaces bare job_status dict)
 job_mgr = JobManager(ttl_seconds=3600)
+
+# In-memory Kanban board (persists within a server session)
+kanban_mgr = kanban_service.KanbanManager()
 
 
 def _api_keys() -> dict:
@@ -301,6 +305,98 @@ def enrich_batch():
 
     result = enrichment_service.enrich_batch(domains, _api_keys())
     return jsonify(result)
+
+
+# --- Kanban Enrichment Board ---
+
+
+@app.route("/api/enrichment/deduplicate-check", methods=["POST"])
+def kanban_deduplicate_check():
+    """Check which prospect IDs are already in the Kanban."""
+    prospect_ids = request.json.get("ids", [])
+    duplicates = kanban_mgr.check_duplicates(prospect_ids)
+    return jsonify({"duplicates": duplicates, "count": len(duplicates)})
+
+
+@app.route("/api/enrichment/import", methods=["POST"])
+def kanban_import():
+    """Import selected prospects into the Kanban board."""
+    data = request.json
+    prospects = data.get("prospects", [])
+    source_type = data.get("source_type", "company")  # "company" or "person"
+
+    if not prospects:
+        return jsonify({"success": False, "error": "No prospects provided"})
+
+    created = kanban_mgr.import_leads(prospects, source_type)
+    log_dev("KANBAN", f"Imported {len(created)} {source_type} leads", "success")
+    return jsonify({"success": True, "imported": len(created), "leads": created})
+
+
+@app.route("/api/enrichment/leads")
+def kanban_get_leads():
+    """Get all Kanban leads with optional ?column= and ?tag= filters."""
+    column = request.args.get("column") or None
+    tags = request.args.getlist("tag") or None
+    leads = kanban_mgr.get_all(column=column, tags=tags)
+    counts = kanban_mgr.count_by_column()
+    return jsonify({"leads": leads, "counts": counts, "total": len(leads)})
+
+
+@app.route("/api/enrichment/leads/<lead_id>")
+def kanban_get_lead(lead_id):
+    """Get a single Kanban lead by ID."""
+    lead = kanban_mgr.get(lead_id)
+    if lead is None:
+        return jsonify({"error": "Not found"}), 404
+    return jsonify(lead)
+
+
+@app.route("/api/enrichment/leads/<lead_id>/tags", methods=["PUT"])
+def kanban_update_tags(lead_id):
+    """Add or remove a tag. Body: {tag, action: 'add'|'remove'}"""
+    data = request.json
+    tag = (data.get("tag") or "").strip()
+    action = data.get("action", "add")
+    if not tag:
+        return jsonify({"success": False, "error": "Tag is required"})
+    ok = kanban_mgr.add_tag(lead_id, tag) if action == "add" else kanban_mgr.remove_tag(lead_id, tag)
+    return jsonify({"success": ok})
+
+
+@app.route("/api/enrichment/leads/<lead_id>/notes", methods=["PUT"])
+def kanban_update_notes(lead_id):
+    """Update free-text notes on a lead. Body: {notes}"""
+    notes = (request.json or {}).get("notes", "")
+    ok = kanban_mgr.update_notes(lead_id, notes)
+    return jsonify({"success": ok})
+
+
+@app.route("/api/enrichment/leads/<lead_id>/move", methods=["PUT"])
+def kanban_move_lead(lead_id):
+    """Manually move a lead to a different column. Body: {column}"""
+    column = (request.json or {}).get("column", "")
+    ok = kanban_mgr.move(lead_id, column)
+    if not ok:
+        return jsonify({"success": False, "error": "Invalid column or lead not found"}), 400
+    return jsonify({"success": True})
+
+
+@app.route("/api/enrichment/leads/<lead_id>", methods=["DELETE"])
+def kanban_delete_lead(lead_id):
+    """Remove a lead from the Kanban."""
+    ok = kanban_mgr.delete(lead_id)
+    if not ok:
+        return jsonify({"success": False, "error": "Lead not found"}), 404
+    return jsonify({"success": True})
+
+
+@app.route("/api/enrichment/leads/bulk-delete", methods=["POST"])
+def kanban_bulk_delete():
+    """Remove multiple leads. Body: {ids: [...]}"""
+    ids = (request.json or {}).get("ids", [])
+    count = kanban_mgr.delete_many(ids)
+    return jsonify({"success": True, "deleted": count})
 
 
 # --- Hunter.io direct endpoints ---
