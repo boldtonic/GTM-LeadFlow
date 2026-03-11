@@ -18,6 +18,8 @@
             --surface-2: #1a1a1a;
             --border: #2a2a2a;
             --text: #fafafa;
+            --text-primary: #fafafa;
+            --text-secondary: #b0b0b0;
             --text-muted: #888;
             --accent: #3b82f6;
             --accent-hover: #2563eb;
@@ -819,6 +821,17 @@
             75%  { box-shadow: 0 0 8px 2px #f97316, 0 0 20px 4px #fbbf24, 0 0 36px 7px rgba(220,38,38,0.45); }
             100% { box-shadow: 0 0 6px 1px #f97316, 0 0 16px 3px #ea580c, 0 0 30px 5px rgba(220,38,38,0.45); }
         }
+        .enrichment-banner__select-all {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.82rem;
+            color: var(--text-primary);
+            cursor: pointer;
+            flex-shrink: 0;
+            user-select: none;
+        }
+        .enrichment-banner__select-all input { accent-color: var(--accent); cursor: pointer; }
         .enrichment-banner__btn {
             background: #000;
             color: #fff;
@@ -3041,17 +3054,20 @@
 
                 <!-- Enrichment upgrade banner — shown once results load -->
                 <div class="enrichment-banner" id="enrichmentBanner" style="display: none;">
+                    <label class="enrichment-banner__select-all">
+                        <input type="checkbox" id="selectAllCompany" onchange="toggleSelectAllCompany(this)" title="Select all">
+                        <span>Select all</span>
+                    </label>
                     <div class="enrichment-banner__text">
-                        🔥 <strong>Ready to dig deeper?</strong> Send your prospects to the Enrichment Kanban to unlock decision makers, verified emails, LinkedIn profiles and more.
+                        Select one or more prospects to unlock contacts, emails and LinkedIn profiles.
                     </div>
-                    <button class="enrichment-banner__btn" onclick="takeToEnrichment()">
+                    <button class="enrichment-banner__btn" id="companyTakeBtn" onclick="openImportModal('company')" disabled>
                         🔥 Take to Enrichment
                     </button>
                 </div>
 
                 <!-- Selection toolbar (company + people tables) -->
                 <div class="selection-toolbar" id="companySelectionToolbar">
-                    <input type="checkbox" id="selectAllCompany" onchange="toggleSelectAllCompany()" title="Select all">
                     <span class="selection-toolbar__count" id="companySelCount">0 selected</span>
                     <div class="selection-toolbar__divider"></div>
                     <button class="sel-filter-btn" onclick="selectCompanyByScore(70)">Score 70+</button>
@@ -3059,9 +3075,6 @@
                     <button class="sel-filter-btn" onclick="selectCompanyByGrade('A')">Grade A</button>
                     <button class="sel-filter-btn" onclick="selectCompanyByGrade('B')">Grade B</button>
                     <button class="sel-filter-btn" onclick="clearCompanySelection()">Clear</button>
-                    <button class="sel-take-btn" id="companyTakeBtn" onclick="openImportModal('company')" disabled>
-                        🔥 Take to Enrichment
-                    </button>
                 </div>
 
                 <!-- Company Search results table -->
@@ -3069,7 +3082,7 @@
                     <table>
                         <thead>
                             <tr>
-                                <th class="col-check"><input type="checkbox" id="selectAllCompanyTh" onchange="toggleSelectAllCompany()" title="Select all"></th>
+                                <th class="col-check"><input type="checkbox" id="selectAllCompanyTh" onchange="toggleSelectAllCompany(this)" title="Select all"></th>
                                 <th>Score</th>
                                 <th>Business</th>
                                 <th>Industry</th>
@@ -3741,7 +3754,8 @@
             document.getElementById('prospectWhat').value = whatParts.join(', ');
 
             // Build "Where" from geographies — first entry as city, last as country hint
-            const geos = ss.geographies || [];
+            // Filter out any URLs the model may have returned as geographies
+            const geos = (ss.geographies || []).filter(g => !/^https?:\/\//i.test(g));
             document.getElementById('prospectWhere').value = geos[0] || '';
             const countryEl = document.getElementById('prospectCountry');
             if (countryEl) {
@@ -3981,6 +3995,7 @@
         }
 
         function useLocation(location) {
+            if (/^https?:\/\//i.test(location)) return; // don't use URLs as locations
             const el = document.getElementById('prospectWhere');
             if (el) el.value = location;
             updateStrategyIndicator();
@@ -4077,9 +4092,8 @@
             _updateCompanySelectionUI();
         }
 
-        function toggleSelectAllCompany() {
-            const checked = document.getElementById('selectAllCompanyTh')?.checked
-                         || document.getElementById('selectAllCompany')?.checked;
+        function toggleSelectAllCompany(el) {
+            const checked = el ? el.checked : false;
             if (checked) {
                 selectedCompanyIds = new Set(companyLeads.map(l => l._rowId));
             } else {
@@ -4676,8 +4690,11 @@
         // Build queries from intent fields (adapts generateQueries for the unified form)
         function buildQueriesFromIntent() {
             let what = (document.getElementById('prospectWhat')?.value || '').trim();
-            const where = (document.getElementById('prospectWhere')?.value || '').trim();
-            const country = (document.getElementById('prospectCountry')?.value || '').trim();
+            const whereRaw = (document.getElementById('prospectWhere')?.value || '').trim();
+            const countryRaw = (document.getElementById('prospectCountry')?.value || '').trim();
+            // Strip out any URL accidentally placed in location fields
+            const where = /^https?:\/\//i.test(whereRaw) ? '' : whereRaw;
+            const country = /^https?:\/\//i.test(countryRaw) ? '' : countryRaw;
             const industry = (document.getElementById('filterIndustry')?.value || '');
 
             if (!what && industry) what = industry;
