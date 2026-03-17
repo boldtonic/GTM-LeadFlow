@@ -54,10 +54,12 @@ def run_people_search(job_id: str, config: dict, api_keys: dict, job_mgr):
         location = config.get("location", "")
         size_labels = config.get("company_size_ranges", [])
         employee_ranges = [SIZE_MAP[s] for s in size_labels if s in SIZE_MAP]
+        raw_industry = config.get("industry", "").strip()
+        industries = [i.strip() for i in raw_industry.split(",") if i.strip()] if raw_industry else []
         max_leads = min(config.get("max_leads", 25), 100)
 
-        if not titles and not seniorities and not departments and not location:
-            job_mgr.update(job_id, status="error", step="Please enter a title, location, or select a seniority / department filter")
+        if not titles and not seniorities and not departments and not location and not industries:
+            job_mgr.update(job_id, status="error", step="Please enter a title, location, industry, or select a seniority / department filter")
             return
 
         person_locations = [location] if location else None
@@ -69,6 +71,7 @@ def run_people_search(job_id: str, config: dict, api_keys: dict, job_mgr):
             departments=departments or None,
             person_locations=person_locations,
             employee_ranges=employee_ranges or None,
+            industries=industries or None,
             per_page=max_leads,
         )
 

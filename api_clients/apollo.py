@@ -70,6 +70,7 @@ class ApolloClient(BaseAPIClient):
         departments: list = None,
         person_locations: list = None,
         employee_ranges: list = None,
+        industries: list = None,
         page: int = 1,
         per_page: int = 25,
     ) -> list:
@@ -88,6 +89,8 @@ class ApolloClient(BaseAPIClient):
             payload["person_locations"] = person_locations
         if employee_ranges:
             payload["organization_num_employees_ranges"] = employee_ranges
+        if industries:
+            payload["organization_industries"] = industries
 
         data = self._post("/mixed_people/search", payload=payload, timeout=15)
         return data.get("people", []) if data else []

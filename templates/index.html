@@ -2897,6 +2897,23 @@
                                 </div>
                             </details>
 
+                            <!-- Industry -->
+                            <details class="filter-section">
+                                <summary>
+                                    <span class="filter-section__icon">&#127970;</span>
+                                    Industry
+                                    <span class="filter-section__chevron">&#9660;</span>
+                                </summary>
+                                <div class="filter-section__body">
+                                    <div class="filter-field">
+                                        <input type="text" id="peopleIndustry" class="filter-input"
+                                               placeholder="e.g. Real Estate, SaaS, Healthcare"
+                                               oninput="debouncedUpdateSummary()"
+                                               style="width:100%; padding:0.5rem 0.75rem; background:var(--surface-2); border:1px solid var(--border); border-radius:6px; color:var(--text); font-size:0.875rem;">
+                                    </div>
+                                </div>
+                            </details>
+
                             <!-- Seniority -->
                             <details class="filter-section">
                                 <summary>
@@ -3102,7 +3119,7 @@
 
                 <!-- Selection toolbar (people) -->
                 <div class="selection-toolbar" id="peopleSelectionToolbar">
-                    <input type="checkbox" id="selectAllPeople" onchange="toggleSelectAllPeople()" title="Select all">
+                    <input type="checkbox" id="selectAllPeople" onchange="toggleSelectAllPeople(this)" title="Select all">
                     <span class="selection-toolbar__count" id="peopleSelCount">0 selected</span>
                     <div class="selection-toolbar__divider"></div>
                     <button class="sel-filter-btn" onclick="selectPeopleByScore(70)">Score 70+</button>
@@ -3119,7 +3136,7 @@
                     <table>
                         <thead>
                             <tr>
-                                <th class="col-check"><input type="checkbox" id="selectAllPeopleTh" onchange="toggleSelectAllPeople()" title="Select all"></th>
+                                <th class="col-check"><input type="checkbox" id="selectAllPeopleTh" onchange="toggleSelectAllPeople(this)" title="Select all"></th>
                                 <th>Score</th>
                                 <th>Name</th>
                                 <th>Title</th>
@@ -3511,7 +3528,9 @@
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
             document.getElementById('tab-' + tabName).classList.add('active');
-            if (event && event.target) event.target.classList.add('active');
+            // Highlight the correct nav button regardless of how switchTab was called
+            const navBtn = document.querySelector(`.nav-tab[onclick*="'${tabName}'"]`);
+            if (navBtn) navBtn.classList.add('active');
             // Update brief context panel visibility
             updateBriefContextPanel();
             // Start/stop placeholder rotation based on active tab
@@ -3748,7 +3767,7 @@
             const pos = currentBrief.positioning || {};
 
             // Build "What" from industry + first suggested query
-            const industry = icp.companyCharacteristics?.industry || '';
+            const industry = (icp.companyCharacteristics?.industries || [])[0] || '';
             const firstQuery = (ss.suggestedQueries || [])[0] || '';
             const whatParts = [industry, firstQuery].filter(Boolean);
             document.getElementById('prospectWhat').value = whatParts.join(', ');
@@ -3791,10 +3810,7 @@
             updateSearchSummary();
 
             // Switch to Prospecting tab
-            document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.nav-tab')[1].classList.add('active');
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.getElementById('tab-finder').classList.add('active');
+            switchTab('finder');
         }
 
         function downloadBriefPDF() {
@@ -4167,9 +4183,8 @@
             _updatePeopleSelectionUI();
         }
 
-        function toggleSelectAllPeople() {
-            const checked = document.getElementById('selectAllPeopleTh')?.checked
-                         || document.getElementById('selectAllPeople')?.checked;
+        function toggleSelectAllPeople(el) {
+            const checked = el ? el.checked : false;
             if (checked) {
                 selectedPeopleIds = new Set(peopleLeads.map(p => p._rowId));
             } else {
@@ -4835,9 +4850,10 @@
             else location = city || country;
 
             const company_size_ranges = getSelectedPills('peopleSizeSel');
+            const industry = (document.getElementById('peopleIndustry')?.value || '').trim();
             const max_leads = parseInt(document.getElementById('maxLeads')?.value || '25', 10);
 
-            const config = { titles, location, seniorities: _seniorities, departments: _departments, company_size_ranges, max_leads };
+            const config = { titles, location, seniorities: _seniorities, departments: _departments, company_size_ranges, industry, max_leads };
 
             document.getElementById('searchBtn').disabled = true;
             document.getElementById('cancelBtn').style.display = 'block';
@@ -4870,7 +4886,7 @@
             stopFlameMessages();
             document.getElementById('progressContainer').classList.remove('active');
             document.getElementById('emptyState').style.display = 'none';
-            document.getElementById('enrichmentBanner').style.display = 'flex';
+            document.getElementById('enrichmentBanner').style.display = 'none';
             document.getElementById('resultsBar').style.display = 'flex';
             document.getElementById('peopleResultsTable').style.display = 'block';
             document.getElementById('companyResultsTable').style.display = 'none';
@@ -6096,6 +6112,9 @@
             const city = document.getElementById('peopleCity')?.value?.trim();
             if (city) filters.push({ icon: '\u{1F4CD}', label: 'City', value: city, type: 'field', id: 'peopleCity' });
 
+            const industry = document.getElementById('peopleIndustry')?.value?.trim();
+            if (industry) filters.push({ icon: '\u{1F3ED}', label: 'Industry', value: industry, type: 'field', id: 'peopleIndustry' });
+
             getSelectedPills('senioritySel').forEach(s =>
                 filters.push({ icon: '\u2B50', label: 'Seniority', value: s, type: 'pill', container: 'senioritySel', val: s })
             );
@@ -6449,9 +6468,10 @@
                         document.getElementById('progressContainer').classList.remove('active');
                         document.getElementById('emptyState').style.display = 'block';
                         document.getElementById('emptyState').querySelector('h3').textContent = 'No results found';
+                        document.getElementById('emptyState').querySelector('h3').textContent = 'No results found';
                         document.getElementById('emptyState').querySelector('p').textContent =
                             currentSearchMode === 'people'
-                                ? 'Apollo returned 0 results. Try broader filters, or check that your Apollo plan supports People Search.'
+                                ? 'Apollo returned 0 results. Try broader filters. Note: People Search requires Apollo Basic plan or higher.'
                                 : 'Try different search queries or locations.';
                     }
                 }
