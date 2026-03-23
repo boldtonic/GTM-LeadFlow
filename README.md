@@ -1,9 +1,10 @@
-# GTM LeadFlow
+# GTM BYOK LeadFlow v0.1.3
 
-**Find the right companies and people. [Enrich them in Kanban to Messaging soon]
+**Find the right actionable prospects: companies and people.
 
-LeadFlow is a self-hosted B2B prospecting tool that helps you build qualified lead lists fast — without the price tag of enterprise sales tools. Search by location and industry, discover decision makers, score every lead automatically, and export a clean CSV ready for your outreach campaigns.
+LeadFlow is a self-hosted BYOK B2B prospecting tool that helps you build qualified lead lists fast — without the price tag of enterprise sales tools, just your API cost. Search by location and industry, and several other filters, including signals; Discover decision makers, score every lead automatically, and export a clean CSV ready for your outreach campaigns.
 
+ [Enrich them in Kanban to Messaging Soon]
 ---
 
 ## Features
