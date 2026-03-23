@@ -149,6 +149,19 @@ class KanbanManager:
             self._append_log(lead, f"Moved: {old_col} → {column}")
             return True
 
+    def set_persons(self, lead_id: str, persons: list) -> bool:
+        """Store found contacts on a lead and move it to contacts_found."""
+        with self._lock:
+            lead = self._leads.get(lead_id)
+            if not lead:
+                return False
+            lead.persons = persons
+            lead.contact_enriched_at = _now()
+            old_col = lead.column
+            lead.column = "contacts_found"
+            self._append_log(lead, f"Contacts found: {len(persons)}", f"Moved from {old_col}")
+            return True
+
     def delete(self, lead_id: str) -> bool:
         with self._lock:
             if lead_id in self._leads:

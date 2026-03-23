@@ -14,6 +14,12 @@ from scoring import LeadScorer
 from services.enrichment import compute_enrichment_signals
 from utils import extract_domain, is_business_domain, log_dev
 
+# Google Places appends these generic types to virtually every result — strip them
+_GENERIC_PLACE_TYPES = frozenset({
+    "establishment", "point_of_interest", "premise", "geocode",
+    "street_address", "route", "political",
+})
+
 
 def run_search(job_id: str, config: dict, api_keys: dict, job_mgr):
     """Run the full search pipeline in a background thread."""
@@ -125,7 +131,7 @@ def _step_search(job_id, queries, max_leads, google, job_mgr):
                     place_id=place_id,
                     google_maps_url=f"https://www.google.com/maps/place/?q=place_id:{place_id}",
                     name=place.get("name", ""),
-                    category=", ".join(place.get("types", [])[:2]),
+                    category=", ".join(t for t in place.get("types", []) if t not in _GENERIC_PLACE_TYPES)[:40],
                     address_full=place.get("formatted_address", ""),
                     rating=place.get("rating", 0),
                     reviews_count=place.get("user_ratings_total", 0),
@@ -171,7 +177,7 @@ def _step_details(job_id, leads, google, job_mgr):
             if lead.website:
                 lead.domain = extract_domain(lead.website)
             lead.google_maps_url = details.get("url", lead.google_maps_url)
-            lead.subcategories = details.get("types", [])
+            lead.subcategories = [t for t in details.get("types", []) if t not in _GENERIC_PLACE_TYPES]
 
             street_number = ""
             street_name = ""
@@ -366,8 +372,8 @@ def _enrich_apollo(lead, domain, target_titles, apollo, stats):
     try:
         org = apollo.enrich_organization(domain)
         if org:
-            lead.company_size = str(org.get("estimated_num_employees", ""))
-            lead.linkedin_url = org.get("linkedin_url", "")
+            lead.company_size = lead.company_size or str(org.get("estimated_num_employees", ""))
+            lead.linkedin_url = lead.linkedin_url or org.get("linkedin_url", "")
             lead.estimated_revenue = lead.estimated_revenue or (org.get("annual_revenue_printed") or "")
             lead.industry = lead.industry or (org.get("industry") or "")
             lead.founded_year = lead.founded_year or str(org.get("founded_year") or "")

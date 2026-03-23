@@ -48,7 +48,7 @@ def generate_brief(data: dict, firecrawl_key: str, openai_key: str) -> dict:
 
         # Add metadata
         now = datetime.now().isoformat()
-        brief = {"id": str(hash(url + now))[:12], **brief_data, "createdAt": now, "updatedAt": now}
+        brief = {"id": str(abs(hash(url + now)))[:12], **brief_data, "createdAt": now, "updatedAt": now}
 
         if "companySnapshot" in brief:
             brief["companySnapshot"]["website"] = url

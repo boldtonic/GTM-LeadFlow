@@ -3,10 +3,13 @@ Enrichment service for GTM LeadFlow.
 Single-domain, batch, contact enrichment, and universal prospect enrichment pipeline.
 """
 
+import json
 import re
 import time
 from dataclasses import asdict
 from datetime import datetime
+
+import requests as _requests
 
 from api_clients import ApolloClient, FirecrawlClient, HunterClient
 from api_clients.scraper import WebsiteScraper
@@ -648,9 +651,10 @@ def enrich_contacts(data: dict, apollo_key: str) -> dict:
         log_dev("ENRICH", f"Found organization: {organization.get('name')}", "info")
 
         # Search for people
+        org_id = organization.get("id")
         people = apollo.search_contacts(
             domain=domain or None,
-            organization_ids=[organization.get("id")],
+            organization_ids=[org_id] if org_id else None,
             seniorities=["director", "vp", "c_suite", "founder", "owner"],
             per_page=10,
         )
@@ -680,6 +684,170 @@ def enrich_contacts(data: dict, apollo_key: str) -> dict:
     except Exception as e:
         log_dev("ENRICH", f"Error enriching contacts: {e}", "error")
         return {"success": False, "error": str(e)}
+
+
+def find_people_from_website(website: str, domain: str, firecrawl_key: str, openai_key: str, hunter_key: str) -> list:
+    """Scrape company website for team/about pages and extract people via OpenAI.
+    Also runs Hunter domain search for emails. Returns list of person dicts."""
+    if not firecrawl_key:
+        return []
+
+    if not website:
+        website = f"https://{domain}" if domain else ""
+    if not website:
+        return []
+    if not website.startswith("http"):
+        website = f"https://{website}"
+
+    base = website.rstrip("/")
+    pages_to_try = [
+        base,
+        f"{base}/about",
+        f"{base}/about-us",
+        f"{base}/team",
+        f"{base}/people",
+        f"{base}/staff",
+        f"{base}/equipo",
+        f"{base}/nosotros",
+        f"{base}/sobre-nosotros",
+    ]
+
+    firecrawl = FirecrawlClient(firecrawl_key, log_fn=log_dev)
+    combined_markdown = ""
+    combined_links = []
+    pages_scraped = 0
+
+    log_dev("ENRICH", f"Website people search: scraping {base}", "info")
+
+    for page_url in pages_to_try:
+        try:
+            result = firecrawl.scrape(page_url)
+            if result and result.get("markdown"):
+                combined_markdown += "\n\n" + result["markdown"]
+                combined_links += result.get("links", [])
+                pages_scraped += 1
+                if pages_scraped >= 3 or len(combined_markdown) > 10000:
+                    break
+        except Exception:
+            continue
+
+    if not combined_markdown.strip():
+        log_dev("ENRICH", "Website scrape returned no content", "warning")
+        return []
+
+    log_dev("ENRICH", f"Scraped {pages_scraped} pages ({len(combined_markdown)} chars)", "info")
+
+    # Extract linkedin.com/in/ profile URLs directly from scraped content
+    linkedin_in_re = re.compile(r"https?://(?:www\.)?linkedin\.com/in/([a-zA-Z0-9_%\-]+)")
+    linkedin_profiles = list({
+        f"https://linkedin.com/in/{m}"
+        for m in linkedin_in_re.findall(combined_markdown + " " + " ".join(combined_links))
+    })
+
+    # Hunter domain search for emails (free credits for domain search)
+    hunter_emails = []
+    if hunter_key and domain:
+        try:
+            hunter = HunterClient(hunter_key, log_fn=log_dev)
+            hunter_result = hunter.domain_search(domain, limit=10)
+            raw = (hunter_result or {}).get("emails", [])
+            hunter_emails = [e.get("value") for e in raw if e.get("value")] if raw else []
+            log_dev("ENRICH", f"Hunter found {len(hunter_emails)} emails at {domain}", "info")
+        except Exception as e:
+            log_dev("ENRICH", f"Hunter error: {e}", "warning")
+
+    # If no OpenAI, return raw extracted data
+    if not openai_key:
+        persons = [{"name": "", "title": "", "linkedin": url, "email": None, "seniority": "", "source": "website"} for url in linkedin_profiles[:10]]
+        for email in hunter_emails[:5]:
+            persons.append({"name": "", "title": "", "linkedin": None, "email": email, "seniority": "", "source": "hunter"})
+        return persons
+
+    return _extract_people_openai(combined_markdown[:10000], combined_links + linkedin_profiles, hunter_emails, openai_key)
+
+
+def _extract_people_openai(markdown: str, links: list, hunter_emails: list, openai_key: str) -> list:
+    """Use OpenAI to extract structured people from scraped website markdown."""
+    linkedin_context = "\n".join(lnk for lnk in links if "linkedin.com/in" in lnk) or "(none found)"
+    hunter_context = (
+        "Emails found at this domain by Hunter.io:\n" + "\n".join(hunter_emails[:10])
+        if hunter_emails else ""
+    )
+
+    prompt = f"""Extract all named people (team members, founders, executives, staff) mentioned in this company webpage.
+
+Known LinkedIn /in/ profiles found in the page links:
+{linkedin_context}
+{hunter_context}
+
+Webpage content:
+{markdown}
+
+Rules:
+- Only include real named individuals (not generic role mentions like "our team")
+- linkedin must be a full linkedin.com/in/... URL or null — never a company page
+- email must be a real email address or null
+- Return empty array if no clearly named people are found"""
+
+    try:
+        resp = _requests.post(
+            "https://api.openai.com/v1/chat/completions",
+            headers={"Authorization": f"Bearer {openai_key}", "Content-Type": "application/json"},
+            json={
+                "model": "gpt-4o-mini",
+                "messages": [{"role": "user", "content": prompt}],
+                "tools": [{
+                    "type": "function",
+                    "function": {
+                        "name": "extract_people",
+                        "description": "Return list of named people found on the company webpage",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "people": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "name": {"type": "string"},
+                                            "title": {"type": "string"},
+                                            "linkedin": {"type": ["string", "null"]},
+                                            "email": {"type": ["string", "null"]},
+                                        },
+                                        "required": ["name", "title"],
+                                    },
+                                }
+                            },
+                            "required": ["people"],
+                        },
+                    },
+                }],
+                "tool_choice": {"type": "function", "function": {"name": "extract_people"}},
+            },
+            timeout=30,
+        )
+
+        if not resp.ok:
+            log_dev("ENRICH", f"OpenAI people extraction failed: {resp.status_code}", "error")
+            return []
+
+        tool_call = resp.json().get("choices", [{}])[0].get("message", {}).get("tool_calls", [{}])[0]
+        if not tool_call:
+            return []
+
+        people = json.loads(tool_call["function"]["arguments"]).get("people", [])
+        for p in people:
+            p.setdefault("linkedin", None)
+            p.setdefault("email", None)
+            p.setdefault("seniority", "")
+            p["source"] = "website"
+
+        log_dev("ENRICH", f"OpenAI extracted {len(people)} people from website", "success")
+        return people
+
+    except Exception as e:
+        log_dev("ENRICH", f"OpenAI people extraction error: {e}", "error")
+        return []
 
 
 def _enrich_with_apollo(result: dict, domain: str, apollo: ApolloClient):

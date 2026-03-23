@@ -45,9 +45,9 @@ python run.py briefs/client.yaml --no-enrich     # skip enrichment
 ### Backend (modular)
 
 ```
-app.py              (~443 lines) — thin Flask route handlers, API key loading
+app.py              (~540 lines) — thin Flask route handlers, API key loading, KanbanManager instance
 utils.py            — log_dev (thread-safe), dev_logs, extract_domain, clean_domain, clean_markdown_text, is_business_domain, SKIP_DOMAINS
-models.py           — Lead dataclass (30+ fields), Person dataclass (people search results)
+models.py           — Lead dataclass (30+ fields), Person dataclass (people search), EnrichedLead dataclass (Kanban board)
 scoring.py          — LeadScorer class (0-100 fit_score)
 jobs.py             — JobManager class (thread-safe with Lock, TTL cleanup)
 
@@ -61,16 +61,17 @@ api_clients/
   __init__.py       — re-exports all client classes
 
 services/
-  search.py         — run_search() pipeline: _step_search → _step_details → _step_enrich → _step_score
+  search.py         — run_search() pipeline: _step_search → _step_details → _step_filter → _step_enrich → _step_score
   discovery.py      — discover_prospects(), run_web_search(), run_apollo_search(), parse_maps_markdown()
   enrichment.py     — run_discover_and_enrich() (universal background pipeline), get_socials() (LinkedIn/Twitter lookup), compute_enrichment_signals(), enrich_company(), enrich_batch(), enrich_contacts(), extract_company_data()
   people.py         — run_people_search() background pipeline (Apollo /mixed_people/search), _score_person()
-  brief.py          — generate_brief() via Firecrawl + OpenAI
-  export.py         — export_leads_csv(), export_people_csv() → BytesIO
+  brief.py          — generate_brief() via Firecrawl + OpenAI (gpt-4o-mini, structured JSON schema)
+  export.py         — export_leads_csv(mode="prospect"|"enriched"), export_people_csv() → BytesIO
+  kanban.py         — KanbanManager class (thread-safe, in-memory Kanban board for EnrichedLead objects)
   __init__.py
 ```
 
-### Frontend: templates/index.html (~5610 lines)
+### Frontend: templates/index.html (~6000 lines)
 
 Single-page vanilla JS app with tabbed UI: **Prospecting** (unified search with auto-routing), **People Search** (Apollo people pipeline), **Enrichment** (domain enrichment), **Brief** (AI GTM generation). Dark theme, no framework, no build step.
 
@@ -90,7 +91,7 @@ Background jobs use `threading.Thread` (daemon=True) with polling (`/api/status/
 | `/api/search` | Start background search job |
 | `/api/status/<job_id>` | Poll job progress |
 | `/api/cancel/<job_id>` | Cancel running job |
-| `/api/export/<job_id>` | Download CSV (`?mode=people` for people CSV) |
+| `/api/export/<job_id>` | Download CSV (`?mode=people`, `?mode=prospect`, `?mode=enriched`) |
 | `/api/brief` | AI brief generation (OpenAI + Firecrawl) |
 | `/api/discover` | Smart search / Apollo search / Maps URL scraping |
 | `/api/discover-and-enrich` | Background job: discover + enrich (same output as `/api/search`) |
@@ -105,6 +106,14 @@ Background jobs use `threading.Thread` (daemon=True) with polling (`/api/status/
 | `/api/dev/logs/clear` | Clear dev logs (POST) |
 | `/api/dev/stats` | Enrichment statistics |
 | `/api/people-search` | Start background people search job (Apollo people pipeline) |
+| `/api/enrichment/import` | Import prospects into Kanban board |
+| `/api/enrichment/leads` | List Kanban leads (filter by column/tags) |
+| `/api/enrichment/leads/<id>` | Get / update / delete a Kanban lead |
+| `/api/enrichment/leads/<id>/move` | Move lead to different Kanban column |
+| `/api/enrichment/leads/<id>/tags` | Add/remove tags |
+| `/api/enrichment/leads/<id>/notes` | Update notes |
+| `/api/enrichment/count` | Count leads per Kanban column |
+| `/api/enrichment/duplicates` | Check which prospect IDs are already in Kanban |
 
 ## API Client Pattern
 
@@ -162,3 +171,6 @@ Thread-safe (uses `threading.Lock`). Categories: SEARCH, GOOGLE, APOLLO, FIRECRA
 - **API keys** — loaded from `.env` (gitignored). `.env.example` has placeholders. Keys: `GOOGLE_PLACES_API_KEY` (required), `APOLLO_API_KEY`, `HUNTER_API_KEY`, `FIRECRAWL_API_KEY`, `OPENAI_API_KEY`, `INSTANTLY_API_KEY` (all optional).
 - **XSS prevention** — all dynamic values in `displayFullBrief()` and `refreshDevLogs()` are wrapped with `escapeHtml()`.
 - **Input debouncing** — strategy indicator and search summary updates use `debounce()` (200ms) to avoid excessive DOM updates.
+- **Kanban board** — `KanbanManager` (services/kanban.py) manages `EnrichedLead` objects in-memory with columns: `imported` → `contacts_found` → `deep_researched`. Thread-safe. Planned migration to SQLite for VPS deployment.
+- **Export modes** — `export_leads_csv()` supports `mode="prospect"` (21 cols, company-level) and `mode="enriched"` (37 cols, one row per decision maker). `export_people_csv()` for people search results.
+- **Legacy files** — `lead_finder.py`, `config.py`, `run.py` are preserved for CLI batch mode but excluded from linting. Do not extend them.

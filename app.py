@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 from flask import Flask, jsonify, render_template, request, send_file
 from flask_cors import CORS
 
-from api_clients import HunterClient
+from api_clients import ApolloClient, HunterClient
 from jobs import JobManager
 from services import brief as brief_service
 from services import discovery as discovery_service
@@ -397,6 +397,117 @@ def kanban_bulk_delete():
     ids = (request.json or {}).get("ids", [])
     count = kanban_mgr.delete_many(ids)
     return jsonify({"success": True, "deleted": count})
+
+
+_PERSON_PRESETS = {
+    "decision_makers": {
+        "seniorities": ["c_suite", "vp", "director", "founder", "owner"],
+        "titles": None,
+    },
+    "marketing": {
+        "titles": ["CMO", "VP Marketing", "VP of Marketing", "Head of Marketing", "Marketing Director", "Chief Marketing Officer", "Growth Lead"],
+        "seniorities": ["c_suite", "vp", "director"],
+    },
+    "sales": {
+        "titles": ["VP Sales", "VP of Sales", "Head of Sales", "Sales Director", "Chief Revenue Officer", "CRO", "Head of Revenue"],
+        "seniorities": ["c_suite", "vp", "director"],
+    },
+    "engineering": {
+        "titles": ["CTO", "VP Engineering", "VP of Engineering", "Head of Engineering", "Chief Technology Officer"],
+        "seniorities": ["c_suite", "vp", "director"],
+    },
+    "operations": {
+        "titles": ["COO", "Head of Operations", "Operations Director", "VP Operations", "VP of Operations", "Chief Operating Officer"],
+        "seniorities": ["c_suite", "vp", "director"],
+    },
+}
+
+
+@app.route("/api/enrichment/leads/<lead_id>/find-people", methods=["POST"])
+def kanban_find_people(lead_id):
+    """Find key contacts at a Kanban lead's company via Apollo. Body: {preset}"""
+    if not APOLLO_API_KEY:
+        return jsonify({"success": False, "error": "Apollo API not configured"})
+
+    lead = kanban_mgr.get(lead_id)
+    if not lead:
+        return jsonify({"success": False, "error": "Lead not found"}), 404
+
+    preset = (request.json or {}).get("preset", "decision_makers")
+    if preset not in _PERSON_PRESETS:
+        return jsonify({"success": False, "error": f"Unknown preset: {preset}"}), 400
+
+    sd = lead.get("source_data", {})
+    domain = sd.get("domain") or sd.get("company_domain") or ""
+    company_name = sd.get("name") or sd.get("company_name") or ""
+
+    if not domain and not company_name:
+        return jsonify({"success": False, "error": "No domain or company name on this lead"})
+
+    params = _PERSON_PRESETS[preset]
+    apollo = ApolloClient(APOLLO_API_KEY, log_fn=log_dev)
+
+    log_dev("KANBAN", f"Finding people ({preset}) at {domain or company_name}", "info")
+
+    # --- Source 1: Apollo (best structured data when available) ---
+    org_id = None
+    orgs = apollo.search_organizations(name=company_name if not domain else None, domain=domain or None, per_page=1)
+    if orgs:
+        org_id = orgs[0].get("id")
+        log_dev("KANBAN", f"Resolved Apollo org ID: {org_id}", "info")
+
+    apollo_people = apollo.search_contacts(
+        domain=domain or None,
+        organization_ids=[org_id] if org_id else None,
+        titles=params.get("titles"),
+        seniorities=params.get("seniorities"),
+        per_page=10,
+    )
+
+    # Retry Apollo without preset filters if nothing came back
+    if not apollo_people and (params.get("titles") or params.get("seniorities")):
+        log_dev("KANBAN", "No results with preset filters — retrying Apollo without constraints", "info")
+        apollo_people = apollo.search_contacts(
+            domain=domain or None,
+            organization_ids=[org_id] if org_id else None,
+            per_page=10,
+        )
+
+    if apollo_people:
+        persons = [
+            {
+                "name": p.get("name") or f"{p.get('first_name', '')} {p.get('last_name', '')}".strip(),
+                "title": p.get("title", ""),
+                "email": p.get("email"),
+                "linkedin": p.get("linkedin_url"),
+                "seniority": p.get("seniority", ""),
+                "source": "apollo",
+            }
+            for p in apollo_people
+        ]
+    else:
+        # --- Source 2: Website scrape + OpenAI + Hunter (local/SMB fallback) ---
+        log_dev("KANBAN", "Apollo returned 0 — falling back to website scrape", "info")
+        website = sd.get("website") or sd.get("company_website") or ""
+        persons = enrichment_service.find_people_from_website(
+            website=website,
+            domain=domain,
+            firecrawl_key=FIRECRAWL_API_KEY,
+            openai_key=OPENAI_API_KEY,
+            hunter_key=HUNTER_API_KEY,
+        )
+
+    kanban_mgr.set_persons(lead_id, persons)
+    source = persons[0].get("source", "apollo") if persons else "none"
+    log_dev("KANBAN", f"Found {len(persons)} contacts via {source} at {domain or company_name}", "success")
+
+    return jsonify({
+        "success": True,
+        "count": len(persons),
+        "company": company_name or domain,
+        "source": source,
+        "persons": persons,
+    })
 
 
 # --- Hunter.io direct endpoints ---

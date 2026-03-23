@@ -2176,13 +2176,13 @@
         }
 
         .kanban-col {
-            background: var(--surface-2);
+            background: rgba(0,0,0,0.15);
             border: 1px solid var(--border);
             border-radius: 10px;
             display: flex;
             flex-direction: column;
-            min-height: 180px;
-            max-height: calc(100vh - 240px);
+            min-height: 200px;
+            max-height: calc(100vh - 220px);
             overflow: hidden;
         }
 
@@ -2190,33 +2190,35 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0.75rem 0.9rem 0.6rem;
+            padding: 0.7rem 0.9rem;
             border-bottom: 1px solid var(--border);
             position: sticky;
             top: 0;
-            background: var(--surface-2);
+            background: rgba(0,0,0,0.25);
             z-index: 1;
+            border-radius: 10px 10px 0 0;
         }
         .kanban-col-title {
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-muted);
+            letter-spacing: 0.06em;
+            color: var(--text-secondary);
         }
         .kanban-col-count {
-            background: var(--surface);
+            background: rgba(255,255,255,0.07);
             border: 1px solid var(--border);
             border-radius: 10px;
-            padding: 0.1rem 0.5rem;
+            padding: 0.1rem 0.55rem;
             font-size: 0.75rem;
-            color: var(--text-muted);
-            min-width: 22px;
+            font-weight: 600;
+            color: var(--text-primary);
+            min-width: 24px;
             text-align: center;
         }
 
         .kanban-col-cards {
-            padding: 0.6rem;
+            padding: 0.65rem;
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
@@ -2225,161 +2227,209 @@
         }
 
         .kanban-col-empty {
-            padding: 1.5rem 0.75rem;
+            padding: 2rem 1rem;
             text-align: center;
             color: var(--text-muted);
             font-size: 0.8rem;
+            line-height: 1.6;
         }
 
         /* Kanban Card */
         .kcard {
-            background: var(--card-bg, var(--surface));
+            background: var(--surface);
             border: 1px solid var(--border);
             border-radius: 8px;
-            padding: 0.65rem 0.75rem;
+            padding: 0.75rem 0.85rem;
             cursor: pointer;
             transition: border-color 0.15s, box-shadow 0.15s;
             position: relative;
         }
-        .kcard:hover { border-color: var(--accent); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
-        .kcard.selected { border-color: var(--accent); background: rgba(99,102,241,0.06); }
+        .kcard:hover { border-color: var(--accent); box-shadow: 0 2px 10px rgba(0,0,0,0.25); }
+        .kcard.selected { border-color: var(--accent); background: rgba(99,102,241,0.07); }
+        .kcard.open { border-color: rgba(99,102,241,0.4); }
 
         .kcard-header {
-            display: flex;
-            align-items: flex-start;
-            gap: 0.5rem;
+            display: grid;
+            grid-template-columns: auto auto 1fr auto;
+            align-items: start;
+            gap: 0.45rem;
         }
-        .kcard-check { margin-top: 2px; flex-shrink: 0; accent-color: var(--accent); cursor: pointer; }
-        .kcard-icon { font-size: 1rem; flex-shrink: 0; line-height: 1.4; }
-        .kcard-body { flex: 1; min-width: 0; }
+        .kcard-check { margin-top: 3px; flex-shrink: 0; accent-color: var(--accent); cursor: pointer; }
+        .kcard-icon { font-size: 1rem; flex-shrink: 0; line-height: 1.5; margin-top: 1px; }
+        .kcard-body { min-width: 0; overflow: hidden; }
 
         .kcard-name {
-            font-size: 0.85rem;
+            font-size: 0.875rem;
             font-weight: 600;
             color: var(--text-primary);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            line-height: 1.4;
         }
         .kcard-sub {
-            font-size: 0.72rem;
+            font-size: 0.73rem;
             color: var(--text-muted);
-            margin-top: 1px;
+            margin-top: 2px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
         .kcard-score {
-            font-size: 0.72rem;
+            font-size: 0.75rem;
             font-weight: 700;
-            border-radius: 4px;
-            padding: 0.1rem 0.35rem;
+            border-radius: 5px;
+            padding: 0.15rem 0.45rem;
             flex-shrink: 0;
-            align-self: flex-start;
+            min-width: 32px;
+            text-align: center;
+            line-height: 1.4;
         }
-        .kcard-score.high { background: rgba(34,197,94,0.15); color: #22c55e; }
-        .kcard-score.medium { background: rgba(251,191,36,0.15); color: #fbbf24; }
-        .kcard-score.low { background: rgba(239,68,68,0.12); color: #ef4444; }
+        .kcard-score.high { background: rgba(34,197,94,0.18); color: #22c55e; border: 1px solid rgba(34,197,94,0.25); }
+        .kcard-score.medium { background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.25); }
+        .kcard-score.low { background: rgba(239,68,68,0.12); color: #ef4444; border: 1px solid rgba(239,68,68,0.2); }
 
         .kcard-tags {
             display: flex;
             flex-wrap: wrap;
             gap: 0.25rem;
-            margin-top: 0.4rem;
+            margin-top: 0.45rem;
         }
         .kcard-tag {
-            font-size: 0.65rem;
-            background: rgba(99,102,241,0.12);
+            font-size: 0.68rem;
+            background: rgba(99,102,241,0.14);
             color: var(--accent);
             border-radius: 3px;
-            padding: 0.1rem 0.4rem;
+            padding: 0.1rem 0.45rem;
             cursor: pointer;
+            border: 1px solid rgba(99,102,241,0.2);
         }
-        .kcard-tag:hover { background: rgba(99,102,241,0.22); }
+        .kcard-tag:hover { background: rgba(99,102,241,0.25); }
 
         .kcard-signals {
             display: flex;
-            gap: 0.4rem;
-            margin-top: 0.35rem;
+            gap: 0.3rem;
+            margin-top: 0.45rem;
             flex-wrap: wrap;
+            align-items: center;
         }
         .kcard-signal {
-            font-size: 0.7rem;
-            color: var(--text-muted);
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 0.1rem 0.4rem;
+            white-space: nowrap;
         }
+
+        /* Expand indicator */
+        .kcard-expand-hint {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-top: 0.4rem;
+            opacity: 0.6;
+            user-select: none;
+        }
+        .kcard.open .kcard-expand-hint { opacity: 0; height: 0; margin: 0; overflow: hidden; }
 
         /* Expanded card */
         .kcard-expanded {
             display: none;
-            margin-top: 0.6rem;
-            padding-top: 0.6rem;
+            margin-top: 0.65rem;
+            padding-top: 0.65rem;
             border-top: 1px solid var(--border);
         }
         .kcard.open .kcard-expanded { display: block; }
 
+        .kcard-section-label {
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            margin: 0.65rem 0 0.3rem;
+        }
+        .kcard-section-label:first-child { margin-top: 0; }
+
         .kcard-detail-row {
             display: flex;
             gap: 0.5rem;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-bottom: 0.3rem;
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.35rem;
             align-items: flex-start;
+            line-height: 1.45;
         }
-        .kcard-detail-row strong { color: var(--text-primary); min-width: 64px; flex-shrink: 0; }
+        .kcard-detail-row strong {
+            color: var(--text-muted);
+            min-width: 58px;
+            flex-shrink: 0;
+            font-weight: 500;
+            font-size: 0.72rem;
+        }
 
         .kcard-notes-field {
             width: 100%;
-            background: var(--surface-2);
+            background: rgba(0,0,0,0.2);
             border: 1px solid var(--border);
-            border-radius: 5px;
-            padding: 0.4rem 0.5rem;
-            font-size: 0.75rem;
+            border-radius: 6px;
+            padding: 0.45rem 0.6rem;
+            font-size: 0.78rem;
             color: var(--text-primary);
             resize: vertical;
-            min-height: 52px;
-            margin-top: 0.5rem;
+            min-height: 56px;
+            margin-top: 0.3rem;
             box-sizing: border-box;
+            font-family: inherit;
+            line-height: 1.5;
         }
-        .kcard-notes-field:focus { outline: none; border-color: var(--accent); }
+        .kcard-notes-field:focus { outline: none; border-color: var(--accent); background: rgba(0,0,0,0.3); }
+        .kcard-notes-field::placeholder { color: var(--text-muted); opacity: 0.7; }
 
         .kcard-tag-input-row {
             display: flex;
             gap: 0.4rem;
-            margin-top: 0.4rem;
+            margin-top: 0.3rem;
         }
         .kcard-tag-input {
             flex: 1;
-            background: var(--surface-2);
+            background: rgba(0,0,0,0.2);
             border: 1px solid var(--border);
             border-radius: 5px;
-            padding: 0.3rem 0.5rem;
-            font-size: 0.75rem;
+            padding: 0.35rem 0.55rem;
+            font-size: 0.78rem;
             color: var(--text-primary);
+            font-family: inherit;
         }
         .kcard-tag-input:focus { outline: none; border-color: var(--accent); }
+        .kcard-tag-input::placeholder { color: var(--text-muted); opacity: 0.7; }
         .kcard-tag-add-btn {
-            background: var(--surface);
+            background: transparent;
             border: 1px solid var(--border);
             border-radius: 5px;
-            padding: 0.3rem 0.6rem;
-            font-size: 0.75rem;
+            padding: 0.35rem 0.65rem;
+            font-size: 0.78rem;
             cursor: pointer;
             color: var(--text-muted);
+            white-space: nowrap;
         }
-        .kcard-tag-add-btn:hover { border-color: var(--accent); color: var(--text-primary); }
+        .kcard-tag-add-btn:hover { border-color: var(--accent); color: var(--accent); }
 
         .kcard-actions {
             display: flex;
             gap: 0.4rem;
-            margin-top: 0.5rem;
+            margin-top: 0.65rem;
+            padding-top: 0.55rem;
+            border-top: 1px solid var(--border);
             flex-wrap: wrap;
         }
         .kcard-action-btn {
-            background: var(--surface);
+            background: transparent;
             border: 1px solid var(--border);
             border-radius: 5px;
-            padding: 0.3rem 0.55rem;
-            font-size: 0.72rem;
+            padding: 0.3rem 0.6rem;
+            font-size: 0.73rem;
             cursor: pointer;
             color: var(--text-muted);
             transition: border-color 0.12s, color 0.12s;
@@ -2389,21 +2439,21 @@
 
         /* Activity log */
         .kcard-log {
-            margin-top: 0.5rem;
-            font-size: 0.7rem;
-            color: var(--text-muted);
+            margin-top: 0.3rem;
         }
         .kcard-log-entry {
-            padding: 0.2rem 0;
-            border-left: 2px solid var(--border);
-            padding-left: 0.5rem;
-            margin-bottom: 0.2rem;
+            padding: 0.25rem 0 0.25rem 0.6rem;
+            border-left: 2px solid rgba(99,102,241,0.3);
+            margin-bottom: 0.25rem;
+            font-size: 0.73rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
         }
         .kcard-log-entry time {
             display: block;
             font-size: 0.65rem;
             color: var(--text-muted);
-            opacity: 0.7;
+            margin-top: 1px;
         }
 
         /* Kanban bulk action bar */
@@ -2472,6 +2522,57 @@
         .kmodal p { color: var(--text-muted); font-size: 0.875rem; margin: 0 0 1.25rem; }
         .kmodal-actions { display: flex; gap: 0.6rem; justify-content: flex-end; }
         .kmodal-actions .btn { width: auto; padding: 0.5rem 1rem; font-size: 0.85rem; }
+
+        /* --- Kanban drag-and-drop --- */
+        .kcard[draggable="true"] { cursor: grab; }
+        .kcard[draggable="true"]:active { cursor: grabbing; }
+        .kcard.dragging { opacity: 0.35; pointer-events: none; }
+        .kanban-col.drag-over .kanban-col-cards {
+            background: rgba(99, 102, 241, 0.07);
+            border: 1.5px dashed var(--accent);
+            border-radius: 8px;
+            min-height: 60px;
+        }
+        .kanban-col.drag-over .kanban-col-header { opacity: 1; }
+        .kanban-col.drag-over .kanban-col-title { color: var(--accent); }
+        .kcard-loading { opacity: 0.55; animation: kcard-pulse 1s ease-in-out infinite; }
+        @keyframes kcard-pulse { 0%,100% { opacity: 0.55; } 50% { opacity: 0.8; } }
+
+        /* --- Find people modal --- */
+        .find-people-presets {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.55rem;
+            margin: 1rem 0 0.5rem;
+        }
+        .find-people-preset-btn {
+            background: var(--surface-2, rgba(255,255,255,0.04));
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            padding: 0.7rem 0.5rem;
+            font-size: 0.83rem;
+            cursor: pointer;
+            text-align: center;
+            transition: background 0.15s, border-color 0.15s, color 0.15s;
+        }
+        .find-people-preset-btn:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+        .find-people-skip {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            cursor: pointer;
+            padding: 0.4rem;
+            text-decoration: underline;
+            display: block;
+            margin: 0.75rem auto 0;
+        }
+        .find-people-skip:hover { color: var(--text-primary); }
     </style>
 </head>
 <body>
@@ -3279,7 +3380,10 @@
 
                 <!-- Kanban columns -->
                 <div class="kanban-board" id="kanbanBoard">
-                    <div class="kanban-col" id="kanban-col-imported">
+                    <div class="kanban-col" id="kanban-col-imported"
+                         ondragover="kanbanColDragOver(event)"
+                         ondragleave="kanbanColDragLeave(event)"
+                         ondrop="kanbanColDrop(event,'imported')">
                         <div class="kanban-col-header">
                             <span class="kanban-col-title">Imported</span>
                             <span class="kanban-col-count" id="kanban-count-imported">0</span>
@@ -3289,7 +3393,10 @@
                         </div>
                     </div>
 
-                    <div class="kanban-col" id="kanban-col-contacts_found">
+                    <div class="kanban-col" id="kanban-col-contacts_found"
+                         ondragover="kanbanColDragOver(event)"
+                         ondragleave="kanbanColDragLeave(event)"
+                         ondrop="kanbanColDrop(event,'contacts_found')">
                         <div class="kanban-col-header">
                             <span class="kanban-col-title">Contacts Found</span>
                             <span class="kanban-col-count" id="kanban-count-contacts_found">0</span>
@@ -3299,7 +3406,10 @@
                         </div>
                     </div>
 
-                    <div class="kanban-col" id="kanban-col-deep_researched">
+                    <div class="kanban-col" id="kanban-col-deep_researched"
+                         ondragover="kanbanColDragOver(event)"
+                         ondragleave="kanbanColDragLeave(event)"
+                         ondrop="kanbanColDrop(event,'deep_researched')">
                         <div class="kanban-col-header">
                             <span class="kanban-col-title">Deep Researched</span>
                             <span class="kanban-col-count" id="kanban-count-deep_researched">0</span>
@@ -3464,6 +3574,23 @@
             </div>
         </div>
 
+        <!-- Find people modal (triggered on drag to Contacts Found) -->
+        <div class="kmodal-overlay" id="findPeopleModal" onclick="if(event.target===this)closeFindPeopleModal()">
+            <div class="kmodal" style="max-width:460px;">
+                <h3>Find people at <span id="findPeopleCompanyName" style="color:var(--accent)"></span></h3>
+                <p>Who are you looking for?</p>
+                <input type="hidden" id="findPeopleLeadId">
+                <div class="find-people-presets">
+                    <button class="find-people-preset-btn" onclick="findPeopleWithPreset('decision_makers')">👔 Decision Makers</button>
+                    <button class="find-people-preset-btn" onclick="findPeopleWithPreset('marketing')">📣 Marketing</button>
+                    <button class="find-people-preset-btn" onclick="findPeopleWithPreset('sales')">💰 Sales &amp; Revenue</button>
+                    <button class="find-people-preset-btn" onclick="findPeopleWithPreset('engineering')">⚙️ Engineering</button>
+                    <button class="find-people-preset-btn" onclick="findPeopleWithPreset('operations')">🏭 Operations</button>
+                </div>
+                <button class="find-people-skip" onclick="findPeopleSkip()">Just move, skip people search</button>
+            </div>
+        </div>
+
     </div>
 
     <script>
@@ -3514,6 +3641,10 @@
         let enrichedCompanies = [];
         let currentBrief = null;
         let placeholderInterval = null;
+
+        // Kanban drag-and-drop state
+        let dragLeadId = null;
+        let dragSourceCol = null;
 
         // Debounce utility — delays fn execution until input settles
         function debounce(fn, delay = 200) {
@@ -4410,31 +4541,32 @@
 
             const name = sd.name || sd.company_name || '—';
             const sub = isCompany
-                ? [sd.industry || sd.category, sd.city || sd.country].filter(Boolean).join(' · ')
-                : [sd.title, sd.company_name].filter(Boolean).join(' · ');
+                ? [sd.industry || sd.category, sd.city || (sd.municipality ? sd.municipality + (sd.country ? ', ' + sd.country : '') : sd.country)].filter(Boolean).join(' · ')
+                : [sd.title, sd.company_name || sd.company_industry].filter(Boolean).join(' · ');
 
             const score = lead.enriched_score || lead.fit_score || 0;
             const scoreClass = score >= 70 ? 'high' : score >= 50 ? 'medium' : 'low';
             const scoreDelta = lead.enriched_score && lead.enriched_score !== lead.fit_score
-                ? ` <span style="color:${lead.enriched_score > lead.fit_score ? '#22c55e' : '#ef4444'};font-size:0.65rem;">
-                    ${lead.enriched_score > lead.fit_score ? '↑' : '↓'}${Math.abs(lead.enriched_score - lead.fit_score)}</span>`
+                ? `<span style="color:${lead.enriched_score > lead.fit_score ? '#22c55e' : '#ef4444'};font-size:0.65rem;margin-left:2px;">${lead.enriched_score > lead.fit_score ? '↑' : '↓'}${Math.abs(lead.enriched_score - lead.fit_score)}</span>`
                 : '';
 
             const tags = (lead.tags || []).map(t =>
                 `<span class="kcard-tag" onclick="event.stopPropagation();kanbanRemoveTag('${escapeHtml(lead.id)}','${escapeHtml(t)}')">${escapeHtml(t)} ✕</span>`
             ).join('');
 
-            // Signals row
+            // Signals row — compact readable pills
             const signals = [];
-            if (isCompany && sd.reviews_count) signals.push(`⭐ ${sd.reviews_count}`);
-            if (sd.website || sd.company_website) signals.push('🌐');
-            if (lead.contact_email) signals.push('📧');
-            if (sd.linkedin_url || lead.all_socials?.linkedin) signals.push('💼');
-            if (lead.persons?.length) signals.push(`👥 ${lead.persons.length}`);
+            if (isCompany && sd.rating) signals.push(`⭐ ${sd.rating}`);
+            if (isCompany && sd.reviews_count) signals.push(`${sd.reviews_count} reviews`);
+            if (sd.website || sd.company_website) signals.push('🌐 Web');
+            if (lead.contact_email || sd.email) signals.push('📧 Email');
+            if (sd.linkedin_url || lead.all_socials?.linkedin) signals.push('💼 LinkedIn');
+            if (sd.phone || lead.contact_phone) signals.push('📞 Phone');
+            if (lead.persons?.length) signals.push(`👥 ${lead.persons.length} contacts`);
 
-            const logHtml = (lead.activity_log || []).slice(-3).reverse().map(e => `
+            const logHtml = (lead.activity_log || []).slice(-5).reverse().map(e => `
                 <div class="kcard-log-entry">
-                    ${escapeHtml(e.action)}${e.detail ? ': ' + escapeHtml(e.detail) : ''}
+                    ${escapeHtml(e.action)}${e.detail ? ' — ' + escapeHtml(e.detail) : ''}
                     <time>${new Date(e.timestamp).toLocaleString([], {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</time>
                 </div>
             `).join('');
@@ -4442,8 +4574,18 @@
             const checkAttr = selectedKanbanIds.has(lead.id) ? 'checked' : '';
             const selClass = selectedKanbanIds.has(lead.id) ? 'selected' : '';
 
+            // Expanded details
+            const phone = sd.phone || lead.contact_phone || '';
+            const email = lead.contact_email || sd.email || '';
+            const website = sd.website || sd.company_website || '';
+            const websiteDisplay = sd.domain || sd.company_domain || website;
+            const linkedin = sd.linkedin_url || lead.all_socials?.linkedin || '';
+
             return `
                 <div class="kcard ${selClass}" id="kcard-${escapeHtml(lead.id)}"
+                     draggable="true"
+                     ondragstart="kanbanDragStart(event,'${escapeHtml(lead.id)}','${escapeHtml(lead.column)}')"
+                     ondragend="kanbanDragEnd(event)"
                      onclick="toggleKanbanCard('${escapeHtml(lead.id)}')">
                     <div class="kcard-header">
                         ${!readonly ? `<input type="checkbox" class="kcard-check" ${checkAttr}
@@ -4452,31 +4594,40 @@
                         <span class="kcard-icon">${icon}</span>
                         <div class="kcard-body">
                             <div class="kcard-name" title="${escapeHtml(name)}">${escapeHtml(name)}</div>
-                            <div class="kcard-sub">${escapeHtml(sub)}</div>
+                            ${sub ? `<div class="kcard-sub">${escapeHtml(sub)}</div>` : ''}
                         </div>
                         <div class="kcard-score ${scoreClass}">${score}${scoreDelta}</div>
                     </div>
-                    ${signals.length ? `<div class="kcard-signals">${signals.map(s => `<span class="kcard-signal">${s}</span>`).join('')}</div>` : ''}
+                    ${signals.length ? `<div class="kcard-signals">${signals.map(s => `<span class="kcard-signal">${escapeHtml(s)}</span>`).join('')}</div>` : ''}
                     ${tags ? `<div class="kcard-tags">${tags}</div>` : ''}
+                    <div class="kcard-expand-hint">▸ click to expand</div>
                     <div class="kcard-expanded">
-                        ${isCompany && sd.address_full ? `<div class="kcard-detail-row"><strong>Address</strong>${escapeHtml(sd.address_full)}</div>` : ''}
-                        ${sd.website || sd.company_website ? `<div class="kcard-detail-row"><strong>Website</strong><a href="${escapeHtml(sd.website||sd.company_website)}" target="_blank" style="color:var(--accent)">${escapeHtml(sd.domain||sd.company_domain||sd.website||sd.company_website)}</a></div>` : ''}
-                        ${lead.contact_email ? `<div class="kcard-detail-row"><strong>Email</strong><a href="mailto:${escapeHtml(lead.contact_email)}" style="color:var(--accent)">${escapeHtml(lead.contact_email)}</a></div>` : ''}
-                        ${lead.notes ? `<div class="kcard-detail-row"><strong>Notes</strong>${escapeHtml(lead.notes)}</div>` : ''}
+                        ${isCompany && sd.address_full ? `
+                            <div class="kcard-section-label">Location</div>
+                            <div class="kcard-detail-row"><strong>Address</strong><span>${escapeHtml(sd.address_full)}</span></div>` : ''}
+                        ${website || phone || email || linkedin ? `<div class="kcard-section-label">Contact</div>` : ''}
+                        ${website ? `<div class="kcard-detail-row"><strong>Website</strong><a href="${escapeHtml(website)}" target="_blank" onclick="event.stopPropagation()" style="color:var(--accent)">${escapeHtml(websiteDisplay)}</a></div>` : ''}
+                        ${phone ? `<div class="kcard-detail-row"><strong>Phone</strong><a href="tel:${escapeHtml(phone)}" onclick="event.stopPropagation()" style="color:var(--accent)">${escapeHtml(phone)}</a></div>` : ''}
+                        ${email ? `<div class="kcard-detail-row"><strong>Email</strong><a href="mailto:${escapeHtml(email)}" onclick="event.stopPropagation()" style="color:var(--accent)">${escapeHtml(email)}</a></div>` : ''}
+                        ${linkedin ? `<div class="kcard-detail-row"><strong>LinkedIn</strong><a href="${escapeHtml(linkedin)}" target="_blank" onclick="event.stopPropagation()" style="color:var(--accent)">View profile</a></div>` : ''}
+                        <div class="kcard-section-label">Notes</div>
                         <textarea class="kcard-notes-field"
                             placeholder="Add a note…"
                             onclick="event.stopPropagation()"
                             onblur="kanbanSaveNotes('${escapeHtml(lead.id)}', this.value)"
                         >${escapeHtml(lead.notes || '')}</textarea>
+                        <div class="kcard-section-label">Tags</div>
                         <div class="kcard-tag-input-row">
-                            <input class="kcard-tag-input" type="text" placeholder="Add tag…"
+                            <input class="kcard-tag-input" type="text" placeholder="Add tag and press Enter…"
                                    id="tag-input-${escapeHtml(lead.id)}"
                                    onclick="event.stopPropagation()"
                                    onkeydown="if(event.key==='Enter'){event.preventDefault();kanbanAddTagInput('${escapeHtml(lead.id)}');}">
                             <button class="kcard-tag-add-btn"
-                                    onclick="event.stopPropagation();kanbanAddTagInput('${escapeHtml(lead.id)}')">+ Tag</button>
+                                    onclick="event.stopPropagation();kanbanAddTagInput('${escapeHtml(lead.id)}')">+ Add</button>
                         </div>
-                        ${logHtml ? `<div class="kcard-log" style="margin-top:0.5rem;"><div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);margin-bottom:0.2rem;">Activity</div>${logHtml}</div>` : ''}
+                        ${logHtml ? `
+                            <div class="kcard-section-label">Activity</div>
+                            <div class="kcard-log">${logHtml}</div>` : ''}
                         <div class="kcard-actions">
                             <button class="kcard-action-btn danger"
                                     onclick="event.stopPropagation();kanbanDeleteCard('${escapeHtml(lead.id)}')">🗑 Remove</button>
@@ -4586,6 +4737,116 @@
             ));
             await loadKanban();
             showToast(`Tag "${tag.trim()}" added to ${ids.length} leads`);
+        }
+
+        // ============================================
+        // KANBAN DRAG AND DROP
+        // ============================================
+
+        function kanbanDragStart(e, leadId, col) {
+            dragLeadId = leadId;
+            dragSourceCol = col;
+            e.dataTransfer.effectAllowed = 'move';
+            // Delay so the drag ghost is created before we hide the card
+            setTimeout(() => {
+                const el = document.getElementById(`kcard-${leadId}`);
+                if (el) el.classList.add('dragging');
+            }, 0);
+        }
+
+        function kanbanDragEnd(e) {
+            document.querySelectorAll('.kcard.dragging').forEach(c => c.classList.remove('dragging'));
+            document.querySelectorAll('.kanban-col.drag-over').forEach(c => c.classList.remove('drag-over'));
+            dragLeadId = null;
+            dragSourceCol = null;
+        }
+
+        function kanbanColDragOver(e) {
+            if (!dragLeadId) return;
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        function kanbanColDragLeave(e) {
+            // Only remove highlight when truly leaving the column (not entering a child element)
+            if (!e.currentTarget.contains(e.relatedTarget)) {
+                e.currentTarget.classList.remove('drag-over');
+            }
+        }
+
+        function kanbanColDrop(e, targetCol) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+            const leadId = dragLeadId;
+            const sourceCol = dragSourceCol;
+            dragLeadId = null;
+            dragSourceCol = null;
+            if (!leadId || targetCol === sourceCol) return;
+            if (sourceCol === 'imported' && targetCol === 'contacts_found') {
+                openFindPeopleModal(leadId);
+            } else {
+                kanbanMoveCard(leadId, targetCol);
+            }
+        }
+
+        async function kanbanMoveCard(leadId, column) {
+            try {
+                await fetch(`/api/enrichment/leads/${leadId}/move`, {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({column})
+                });
+                await loadKanban();
+            } catch(e) {
+                showToast('Move failed: ' + e.message);
+            }
+        }
+
+        // ============================================
+        // FIND PEOPLE MODAL
+        // ============================================
+
+        function openFindPeopleModal(leadId) {
+            const lead = kanbanLeads.find(l => l.id === leadId);
+            const name = lead?.source_data?.name || lead?.source_data?.company_name || 'this company';
+            document.getElementById('findPeopleLeadId').value = leadId;
+            document.getElementById('findPeopleCompanyName').textContent = name;
+            document.getElementById('findPeopleModal').classList.add('open');
+        }
+
+        function closeFindPeopleModal() {
+            document.getElementById('findPeopleModal').classList.remove('open');
+        }
+
+        async function findPeopleWithPreset(preset) {
+            const leadId = document.getElementById('findPeopleLeadId').value;
+            closeFindPeopleModal();
+            const cardEl = document.getElementById(`kcard-${leadId}`);
+            if (cardEl) cardEl.classList.add('kcard-loading');
+            try {
+                const resp = await fetch(`/api/enrichment/leads/${leadId}/find-people`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({preset})
+                });
+                const data = await resp.json();
+                if (data.success) {
+                    const n = data.count;
+                    showToast(`Found ${n} contact${n !== 1 ? 's' : ''} at ${data.company || 'the company'}`);
+                } else {
+                    showToast(data.error || 'No contacts found');
+                }
+            } catch(err) {
+                showToast('Search failed: ' + err.message);
+            }
+            await loadKanban();
+        }
+
+        async function findPeopleSkip() {
+            const leadId = document.getElementById('findPeopleLeadId').value;
+            closeFindPeopleModal();
+            await kanbanMoveCard(leadId, 'contacts_found');
         }
 
         function toggleKanbanTools() {
