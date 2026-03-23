@@ -9,6 +9,9 @@ LeadFlow is a self-hosted BYOK B2B prospecting tool that helps you build qualifi
 
 ## Features
 
+### GTM Brief Generator
+Paste a company URL and get an in-depth AI-generated ICP and Go-To-Market brief: positioning, target audience, competitive landscape, outreach hooks, and more.
+
 ### Company Search
 Search for businesses by location, industry, or intent. LeadFlow finds matching companies, scrapes their websites for contact info and social links, identifies decision makers, and scores each lead based on how well they match your ideal customer profile.
 
@@ -20,9 +23,6 @@ Every result gets a **fit score (0–100)** based on real signals: ratings, revi
 
 ### Decision Maker Discovery
 For each company, LeadFlow finds the right people — CEOs, Marketing Directors, Owners — with their emails, LinkedIn profiles, and titles. Enrichment data flows directly into the CSV export.
-
-### GTM Brief Generator
-Paste a company URL and get an AI-generated Go-To-Market brief: positioning, target audience, competitive landscape, and outreach hooks.
 
 ### CSV Export
 Two export formats built for real workflows:
