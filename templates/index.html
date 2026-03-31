@@ -2437,6 +2437,47 @@
         .kcard-action-btn:hover { border-color: var(--accent); color: var(--text-primary); }
         .kcard-action-btn.danger:hover { border-color: #ef4444; color: #ef4444; }
 
+        /* Person list inside Kanban card */
+        .kcard-persons { display: flex; flex-direction: column; gap: 0.45rem; margin-top: 0.2rem; }
+        .kcard-person {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.5rem 0.6rem;
+        }
+        .kcard-person.researched { border-color: rgba(34,197,94,0.3); background: rgba(34,197,94,0.04); }
+        .kcard-person-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; }
+        .kcard-person-info { display: flex; flex-direction: column; gap: 0.12rem; min-width: 0; }
+        .kcard-person-name { font-size: 0.8rem; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .kcard-person-title { font-size: 0.72rem; color: var(--text-secondary); }
+        .kcard-person-seniority {
+            font-size: 0.62rem; color: var(--text-muted);
+            background: rgba(255,255,255,0.06); border: 1px solid var(--border);
+            border-radius: 3px; padding: 1px 5px; align-self: flex-start; text-transform: capitalize;
+        }
+        .kcard-person-links { display: flex; align-items: center; gap: 0.3rem; flex-shrink: 0; }
+        .kcard-person-link { font-size: 0.85rem; text-decoration: none; opacity: 0.7; transition: opacity 0.12s; }
+        .kcard-person-link:hover { opacity: 1; }
+        .kcard-research-btn {
+            background: transparent; border: 1px solid var(--accent);
+            border-radius: 4px; padding: 0.2rem 0.45rem;
+            font-size: 0.68rem; cursor: pointer; color: var(--accent);
+            transition: background 0.12s; white-space: nowrap;
+        }
+        .kcard-research-btn:hover { background: rgba(99,102,241,0.12); }
+        .kcard-research-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .kcard-researched-badge { font-size: 0.68rem; color: #22c55e; font-weight: 600; white-space: nowrap; }
+        /* Intelligence display */
+        .kcard-person-intel { margin-top: 0.5rem; padding-top: 0.4rem; border-top: 1px solid var(--border); font-size: 0.75rem; }
+        .intel-summary { color: var(--text-secondary); line-height: 1.5; margin-bottom: 0.3rem; }
+        .intel-label {
+            font-size: 0.62rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.06em; color: var(--text-muted); margin-top: 0.4rem; margin-bottom: 0.18rem;
+        }
+        .intel-list { margin: 0; padding-left: 1.1rem; color: var(--text-secondary); line-height: 1.55; }
+        .intel-list li { margin-bottom: 0.12rem; }
+        .intel-text { color: var(--text-secondary); line-height: 1.5; }
+
         /* Activity log */
         .kcard-log {
             margin-top: 0.3rem;
@@ -4482,10 +4523,11 @@
             const cols = ['imported', 'contacts_found', 'deep_researched'];
             const colCounts = {...counts};
 
-            // Outreach Ready = contacts_found + deep_researched with email or linkedin
+            // Outreach Ready = person cards (contacts_found or deep_researched) with email or linkedin
             const outreachLeads = leads.filter(l =>
-                (l.contact_email || l.all_socials?.linkedin || l.source_data?.linkedin_url) &&
-                l.column !== 'imported'
+                l.source_type === 'person' &&
+                l.column !== 'imported' &&
+                (l.source_data?.email || l.source_data?.linkedin || l.contact_email || l.all_socials?.linkedin)
             );
             colCounts.outreach_ready = outreachLeads.length;
 
@@ -4536,13 +4578,16 @@
 
         function renderKanbanCard(lead, readonly = false) {
             const sd = lead.source_data || {};
-            const isCompany = lead.source_type === 'company';
-            const icon = isCompany ? '🏢' : '👤';
+            const isPerson = lead.source_type === 'person';
+            const isCompany = !isPerson;
+            const icon = isPerson ? '👤' : '🏢';
 
+            // Person cards: name from sd.name, subtitle = title · company
+            // Company cards: name from sd.name/sd.company_name, subtitle = industry · city
             const name = sd.name || sd.company_name || '—';
-            const sub = isCompany
-                ? [sd.industry || sd.category, sd.city || (sd.municipality ? sd.municipality + (sd.country ? ', ' + sd.country : '') : sd.country)].filter(Boolean).join(' · ')
-                : [sd.title, sd.company_name || sd.company_industry].filter(Boolean).join(' · ');
+            const sub = isPerson
+                ? [sd.title, sd.company_name || sd.company_industry].filter(Boolean).join(' · ')
+                : [sd.industry || sd.category, sd.city || (sd.municipality ? sd.municipality + (sd.country ? ', ' + sd.country : '') : sd.country)].filter(Boolean).join(' · ');
 
             const score = lead.enriched_score || lead.fit_score || 0;
             const scoreClass = score >= 70 ? 'high' : score >= 50 ? 'medium' : 'low';
@@ -4554,15 +4599,18 @@
                 `<span class="kcard-tag" onclick="event.stopPropagation();kanbanRemoveTag('${escapeHtml(lead.id)}','${escapeHtml(t)}')">${escapeHtml(t)} ✕</span>`
             ).join('');
 
-            // Signals row — compact readable pills
+            // Signals row
             const signals = [];
+            if (isPerson && sd.seniority) signals.push(escapeHtml(sd.seniority.replace(/_/g,' ')));
+            if (isPerson && sd.email) signals.push('📧 Email');
+            if (isPerson && sd.linkedin) signals.push('🔗 LinkedIn');
+            if (isPerson && lead.intelligence && lead.intelligence.summary) signals.push('✓ Researched');
             if (isCompany && sd.rating) signals.push(`⭐ ${sd.rating}`);
             if (isCompany && sd.reviews_count) signals.push(`${sd.reviews_count} reviews`);
-            if (sd.website || sd.company_website) signals.push('🌐 Web');
-            if (lead.contact_email || sd.email) signals.push('📧 Email');
-            if (sd.linkedin_url || lead.all_socials?.linkedin) signals.push('💼 LinkedIn');
-            if (sd.phone || lead.contact_phone) signals.push('📞 Phone');
-            if (lead.persons?.length) signals.push(`👥 ${lead.persons.length} contacts`);
+            if (isCompany && (sd.website || sd.company_website)) signals.push('🌐 Web');
+            if (isCompany && (lead.contact_email || sd.email)) signals.push('📧 Email');
+            if (isCompany && (sd.phone || lead.contact_phone)) signals.push('📞 Phone');
+            if (isCompany && lead.persons?.length) signals.push(`👥 ${lead.persons.length} found`);
 
             const logHtml = (lead.activity_log || []).slice(-5).reverse().map(e => `
                 <div class="kcard-log-entry">
@@ -4574,12 +4622,12 @@
             const checkAttr = selectedKanbanIds.has(lead.id) ? 'checked' : '';
             const selClass = selectedKanbanIds.has(lead.id) ? 'selected' : '';
 
-            // Expanded details
+            // Expanded details — person leads store contact info directly in source_data
             const phone = sd.phone || lead.contact_phone || '';
-            const email = lead.contact_email || sd.email || '';
+            const email = sd.email || lead.contact_email || '';
             const website = sd.website || sd.company_website || '';
             const websiteDisplay = sd.domain || sd.company_domain || website;
-            const linkedin = sd.linkedin_url || lead.all_socials?.linkedin || '';
+            const linkedin = sd.linkedin || sd.linkedin_url || lead.all_socials?.linkedin || '';
 
             return `
                 <div class="kcard ${selClass}" id="kcard-${escapeHtml(lead.id)}"
@@ -4610,6 +4658,14 @@
                         ${phone ? `<div class="kcard-detail-row"><strong>Phone</strong><a href="tel:${escapeHtml(phone)}" onclick="event.stopPropagation()" style="color:var(--accent)">${escapeHtml(phone)}</a></div>` : ''}
                         ${email ? `<div class="kcard-detail-row"><strong>Email</strong><a href="mailto:${escapeHtml(email)}" onclick="event.stopPropagation()" style="color:var(--accent)">${escapeHtml(email)}</a></div>` : ''}
                         ${linkedin ? `<div class="kcard-detail-row"><strong>LinkedIn</strong><a href="${escapeHtml(linkedin)}" target="_blank" onclick="event.stopPropagation()" style="color:var(--accent)">View profile</a></div>` : ''}
+                        ${lead.source_type === 'person' && lead.intelligence && lead.intelligence.summary ? `
+                        <div class="kcard-section-label">Intelligence</div>
+                        <div class="kcard-person-intel">
+                            <div class="intel-summary">${escapeHtml(lead.intelligence.summary)}</div>
+                            ${lead.intelligence.pain_points && lead.intelligence.pain_points.length ? `<div class="intel-label">Pain points</div><ul class="intel-list">${lead.intelligence.pain_points.map(pt => `<li>${escapeHtml(pt)}</li>`).join('')}</ul>` : ''}
+                            ${lead.intelligence.outreach_angle ? `<div class="intel-label">Outreach angle</div><div class="intel-text">${escapeHtml(lead.intelligence.outreach_angle)}</div>` : ''}
+                            ${lead.intelligence.icebreakers && lead.intelligence.icebreakers.length ? `<div class="intel-label">Icebreakers</div><ul class="intel-list">${lead.intelligence.icebreakers.map(ic => `<li>${escapeHtml(ic)}</li>`).join('')}</ul>` : ''}
+                        </div>` : ''}
                         <div class="kcard-section-label">Notes</div>
                         <textarea class="kcard-notes-field"
                             placeholder="Add a note…"
@@ -4629,6 +4685,8 @@
                             <div class="kcard-section-label">Activity</div>
                             <div class="kcard-log">${logHtml}</div>` : ''}
                         <div class="kcard-actions">
+                            ${isPerson && !lead.intelligence?.summary ? `<button class="kcard-action-btn" onclick="event.stopPropagation();deepResearchLead('${escapeHtml(lead.id)}')">🔬 Deep Research</button>` : ''}
+                            ${isPerson && lead.intelligence?.summary ? `<span style="font-size:0.72rem;color:#22c55e;align-self:center;">✓ Researched</span>` : ''}
                             <button class="kcard-action-btn danger"
                                     onclick="event.stopPropagation();kanbanDeleteCard('${escapeHtml(lead.id)}')">🗑 Remove</button>
                         </div>
@@ -4785,6 +4843,8 @@
             if (!leadId || targetCol === sourceCol) return;
             if (sourceCol === 'imported' && targetCol === 'contacts_found') {
                 openFindPeopleModal(leadId);
+            } else if (targetCol === 'deep_researched') {
+                deepResearchLead(leadId);
             } else {
                 kanbanMoveCard(leadId, targetCol);
             }
@@ -4843,10 +4903,31 @@
             await loadKanban();
         }
 
-        async function findPeopleSkip() {
-            const leadId = document.getElementById('findPeopleLeadId').value;
+        function findPeopleSkip() {
             closeFindPeopleModal();
-            await kanbanMoveCard(leadId, 'contacts_found');
+        }
+
+        async function deepResearchLead(leadId) {
+            const cardEl = document.getElementById(`kcard-${leadId}`);
+            const btn = cardEl ? cardEl.querySelector('.kcard-action-btn:not(.danger)') : null;
+            if (btn) { btn.textContent = '⏳ Researching…'; btn.disabled = true; }
+            try {
+                const resp = await fetch(`/api/enrichment/leads/${leadId}/deep-research`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                });
+                const data = await resp.json();
+                if (data.success) {
+                    showToast(`Intelligence ready for ${data.person}`);
+                } else {
+                    showToast(data.error || 'Deep research failed');
+                    if (btn) { btn.textContent = '🔬 Deep Research'; btn.disabled = false; }
+                }
+            } catch(err) {
+                showToast('Research failed: ' + err.message);
+                if (btn) { btn.textContent = '🔬 Deep Research'; btn.disabled = false; }
+            }
+            await loadKanban();
         }
 
         function toggleKanbanTools() {

@@ -84,6 +84,7 @@ class EnrichedLead:
     outreach_angle: str = ""
     tech_stack: list = field(default_factory=list)
     deep_researched_at: str = ""
+    intelligence: dict = field(default_factory=dict)   # full AI brief: summary, pain_points, outreach_angle, icebreakers
 
     # Organisation
     tags: list = field(default_factory=list)

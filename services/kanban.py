@@ -149,17 +149,54 @@ class KanbanManager:
             self._append_log(lead, f"Moved: {old_col} → {column}")
             return True
 
-    def set_persons(self, lead_id: str, persons: list) -> bool:
-        """Store found contacts on a lead and move it to contacts_found."""
+    def set_persons(self, company_lead_id: str, persons: list) -> Optional[list]:
+        """Create individual person cards in contacts_found for each contact found at a company.
+        The company card stays in 'imported'.
+        Returns list of created person lead dicts, or None if company_lead_id not found."""
+        now = _now()
+        created = []
+        with self._lock:
+            company_lead = self._leads.get(company_lead_id)
+            if not company_lead:
+                return None  # distinct from [] (empty persons list)
+            company_lead.contact_enriched_at = now
+            company_lead.persons = persons  # keep a reference on the company card
+            self._append_log(company_lead, f"Contacts found: {len(persons)}", "Person cards created in Contacts Found")
+
+            csd = company_lead.source_data or {}
+            company_name = csd.get("name") or csd.get("company_name") or ""
+
+            for p in persons:
+                pid = str(uuid.uuid4())
+                # Inject company_name into person source_data so cards show "Title · Company"
+                person_data = {**p, "company_name": company_name}
+                person_lead = EnrichedLead(
+                    id=pid,
+                    source_type="person",
+                    parent_company_id=company_lead_id,
+                    source_data=person_data,
+                    column="contacts_found",
+                    fit_score=p.get("fit_score", 0),
+                    added_at=now,
+                    updated_at=now,
+                )
+                self._append_log(person_lead, f"Found at {company_name}")
+                self._leads[pid] = person_lead
+                created.append(asdict(person_lead))
+        return created
+
+    def set_intelligence(self, lead_id: str, intelligence: dict) -> bool:
+        """Store AI intelligence brief on a person lead and move it to deep_researched."""
         with self._lock:
             lead = self._leads.get(lead_id)
             if not lead:
                 return False
-            lead.persons = persons
-            lead.contact_enriched_at = _now()
+            lead.intelligence = intelligence
+            lead.deep_researched_at = _now()
             old_col = lead.column
-            lead.column = "contacts_found"
-            self._append_log(lead, f"Contacts found: {len(persons)}", f"Moved from {old_col}")
+            lead.column = "deep_researched"
+            name = (lead.source_data or {}).get("name", "contact")
+            self._append_log(lead, f"Deep researched: {name}", f"Moved from {old_col}")
             return True
 
     def delete(self, lead_id: str) -> bool:

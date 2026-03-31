@@ -4,6 +4,7 @@ Flask backend with thin route handlers.
 Business logic lives in services/, API clients in api_clients/.
 """
 
+import json
 import os
 import threading
 from datetime import datetime
@@ -11,8 +12,12 @@ from datetime import datetime
 from dotenv import load_dotenv
 from flask import Flask, jsonify, render_template, request, send_file
 from flask_cors import CORS
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
-from api_clients import ApolloClient, HunterClient
+import requests as _requests
+
+from api_clients import ApolloClient, FirecrawlClient, HunterClient
 from jobs import JobManager
 from services import brief as brief_service
 from services import discovery as discovery_service
@@ -27,6 +32,12 @@ from utils import clean_domain, dev_logs, log_dev
 load_dotenv()
 app = Flask(__name__)
 CORS(app)
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=[],          # no global limit — only explicit per-route limits
+    storage_uri="memory://",
+)
 
 # ============================================================
 # CONFIGURATION - Load API keys from environment variables
@@ -43,6 +54,17 @@ job_mgr = JobManager(ttl_seconds=3600)
 
 # In-memory Kanban board (persists within a server session)
 kanban_mgr = kanban_service.KanbanManager()
+
+
+def _is_configured(value: str) -> bool:
+    """Treat blank/example placeholder values as not configured."""
+    normalized = (value or "").strip()
+    if not normalized:
+        return False
+
+    lowered = normalized.lower()
+    placeholder_markers = ("your_", "changeme", "replace_me", "example", "placeholder")
+    return not any(marker in lowered for marker in placeholder_markers)
 
 
 def _api_keys() -> dict:
@@ -71,12 +93,12 @@ def get_config():
     """Check if API keys are configured."""
     return jsonify(
         {
-            "google_places": bool(GOOGLE_PLACES_API_KEY),
-            "apollo": bool(APOLLO_API_KEY),
-            "hunter": bool(HUNTER_API_KEY),
-            "firecrawl": bool(FIRECRAWL_API_KEY),
-            "openai": bool(OPENAI_API_KEY),
-            "instantly": bool(INSTANTLY_API_KEY),
+            "google_places": _is_configured(GOOGLE_PLACES_API_KEY),
+            "apollo": _is_configured(APOLLO_API_KEY),
+            "hunter": _is_configured(HUNTER_API_KEY),
+            "firecrawl": _is_configured(FIRECRAWL_API_KEY),
+            "openai": _is_configured(OPENAI_API_KEY),
+            "instantly": _is_configured(INSTANTLY_API_KEY),
         }
     )
 
@@ -424,6 +446,7 @@ _PERSON_PRESETS = {
 
 
 @app.route("/api/enrichment/leads/<lead_id>/find-people", methods=["POST"])
+@limiter.limit("30 per hour")
 def kanban_find_people(lead_id):
     """Find key contacts at a Kanban lead's company via Apollo. Body: {preset}"""
     if not APOLLO_API_KEY:
@@ -432,6 +455,8 @@ def kanban_find_people(lead_id):
     lead = kanban_mgr.get(lead_id)
     if not lead:
         return jsonify({"success": False, "error": "Lead not found"}), 404
+    if lead.get("source_type") != "company":
+        return jsonify({"success": False, "error": "find-people only works on company leads"}), 400
 
     preset = (request.json or {}).get("preset", "decision_makers")
     if preset not in _PERSON_PRESETS:
@@ -497,17 +522,150 @@ def kanban_find_people(lead_id):
             hunter_key=HUNTER_API_KEY,
         )
 
-    kanban_mgr.set_persons(lead_id, persons)
+    created = kanban_mgr.set_persons(lead_id, persons)
+    if created is None:
+        return jsonify({"success": False, "error": "Lead disappeared before contacts could be saved"}), 404
     source = persons[0].get("source", "apollo") if persons else "none"
-    log_dev("KANBAN", f"Found {len(persons)} contacts via {source} at {domain or company_name}", "success")
+    log_dev("KANBAN", f"Found {len(persons)} contacts via {source} at {domain or company_name} — created {len(created)} person cards", "success")
 
     return jsonify({
         "success": True,
-        "count": len(persons),
+        "count": len(created),
         "company": company_name or domain,
         "source": source,
-        "persons": persons,
     })
+
+
+@app.route("/api/enrichment/leads/<lead_id>/deep-research", methods=["POST"])
+@limiter.limit("20 per hour")
+def kanban_deep_research(lead_id):
+    """Run AI deep-research on a person lead. No body required."""
+    if not OPENAI_API_KEY:
+        return jsonify({"success": False, "error": "OpenAI API not configured — add OPENAI_API_KEY to .env"})
+
+    lead = kanban_mgr.get(lead_id)
+    if not lead:
+        return jsonify({"success": False, "error": "Lead not found"}), 404
+
+    if lead.get("source_type") != "person":
+        return jsonify({"success": False, "error": "Deep research runs on person leads. Find contacts first, then research individual people."}), 400
+
+    # Person info lives in source_data for person-type leads
+    sd = lead.get("source_data", {})
+    name = sd.get("name") or "Unknown"
+    title = sd.get("title") or ""
+    linkedin_url = sd.get("linkedin") or ""
+    email = sd.get("email") or ""
+
+    # Company context from parent company lead
+    parent_id = lead.get("parent_company_id") or ""
+    parent = kanban_mgr.get(parent_id) if parent_id else None
+    psd = (parent.get("source_data", {}) if parent else {}) or {}
+
+    company = psd.get("name") or psd.get("company_name") or sd.get("company_name") or ""
+    industry = psd.get("industry") or psd.get("category") or sd.get("company_industry") or ""
+    company_size = psd.get("company_size") or ""
+    website = psd.get("website") or psd.get("company_website") or ""
+    domain = psd.get("domain") or psd.get("company_domain") or ""
+    stored_about = (psd.get("about_text") or psd.get("description") or "")[:800]
+
+    log_dev("DEEP_RESEARCH", f"Researching {name} ({title}) at {company}", "info")
+
+    # --- Gather live context via Firecrawl ---
+    fresh_context = ""
+    web_context = ""
+    if FIRECRAWL_API_KEY:
+        firecrawl = FirecrawlClient(FIRECRAWL_API_KEY, log_fn=log_dev)
+
+        # 1. Scrape company website for fresh about/team content
+        if website or domain:
+            target = website or f"https://{domain}"
+            for path_suffix in ["", "/about", "/about-us", "/team", "/equipo"]:
+                try:
+                    result = firecrawl.scrape(target.rstrip("/") + path_suffix)
+                    md = (result or {}).get("markdown", "")
+                    if md and len(md) > 200:
+                        fresh_context = md[:2000]
+                        break
+                except Exception:
+                    continue
+
+        # 2. Try to scrape the person's LinkedIn profile (graceful failure — LinkedIn often blocks)
+        if linkedin_url:
+            try:
+                result = firecrawl.scrape(linkedin_url)
+                md = (result or {}).get("markdown", "")
+                if md and len(md) > 100:
+                    web_context = md[:1500]
+                    log_dev("DEEP_RESEARCH", f"LinkedIn scraped for {name}", "info")
+            except Exception:
+                pass
+
+        # 3. Web search as fallback if no LinkedIn content
+        if not web_context and name and company:
+            try:
+                results = firecrawl.search(f'"{name}" {company} {title}', limit=3)
+                for r in results:
+                    md = r.get("markdown") or r.get("description") or ""
+                    if md:
+                        web_context += md[:600] + "\n"
+            except Exception:
+                pass
+
+    # --- Build prompt ---
+    context_parts = []
+    if stored_about:
+        context_parts.append(f"Company description:\n{stored_about}")
+    if fresh_context:
+        context_parts.append(f"Company website content:\n{fresh_context}")
+    if web_context:
+        context_parts.append(f"Web research on this person:\n{web_context}")
+    context_block = "\n\n".join(context_parts) or "No additional context available."
+
+    prompt = (
+        "You are a GTM intelligence analyst helping a B2B sales team prepare for outreach.\n\n"
+        f"Person: {name}\nTitle: {title}\nEmail: {email or 'unknown'}\n"
+        f"LinkedIn: {linkedin_url or 'unknown'}\nCompany: {company}\n"
+        f"Industry: {industry}\nCompany size: {company_size or 'unknown'}\n"
+        f"Website: {website or 'unknown'}\n\n"
+        f"Research context:\n{context_block}\n\n"
+        "Generate a concise sales intelligence brief. Be specific — no generic filler. "
+        "Respond with valid JSON only:\n"
+        '{"summary": "2-3 sentence professional context: who this person is, their likely daily '
+        'priorities, and what their role means in practice.", '
+        '"pain_points": ["specific pain point 1", "specific pain point 2", "specific pain point 3"], '
+        '"outreach_angle": "One focused paragraph: the single most compelling angle to open a '
+        'conversation with this specific person based on their role and company context.", '
+        '"icebreakers": ["specific conversation starter 1", "specific conversation starter 2"]}'
+    )
+
+    try:
+        resp = _requests.post(
+            "https://api.openai.com/v1/chat/completions",
+            headers={"Authorization": f"Bearer {OPENAI_API_KEY}", "Content-Type": "application/json"},
+            json={
+                "model": "gpt-4o-mini",
+                "messages": [{"role": "user", "content": prompt}],
+                "temperature": 0.4,
+                "response_format": {"type": "json_object"},
+            },
+            timeout=30,
+        )
+        resp.raise_for_status()
+        intelligence = json.loads(resp.json()["choices"][0]["message"]["content"])
+        intelligence["researched_at"] = datetime.utcnow().isoformat() + "Z"
+        intelligence["sources_used"] = {
+            "firecrawl_website": bool(fresh_context),
+            "firecrawl_web_search": bool(web_context),
+        }
+    except Exception as exc:
+        log_dev("DEEP_RESEARCH", f"OpenAI error: {exc}", "error")
+        return jsonify({"success": False, "error": f"AI research failed: {str(exc)}"}), 500
+
+    kanban_mgr.set_intelligence(lead_id, intelligence)
+    log_dev("DEEP_RESEARCH", f"Done: {name} at {company}", "success")
+
+    return jsonify({"success": True, "person": name, "intelligence": intelligence})
 
 
 # --- Hunter.io direct endpoints ---
@@ -639,12 +797,13 @@ if __name__ == "__main__":
     print("=" * 50)
     print("\nOpen http://localhost:5001 in your browser")
     print("\nAPI Keys configured:")
-    print(f"  Google Places: {'✓' if GOOGLE_PLACES_API_KEY else '✗ (required)'}")
-    print(f"  Apollo.io:     {'✓' if APOLLO_API_KEY else '✗ (optional)'}")
-    print(f"  Firecrawl:     {'✓' if FIRECRAWL_API_KEY else '✗ (optional)'}")
-    print(f"  Hunter.io:     {'✓' if HUNTER_API_KEY else '✗ (email finding)'}")
-    print(f"  OpenAI:        {'✓' if OPENAI_API_KEY else '✗ (for GTM Brief)'}")
-    print(f"  Instantly:     {'✓' if INSTANTLY_API_KEY else '✗ (for outreach)'}")
+    print(f"  Google Places: {'✓' if _is_configured(GOOGLE_PLACES_API_KEY) else '✗ (required)'}")
+    print(f"  Apollo.io:     {'✓' if _is_configured(APOLLO_API_KEY) else '✗ (optional)'}")
+    print(f"  Firecrawl:     {'✓' if _is_configured(FIRECRAWL_API_KEY) else '✗ (optional)'}")
+    print(f"  Hunter.io:     {'✓' if _is_configured(HUNTER_API_KEY) else '✗ (email finding)'}")
+    print(f"  OpenAI:        {'✓' if _is_configured(OPENAI_API_KEY) else '✗ (for GTM Brief)'}")
+    print(f"  Instantly:     {'✓' if _is_configured(INSTANTLY_API_KEY) else '✗ (for outreach)'}")
     print("\n" + "=" * 50 + "\n")
 
-    app.run(debug=True, port=5001, host="0.0.0.0")
+    debug_mode = os.getenv("FLASK_DEBUG", "false").lower() == "true"
+    app.run(debug=debug_mode, port=5001, host="0.0.0.0")
