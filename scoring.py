@@ -1,5 +1,5 @@
 """
-Lead scoring for GTM LeadFlow.
+Lead scoring for Fogata.
 """
 
 from models import Lead

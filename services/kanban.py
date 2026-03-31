@@ -1,4 +1,4 @@
-"""Kanban board state management for GTM LeadFlow.
+"""Kanban board state management for Fogata.
 In-memory, thread-safe. Leads persist within a server session.
 Migration to SQLite planned when deployed to VPS.
 """

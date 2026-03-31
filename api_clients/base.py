@@ -1,5 +1,5 @@
 """
-Base API Client for GTM LeadFlow.
+Base API Client for Fogata.
 All new API clients should inherit from this class.
 """
 

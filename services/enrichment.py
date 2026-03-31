@@ -1,5 +1,5 @@
 """
-Enrichment service for GTM LeadFlow.
+Enrichment service for Fogata.
 Single-domain, batch, contact enrichment, and universal prospect enrichment pipeline.
 """
 

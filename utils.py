@@ -1,5 +1,5 @@
 """
-Shared utilities for GTM LeadFlow.
+Shared utilities for Fogata.
 Logging, domain helpers, text cleaning.
 """
 

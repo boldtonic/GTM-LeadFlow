@@ -1,16 +1,16 @@
-# LeadFlow 🎯
+# Fogata 🔥
 
 **Self-hosted BYOK prospecting: find companies, discover decision makers, research them with AI — all on your machine.**
 
-![LeadFlow Screenshot](assets/screenshot.png)
+![Fogata Screenshot](assets/screenshot.png)
 
-[![Version](https://img.shields.io/badge/version-0.1.3-brightgreen?style=flat-square)](https://github.com/boldtonic/GTM-LeadFlow/releases)
+[![Version](https://img.shields.io/badge/version-0.1.3-brightgreen?style=flat-square)](https://github.com/boldtonic/fogata/releases)
 [![License: MIT](https://img.shields.io/badge/license-MIT-gold?style=flat-square)](LICENSE)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
 [![Self-hosted](https://img.shields.io/badge/self--hosted-yes-8b5cf6?style=flat-square)]()
 [![BYOK](https://img.shields.io/badge/BYOK-bring%20your%20own%20keys-f59e0b?style=flat-square)]()
 
-LeadFlow is a self-hosted B2B prospecting tool built on your own API keys. Search for companies and people, score every lead automatically, enrich them through a Kanban pipeline, get per-person AI intelligence briefs, and export a clean CSV — without paying for an enterprise sales platform.
+Fogata is a self-hosted B2B prospecting tool built on your own API keys. Search for companies and people, score every lead automatically, enrich them through a Kanban pipeline, get per-person AI intelligence briefs, and export a clean CSV — without paying for an enterprise sales platform.
 
 No SaaS pricing. No data leaving your machine except through your own keys.
 
@@ -32,8 +32,8 @@ No SaaS pricing. No data leaving your machine except through your own keys.
 ## Installation
 
 ```bash
-git clone https://github.com/boldtonic/GTM-LeadFlow.git
-cd GTM-LeadFlow
+git clone https://github.com/boldtonic/fogata.git
+cd fogata
 pip install -r requirements.txt
 cp .env.example .env
 ```
@@ -54,7 +54,7 @@ Open `http://localhost:5001`.
 Search for *"marketing agencies in Warsaw"* → get a scored list of companies with website, social, and contact signals.
 
 **2. Discover contacts at a company:**
-Drop a company into the Kanban → drag it to *Contacts Found* → LeadFlow finds decision makers via Apollo with emails and LinkedIn.
+Drop a company into the Kanban → drag it to *Contacts Found* → Fogata finds decision makers via Apollo with emails and LinkedIn.
 
 **3. Research a person with AI:**
 Click *Deep Research* on a person card → get a structured brief: who they are, their pain points, the best outreach angle, and two icebreakers. Powered by OpenAI + Firecrawl.
@@ -77,7 +77,7 @@ Only Google Places is required — all others enhance results when configured.
 | **OpenAI** | GTM brief and AI intelligence briefs | Optional |
 | **Instantly** | Direct outreach campaign push | Optional |
 
-LeadFlow runs entirely on your machine. No data leaves your environment except through your own keys.
+Fogata runs entirely on your machine. No data leaves your environment except through your own keys.
 
 ---
 

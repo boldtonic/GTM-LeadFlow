@@ -1,5 +1,5 @@
 """
-Background search pipeline for GTM LeadFlow.
+Background search pipeline for Fogata.
 Orchestrates: Google Places search → details → enrichment → scoring.
 """
 

@@ -1,5 +1,5 @@
 """
-API Clients module for GTM LeadFlow.
+API Clients module for Fogata.
 Modular API integrations for lead enrichment and discovery.
 """
 

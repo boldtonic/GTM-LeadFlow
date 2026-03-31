@@ -1,5 +1,5 @@
 """
-Data models for GTM LeadFlow.
+Data models for Fogata.
 """
 
 from dataclasses import dataclass, field

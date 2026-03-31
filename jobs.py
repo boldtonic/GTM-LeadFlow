@@ -1,5 +1,5 @@
 """
-Thread-safe job management for GTM LeadFlow.
+Thread-safe job management for Fogata.
 Replaces the bare job_status dict with locked access and TTL cleanup.
 """
 

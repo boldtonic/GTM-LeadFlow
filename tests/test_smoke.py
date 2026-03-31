@@ -1,5 +1,5 @@
 """
-Smoke tests for GTM LeadFlow endpoints.
+Smoke tests for Fogata endpoints.
 Uses Flask test client — no external API calls, no running server needed.
 """
 
@@ -21,7 +21,7 @@ def client():
 def test_index(client):
     resp = client.get("/")
     assert resp.status_code == 200
-    assert b"LeadFlow" in resp.data
+    assert b"Fogata" in resp.data
 
 
 def test_config(client):

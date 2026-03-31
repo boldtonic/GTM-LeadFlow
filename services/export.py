@@ -1,5 +1,5 @@
 """
-CSV export service for GTM LeadFlow.
+CSV export service for Fogata.
 Two formats: prospect (company-level) and enriched (contact-level).
 People search has its own 9-column format.
 """

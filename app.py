@@ -793,7 +793,7 @@ def hunter_verify_email():
 
 if __name__ == "__main__":
     print("\n" + "=" * 50)
-    print("🔥 LeadFlow")
+    print("🔥 Fogata")
     print("=" * 50)
     print("\nOpen http://localhost:5001 in your browser")
     print("\nAPI Keys configured:")

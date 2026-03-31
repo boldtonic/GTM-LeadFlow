@@ -1,5 +1,5 @@
 """
-Discovery service for GTM LeadFlow.
+Discovery service for Fogata.
 Handles smart search, Apollo search, Maps URL scraping.
 """
 

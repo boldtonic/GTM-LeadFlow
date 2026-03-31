@@ -1,5 +1,5 @@
 """
-GTM Brief generation service for GTM LeadFlow.
+GTM Brief generation service for Fogata.
 Uses Firecrawl for scraping + OpenAI for analysis.
 """
 
