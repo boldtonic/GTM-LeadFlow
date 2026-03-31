@@ -1,4 +1,4 @@
-GTM LEAD FINDER - Setup Instructions
+Fogata - Setup Instructions
 =====================================
 
 REQUIREMENTS
@@ -18,7 +18,7 @@ HOW TO RUN
 1. Open Terminal
 2. Navigate to this folder:
 
-       cd /path/to/GTM-LEAD-FINDER
+       cd /path/to/fogata
 
 3. Start the server:
 

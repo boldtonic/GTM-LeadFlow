@@ -1,7 +1,7 @@
 #!/bin/bash
 cd "$(dirname "$0")"
 echo "================================================"
-echo "  GTM Lead Finder"
+echo "  Fogata"
 echo "================================================"
 echo ""
 echo "Starting server..."

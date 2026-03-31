@@ -1,5 +1,5 @@
 """
-GTM Lead Finder - Web Application
+Fogata - Web Application
 Flask backend with thin route handlers.
 Business logic lives in services/, API clients in api_clients/.
 """

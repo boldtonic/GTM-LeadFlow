@@ -1,5 +1,5 @@
 """
-GTM Lead Finder - Main Tool
+Fogata - Main Tool
 Finds and enriches retail partner leads from Google Maps for fashion brands.
 """
 
@@ -442,7 +442,7 @@ class LeadScorer:
 
 
 class GTMLeadFinder:
-    """Main orchestrator for the GTM Lead Finding process"""
+    """Main orchestrator for the Fogata lead finding process"""
 
     def __init__(self, brief_path: str):
         with open(brief_path) as f:
@@ -468,7 +468,7 @@ class GTMLeadFinder:
             limit: Max leads to process (for testing)
         """
         print(f"\n{'=' * 60}")
-        print(f"GTM Lead Finder - {self.brief['client']['brand_name']}")
+        print(f"Fogata - {self.brief['client']['brand_name']}")
         print(f"{'=' * 60}\n")
 
         # Step 1: Search Google Maps

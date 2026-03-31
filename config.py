@@ -1,5 +1,5 @@
 """
-Configuration for GTM Lead Finder
+Configuration for Fogata
 Add your API keys here
 """
 

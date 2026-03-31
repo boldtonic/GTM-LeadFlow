@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-GTM Lead Finder - Quick Runner
+Fogata - Quick Runner
 
 Usage:
     python run.py                           # Use default brief template
@@ -15,7 +15,7 @@ from lead_finder import GTMLeadFinder
 
 
 def main():
-    parser = argparse.ArgumentParser(description="GTM Lead Finder")
+    parser = argparse.ArgumentParser(description="Fogata")
     parser.add_argument("brief", nargs="?", default="brief_template.yaml", help="Path to client brief YAML file")
     parser.add_argument("--test", action="store_true", help="Test mode - process only 5 leads")
     parser.add_argument("--no-enrich", action="store_true", help="Skip enrichment (faster, less API calls)")
