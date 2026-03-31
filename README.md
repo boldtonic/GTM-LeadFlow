@@ -1,45 +1,35 @@
-# GTM BYOK LeadFlow v0.1.3
+# LeadFlow 🎯
 
-**Find the right actionable prospects: companies and people.
+**Self-hosted BYOK prospecting: find companies, discover decision makers, research them with AI — all on your machine.**
 
-LeadFlow is a self-hosted BYOK B2B prospecting tool that helps you build qualified lead lists fast — without the price tag of enterprise sales tools, just your API cost. Search by location and industry, and several other filters, including signals; Discover decision makers, score every lead automatically, and export a clean CSV ready for your outreach campaigns.
+![LeadFlow Screenshot](assets/screenshot.png)
 
- [Enrich them in Kanban to Messaging Soon]
----
+[![Version](https://img.shields.io/badge/version-0.1.3-brightgreen?style=flat-square)](https://github.com/boldtonic/GTM-LeadFlow/releases)
+[![License: MIT](https://img.shields.io/badge/license-MIT-gold?style=flat-square)](LICENSE)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
+[![Self-hosted](https://img.shields.io/badge/self--hosted-yes-8b5cf6?style=flat-square)]()
+[![BYOK](https://img.shields.io/badge/BYOK-bring%20your%20own%20keys-f59e0b?style=flat-square)]()
 
-## Features
+LeadFlow is a self-hosted B2B prospecting tool built on your own API keys. Search for companies and people, score every lead automatically, enrich them through a Kanban pipeline, get per-person AI intelligence briefs, and export a clean CSV — without paying for an enterprise sales platform.
 
-### GTM Brief Generator
-Paste a company URL and get an in-depth AI-generated ICP and Go-To-Market brief: positioning, target audience, competitive landscape, outreach hooks, and more.
-
-### Company Search
-Search for businesses by location, industry, or intent. LeadFlow finds matching companies, scrapes their websites for contact info and social links, identifies decision makers, and scores each lead based on how well they match your ideal customer profile.
-
-### People Search
-Search for professionals by job title, seniority, department, and location. Get a scored list of contacts with their LinkedIn profiles, company info, and fit scores.
-
-### Lead Scoring
-Every result gets a **fit score (0–100)** based on real signals: ratings, review volume, website quality, email availability, decision maker presence, and keyword relevance.
-
-### Decision Maker Discovery
-For each company, LeadFlow finds the right people — CEOs, Marketing Directors, Owners — with their emails, LinkedIn profiles, and titles. Enrichment data flows directly into the CSV export.
-
-### CSV Export
-Two export formats built for real workflows:
-- **Prospect CSV** — one row per company, with social links, scores, and contact info
-- **Enriched CSV** — one row per decision maker, ready to import into any email sequencer
+No SaaS pricing. No data leaving your machine except through your own keys.
 
 ---
 
-## Getting Started
+## What you get
 
-### Prerequisites
+- **Company search** — find businesses by location, industry, and keyword signals
+- **People search** — discover professionals by title, seniority, department, and location
+- **Lead scoring** — automatic 0–100 fit score based on real signals (ratings, contacts, website, keywords)
+- **Decision maker discovery** — CEO, Marketing Director, Owner — with emails and LinkedIn
+- **Enrichment Kanban** — drag leads from *Imported → Contacts Found → Deep Researched*
+- **AI deep research** — per-person intelligence brief: summary, pain points, outreach angle, and icebreakers (OpenAI + Firecrawl)
+- **GTM Brief generator** — paste a URL and get a full ICP + go-to-market analysis
+- **CSV export** — two formats: one row per company, or one row per decision maker ready for sequencers
 
-- Python 3.9+
-- A [Google Places API key](https://developers.google.com/maps/documentation/places/web-service/get-api-key) (required)
-- Additional API keys are optional — see [Data Sources](#data-sources)
+---
 
-### Installation
+## Installation
 
 ```bash
 git clone https://github.com/boldtonic/GTM-LeadFlow.git
@@ -48,42 +38,60 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 
-Edit `.env` and add your API keys, then run:
+Edit `.env` and add your API keys, then:
 
 ```bash
 python app.py
 ```
 
-Open `http://localhost:5001` in your browser.
+Open `http://localhost:5001`.
 
 ---
 
-## Data Sources
+## Quick start
 
-LeadFlow connects to best-in-class data providers. Only Google Places is required — all others enhance results when configured.
+**1. Find companies in a city:**
+Search for *"marketing agencies in Warsaw"* → get a scored list of companies with website, social, and contact signals.
 
-| Provider | What it adds |
-|---|---|
-| **Google Places** | Location-based company discovery (required) |
-| **Apollo.io** | Company size, revenue, LinkedIn, contact search |
-| **Hunter.io** | Email finding and verification |
-| **Firecrawl** | Deep website scraping for emails, social links, and company descriptions |
-| **OpenAI** | GTM brief generation |
+**2. Discover contacts at a company:**
+Drop a company into the Kanban → drag it to *Contacts Found* → LeadFlow finds decision makers via Apollo with emails and LinkedIn.
 
-LeadFlow runs entirely on your machine. No data leaves your environment except through your own API keys.
+**3. Research a person with AI:**
+Click *Deep Research* on a person card → get a structured brief: who they are, their pain points, the best outreach angle, and two icebreakers. Powered by OpenAI + Firecrawl.
+
+**4. Export to your sequencer:**
+Export enriched leads as CSV (one row per person) and import directly into Instantly, Apollo, or any email tool.
 
 ---
 
-## Scoring
+## Data sources
 
-Leads are scored from 0 to 100 based on:
+Only Google Places is required — all others enhance results when configured.
+
+| Provider | What it adds | Required |
+|---|---|---|
+| **Google Places** | Location-based company discovery | ✅ Yes |
+| **Apollo.io** | Company size, revenue, LinkedIn, contact search | Optional |
+| **Hunter.io** | Email finding and verification | Optional |
+| **Firecrawl** | Website + LinkedIn scraping for deep research | Optional |
+| **OpenAI** | GTM brief and AI intelligence briefs | Optional |
+| **Instantly** | Direct outreach campaign push | Optional |
+
+LeadFlow runs entirely on your machine. No data leaves your environment except through your own keys.
+
+---
+
+## Lead scoring
+
+Every result is scored 0–100 based on:
+
 - Google rating and review volume
 - Website and social presence
 - Email and contact availability
 - Decision maker count
 - Keyword relevance to your search
 
-High-fit leads (≥ 70) are surfaced at the top of every results list.
+Leads scoring ≥ 70 are surfaced at the top of every list.
 
 ---
 
