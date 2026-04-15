@@ -62,6 +62,7 @@ Click *Deep Research* on a person card → get a structured brief: who they are,
 **4. Export to your sequencer:**
 Export enriched leads as CSV (one row per person) and import directly into Instantly, Apollo, or any email tool.
 
+![Fogata](assets/fogata_lkd.png)
 ---
 
 ## Data sources
