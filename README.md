@@ -2,7 +2,7 @@
 
 **Self-hosted BYOK prospecting: find companies, discover decision makers, research them with AI — all on your machine.**
 
-![Fogata Screenshot](assets/screenshot.png)
+![Fogata](assets/coolvid.gif)
 
 [![Version](https://img.shields.io/badge/version-0.1.3-brightgreen?style=flat-square)](https://github.com/boldtonic/fogata/releases)
 [![License: MIT](https://img.shields.io/badge/license-MIT-gold?style=flat-square)](LICENSE)
